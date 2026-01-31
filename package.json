@@ -16,7 +16,9 @@
     "db:push": "turbo -F @python-editor/db db:push",
     "db:studio": "turbo -F @python-editor/db db:studio",
     "db:generate": "turbo -F @python-editor/db db:generate",
-    "db:migrate": "turbo -F @python-editor/db db:migrate"
+    "db:migrate": "turbo -F @python-editor/db db:migrate",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@python-editor/env": "*",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@python-editor/config": "*",
+    "@python-editor/eslint": "*",
     "@types/node": "^22.13.14",
     "turbo": "^2.6.3",
     "typescript": "^5"

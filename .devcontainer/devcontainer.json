@@ -5,6 +5,14 @@
   "customizations": {
     "vscode": {
       "editor.formatOnSave": true,
+      "settings": {
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "vscode.json-language-features"
+        }
+      },
       "extensions": [
         "ms-azuretools.vscode-docker",
         "prisma.prisma"
