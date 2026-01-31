@@ -7,6 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const compat = new FlatCompat({ baseDirectory: __dirname })
 
 export default [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.next/**',
+      '**/coverage/**',
+    ],
+  },
   ...compat.extends('@rocketseat/eslint-config/next'),
   ...tseslint.configs.recommended,
   {
