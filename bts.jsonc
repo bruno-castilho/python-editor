@@ -1,0 +1,31 @@
+// Better-T-Stack
+//
+// Website: https://www.better-t-stack.dev/
+// Stack Builder: https://www.better-t-stack.dev/new
+// Analytics: https://www.better-t-stack.dev/analytics
+// Showcase: https://www.better-t-stack.dev/showcase
+// Sponsor: https://github.com/sponsors/AmanVarshney01
+//
+// Add new addons with: npx create-better-t-stack add
+// This file is safe to delete
+
+{
+  "$schema": "https://r2.better-t-stack.dev/schema.json",
+  "version": "3.19.2",
+  "createdAt": "2026-01-31T15:35:27.586Z",
+  "reproducibleCommand": "npx create-better-t-stack@latest python-editor --frontend next --backend fastify --runtime node --database postgres --orm prisma --api trpc --auth none --payments none --addons turborepo --examples none --db-setup none --web-deploy none --server-deploy none --no-git --package-manager npm --no-install",
+  "database": "postgres",
+  "orm": "prisma",
+  "backend": "fastify",
+  "runtime": "node",
+  "frontend": ["next"],
+  "addons": ["turborepo"],
+  "examples": [],
+  "auth": "none",
+  "payments": "none",
+  "packageManager": "npm",
+  "dbSetup": "none",
+  "api": "trpc",
+  "webDeploy": "none",
+  "serverDeploy": "none",
+}
