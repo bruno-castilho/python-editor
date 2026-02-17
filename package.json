@@ -18,16 +18,20 @@
     "db:generate": "turbo -F @python-editor/db db:generate",
     "db:migrate": "turbo -F @python-editor/db db:migrate",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@python-editor/env": "*",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.2",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@python-editor/config": "*",
     "@python-editor/eslint": "*",
+    "@python-editor/test": "*",
     "@types/node": "^22.13.14",
     "turbo": "^2.6.3",
     "typescript": "^5"

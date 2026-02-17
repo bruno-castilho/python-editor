@@ -12,25 +12,41 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type RegisterUserDTO,
-  RegisterUserSchema,
+  registerUserSchema,
 } from '@python-editor/schemas/register-user'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { trpc } from '@/utils/trpc'
+import { useContext } from 'react'
+import { AlertContext } from '@/context/AlertContext'
 
 export default function Page() {
+  const router = useRouter()
+  const alert = useContext(AlertContext)
+  const { mutateAsync } = useMutation(trpc.user.registerUser.mutationOptions())
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { isSubmitting, errors },
   } = useForm<RegisterUserDTO>({
-    resolver: zodResolver(RegisterUserSchema),
+    resolver: zodResolver(registerUserSchema),
   })
 
   async function handleSubmitForm(data: RegisterUserDTO) {
-    console.log(data)
-    reset()
+    try {
+      const { message } = await mutateAsync(data)
+      reset()
+      alert.success(message)
+    } catch (e) {
+      alert.error(e instanceof Error ? e.message : 'Erro ao criar conta')
+    }
   }
 
-  function handleDoLogin() {}
+  function handleDoLogin() {
+    router.push('/')
+  }
 
   return (
     <Box>
@@ -153,7 +169,7 @@ export default function Page() {
               CRIAR
             </Button>
             <Button
-              type="submit"
+              type="button"
               size="small"
               fullWidth
               variant="contained"

@@ -1,0 +1,18 @@
+{
+  "name": "@python-editor/cryptography",
+  "type": "module",
+  "exports": {
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@python-editor/env": "*",
+    "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "@python-editor/config": "*",
+    "typescript": "^5"
+  }
+}

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import MaterialProvider from '@/providers/MaterialProvider'
 import TanstackProvider from '@/providers/TanstackProvider'
+import { AlertContextProvider } from '@/context/AlertContext'
+import { Alert } from '@/components/Alert'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,7 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MaterialProvider>
-          <TanstackProvider>{children}</TanstackProvider>
+          <AlertContextProvider>
+            <TanstackProvider>{children}</TanstackProvider>
+            <Alert />
+          </AlertContextProvider>
         </MaterialProvider>
       </body>
     </html>

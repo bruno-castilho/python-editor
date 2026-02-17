@@ -13,7 +13,7 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio --browser none"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
@@ -21,6 +21,7 @@
     "@python-editor/env": "*",
     "dotenv": "^17.2.2",
     "pg": "^8.17.1",
+    "uuid": "^13.0.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

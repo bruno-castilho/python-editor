@@ -1,6 +1,6 @@
 import z from 'zod'
 
-export const RegisterUserSchema = z
+export const registerUserSchema = z
   .object({
     name: z
       .string()
@@ -44,4 +44,4 @@ export const RegisterUserSchema = z
     message: 'As senhas não coincidem',
   })
 
-export type RegisterUserDTO = z.infer<typeof RegisterUserSchema>
+export type RegisterUserDTO = z.infer<typeof registerUserSchema>
