@@ -1,38 +1,38 @@
 import { createTheme } from '@mui/material/styles'
 
-// --- Paleta de Cores Base "Radioactive Nebula" (Ainda mais Vivas) ---
-const radioactiveRed = '#FF073A' // Vermelho Neon Intenso
-const radioactiveBlue = '#00F0FF' // Ciano Elétrico Neon
+// --- Paleta de Cores Python ---
+const pythonBlue = '#3776AB'
+const pythonYellow = '#FFD43B'
 
-const infoColor = '#00BFFF' // Azul para Info (Azul Cherenkov)
-const successColor = '#39FF14' // Verde para Sucesso (Verde Neon Puro)
-const warningColor = '#FFFF00' // Amarelo para Aviso (Amarelo Neon)
-const errorColor = '#FF0000' // Vermelho para Erro (Vermelho Puro)
+const infoColor = '#4DB8FF'
+const successColor = '#4CAF50'
+const warningColor = '#FF9800'
+const errorColor = '#F44336'
 
 // Cores de fundo e texto
-const darkBackground = '#121212' // Cinza muito escuro para o fundo principal (Dark Mode)
-const darkPaper = '#1E1E1E' // Cinza escuro para superfícies (Dark Mode)
+const darkBackground = '#0D1117'
+const darkPaper = '#161B22'
 
-const lightBackground = '#F0F8FF' // Azul claro para o fundo principal (Light Mode)
-const lightPaper = '#FFFFFF' // Branco puro para superfícies (Light Mode)
+const lightBackground = '#F5F8FC'
+const lightPaper = '#FFFFFF'
 
-const textDark = '#E0E0E0' // Branco suave para texto em fundos escuros
-const textLight = '#212121' // Cinza muito escuro para texto em fundos claros
+const textDark = '#E6EDF3'
+const textLight = '#1F2328'
 
 export const defaultTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: radioactiveRed,
-      light: '#FF8C00',
-      dark: '#C4052B',
+      main: pythonBlue,
+      light: '#5A9FCC',
+      dark: '#265E8A',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: radioactiveBlue,
-      light: '#00FFFF',
-      dark: '#00B3CC',
-      contrastText: '#121212',
+      main: pythonYellow,
+      light: '#FFE476',
+      dark: '#CCA800',
+      contrastText: '#1F2328',
     },
     error: { main: errorColor },
     warning: { main: warningColor },
@@ -44,31 +44,31 @@ export const defaultTheme = createTheme({
     },
     text: {
       primary: textLight,
-      secondary: '#616161',
+      secondary: '#57606A',
       disabled: '#B0B0B0',
     },
     action: {
-      active: radioactiveBlue,
-      selected: `rgba(0, 240, 255, 0.2)`, // Um pouco de opacidade para seleção
-      disabled: 'rgba(0, 0, 0, 0.35)', // Mais escuro para desabilitado
-      disabledBackground: 'rgba(0, 0, 0, 0.15)',
-      focus: `rgba(0, 240, 255, 0.25)`,
+      active: pythonBlue,
+      selected: `rgba(55, 118, 171, 0.15)`,
+      disabled: 'rgba(0, 0, 0, 0.35)',
+      disabledBackground: 'rgba(0, 0, 0, 0.12)',
+      focus: `rgba(55, 118, 171, 0.2)`,
     },
   },
   colorSchemes: {
     dark: {
       palette: {
         primary: {
-          main: radioactiveRed,
-          light: '#FF8C00',
-          dark: '#C4052B',
+          main: pythonBlue,
+          light: '#5A9FCC',
+          dark: '#265E8A',
           contrastText: '#FFFFFF',
         },
         secondary: {
-          main: radioactiveBlue,
-          light: '#00FFFF',
-          dark: '#00B3CC',
-          contrastText: '#121212',
+          main: pythonYellow,
+          light: '#FFE476',
+          dark: '#CCA800',
+          contrastText: '#1F2328',
         },
         error: { main: errorColor },
         warning: { main: warningColor },
@@ -80,15 +80,15 @@ export const defaultTheme = createTheme({
         },
         text: {
           primary: textDark,
-          secondary: '#B0B0B0',
+          secondary: '#8D96A0',
           disabled: '#4A4A4A',
         },
         action: {
-          active: radioactiveBlue,
-          selected: `rgba(0, 240, 255, 0.2)`, // Um pouco de opacidade para seleção
-          disabled: 'rgba(0, 0, 0, 0.35)', // Mais escuro para desabilitado
+          active: pythonYellow,
+          selected: `rgba(255, 212, 59, 0.15)`,
+          disabled: 'rgba(0, 0, 0, 0.35)',
           disabledBackground: 'rgba(0, 0, 0, 0.15)',
-          focus: `rgba(0, 240, 255, 0.25)`,
+          focus: `rgba(255, 212, 59, 0.2)`,
         },
       },
     },

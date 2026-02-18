@@ -9,6 +9,9 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
+    ACCESS_TOKEN_SECRET: z.string().min(1),
+    REFRESH_TOKEN_PRIVATE_KEY: z.string().min(1),
+    REFRESH_TOKEN_PUBLIC_KEY: z.string().min(1),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

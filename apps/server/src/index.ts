@@ -1,3 +1,4 @@
+import fastifyCookie from '@fastify/cookie'
 import fastifyCors from '@fastify/cors'
 import { createContext } from '@python-editor/api/context'
 import { appRouter, type AppRouter } from '@python-editor/api/routers/index'
@@ -21,6 +22,7 @@ const fastify = Fastify({
 })
 
 fastify.register(fastifyCors, baseCorsConfig)
+fastify.register(fastifyCookie)
 
 fastify.register(fastifyTRPCPlugin, {
   prefix: '/trpc',

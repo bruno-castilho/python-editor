@@ -45,7 +45,7 @@ export default function Page() {
   }
 
   function handleDoLogin() {
-    router.push('/')
+    router.push('/login')
   }
 
   return (

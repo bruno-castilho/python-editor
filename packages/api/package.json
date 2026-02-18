@@ -11,6 +11,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@python-editor/cryptography": "*",
     "@python-editor/db": "*",
     "@python-editor/env": "*",
@@ -21,7 +22,7 @@
   },
   "devDependencies": {
     "@python-editor/config": "*",
-    "typescript": "^5",
-    "@python-editor/test": "*"
+    "@python-editor/test": "*",
+    "typescript": "^5"
   }
 }

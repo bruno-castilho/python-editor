@@ -43,4 +43,14 @@ export class FakeUsersRepository implements UsersRepository {
       createdAt: user.createdAt,
     }
   }
+
+  async findByEmailWithPassword(params: { email: string }) {
+    const { email } = params
+
+    const user = this.data.items.users.find((user) => user.email === email)
+
+    if (!user) return null
+
+    return user
+  }
 }

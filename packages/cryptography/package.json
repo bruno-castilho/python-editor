@@ -9,10 +9,13 @@
   "scripts": {},
   "dependencies": {
     "@python-editor/env": "*",
-    "dotenv": "^17.2.2"
+    "@python-editor/schemas": "*",
+    "dotenv": "^17.2.2",
+    "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
     "@python-editor/config": "*",
+    "@types/jsonwebtoken": "^9.0.10",
     "typescript": "^5"
   }
 }

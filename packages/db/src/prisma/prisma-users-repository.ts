@@ -31,4 +31,13 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     })
   }
+
+  async findByEmailWithPassword(params: { email: string }) {
+    const { email } = params
+    return await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
+  }
 }
