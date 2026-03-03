@@ -42,7 +42,7 @@ export function LoginCard() {
       router.push('/')
     } catch (e) {
       console.log(e)
-      alert.error(e instanceof Error ? e.message : 'Erro ao fazer login')
+      alert.error(e instanceof Error ? e.message : 'Login error')
     }
   }
 
@@ -56,7 +56,7 @@ export function LoginCard() {
       gap={2}
     >
       <Typography component="h1" variant="h4">
-        Fazer login
+        Log in
       </Typography>
       <Box
         component="form"
@@ -72,7 +72,7 @@ export function LoginCard() {
             size="small"
             id="email"
             type="email"
-            placeholder="seu@email.com"
+            placeholder="your@email.com"
             autoFocus
             required
             fullWidth
@@ -83,7 +83,7 @@ export function LoginCard() {
           />
         </FormControl>
         <FormControl>
-          <FormLabel htmlFor="password">Senha</FormLabel>
+          <FormLabel htmlFor="password">Password</FormLabel>
           <TextField
             size="small"
             placeholder="••••••"
@@ -107,7 +107,7 @@ export function LoginCard() {
           disabled={isSubmitting}
           color="secondary"
         >
-          Entrar
+          Sign in
         </Button>
         <LinkMUI
           component="button"
@@ -116,13 +116,13 @@ export function LoginCard() {
           alignSelf="center"
           color="primary"
         >
-          Esqueceu sua senha?
+          Forgot your password?
         </LinkMUI>
       </Box>
-      <Divider>ou</Divider>
+      <Divider>or</Divider>
       <Box display="flex" flexDirection="column" gap={2}>
         <Typography textAlign="center">
-          Não tem uma conta?{' '}
+          Don't have an account?{' '}
           <LinkMUI
             variant="body2"
             textAlign="center"
@@ -130,7 +130,7 @@ export function LoginCard() {
             href="/register"
             color="primary"
           >
-            Inscrever-se
+            Sign up
           </LinkMUI>
         </Typography>
       </Box>

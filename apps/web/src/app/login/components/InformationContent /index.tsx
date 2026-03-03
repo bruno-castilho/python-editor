@@ -21,11 +21,11 @@ export function InformationContent() {
     >
       <Box display="flex" flexDirection="column" gap={1}>
         <Box display="flex" justifyContent="center">
-          <Image src={logo} alt="logo da ufsc" height={48} />
+          <Image src={logo} alt="ufsc logo" height={48} />
         </Box>
         <Box display="flex" justifyContent="center">
           <Typography variant="h6" component="h1">
-            Informações do Projeto
+            Project Information
           </Typography>
         </Box>
       </Box>
@@ -34,10 +34,10 @@ export function InformationContent() {
         <InfoRounded />
         <Box>
           <Typography gutterBottom fontWeight="medium">
-            Sobre o Projeto
+            About the Project
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Adicionar sobre
+            Add description
           </Typography>
         </Box>
       </Stack>
@@ -46,10 +46,10 @@ export function InformationContent() {
         <ConstructionRounded />
         <Box>
           <Typography gutterBottom fontWeight="medium">
-            Objetivos
+            Objectives
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Adicionar objetivos
+            Add objectives
           </Typography>
         </Box>
       </Stack>
@@ -58,10 +58,10 @@ export function InformationContent() {
         <LocalLibraryRounded />
         <Box>
           <Typography gutterBottom fontWeight="medium">
-            Repositório
+            Repository
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            GitHub do Projeto
+            Project GitHub
           </Typography>
         </Box>
       </Stack>

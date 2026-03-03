@@ -40,7 +40,7 @@ export default function Page() {
       reset()
       alert.success(message)
     } catch (e) {
-      alert.error(e instanceof Error ? e.message : 'Erro ao criar conta')
+      alert.error(e instanceof Error ? e.message : 'Error creating account')
     }
   }
 
@@ -71,7 +71,7 @@ export default function Page() {
           gap={2}
         >
           <Typography component="h1" variant="h4">
-            Criar conta
+            Create account
           </Typography>
           <Box
             component="form"
@@ -82,7 +82,7 @@ export default function Page() {
             gap={2}
           >
             <FormControl>
-              <FormLabel htmlFor="name">Nome</FormLabel>
+              <FormLabel htmlFor="name">First name</FormLabel>
               <TextField
                 size="small"
                 id="name"
@@ -97,7 +97,7 @@ export default function Page() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="lastName">Sobrenome</FormLabel>
+              <FormLabel htmlFor="lastName">Last name</FormLabel>
               <TextField
                 size="small"
                 id="lastName"
@@ -117,7 +117,7 @@ export default function Page() {
                 size="small"
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder="your@email.com"
                 autoFocus
                 required
                 fullWidth
@@ -128,7 +128,7 @@ export default function Page() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="password">Senha</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
                 size="small"
                 placeholder="••••••"
@@ -144,7 +144,7 @@ export default function Page() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="repeatPassword">Repetir senha</FormLabel>
+              <FormLabel htmlFor="repeatPassword">Repeat password</FormLabel>
               <TextField
                 size="small"
                 placeholder="••••••"
@@ -166,7 +166,7 @@ export default function Page() {
               variant="contained"
               disabled={isSubmitting}
             >
-              CRIAR
+              CREATE
             </Button>
             <Button
               type="button"
@@ -176,7 +176,7 @@ export default function Page() {
               color="secondary"
               onClick={handleDoLogin}
             >
-              FAZER LOGIN
+              LOG IN
             </Button>
           </Box>
         </Box>

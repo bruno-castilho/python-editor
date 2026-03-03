@@ -10,7 +10,7 @@ const warningColor = '#FF9800'
 const errorColor = '#F44336'
 
 // Cores de fundo e texto
-const darkBackground = '#0D1117'
+const darkBackground = '#1B2A3B'
 const darkPaper = '#161B22'
 
 const lightBackground = '#F5F8FC'
