@@ -14,3 +14,5 @@ RUN apt-get update && apt-get install -y \
     docker-buildx-plugin \
     docker-compose-plugin \
     iputils-ping
+
+RUN npm install -g @anthropic-ai/claude-code
