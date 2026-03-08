@@ -4,15 +4,9 @@
   "exports": {
     ".": {
       "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
     }
   },
   "dependencies": {
-    "@python-editor/cryptography": "*",
-    "@python-editor/db": "*",
-    "@python-editor/env": "*",
     "dotenv": "^17.2.2"
   },
   "devDependencies": {

@@ -1,16 +1,18 @@
 import { publicProcedure, router } from '../index'
 import { registerUserSchema } from '@python-editor/schemas/register-user'
-import { makeRegisterUserService } from '../services/users/factories/make-register-user-service'
+
+import { makeRegisterUserUseCase } from '../use-cases/factories/make-register-user'
 
 export const userRouter = router({
   registerUser: publicProcedure
     .input(registerUserSchema)
     .mutation(async ({ input }) => {
-      const registerUserService = makeRegisterUserService()
-      await registerUserService.execute(input)
+      const registerUserUseCase = makeRegisterUserUseCase()
+      await registerUserUseCase.execute(input)
 
       return {
-        message: 'Conta criada com sucesso!',
+        message:
+          'Conta criada com sucesso! Verifique seu e-mail para ativar a conta.',
       }
     }),
 })

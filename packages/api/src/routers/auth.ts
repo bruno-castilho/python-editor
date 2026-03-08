@@ -1,12 +1,12 @@
 import { publicProcedure, router } from '../index'
 import { loginSchema } from '@python-editor/schemas/login'
-import { makeLoginService } from '../services/auth/factories/make-login-service'
+import { makeLoginUseCase } from '../use-cases/factories/make-login'
 
 export const authRouter = router({
   login: publicProcedure.input(loginSchema).mutation(async ({ input, ctx }) => {
-    const loginService = makeLoginService()
+    const loginUseCase = makeLoginUseCase()
     const { user, accessToken, refreshToken } =
-      await loginService.execute(input)
+      await loginUseCase.execute(input)
 
     ctx.res.setCookie('refresh_token', refreshToken, {
       httpOnly: true,
