@@ -10,7 +10,7 @@ export class EmailVerificationTokenKeyValueStore implements IEmailVerificationTo
     return `email-verification-token:${hashedToken}`
   }
 
-  async save(params: { hashedToken: string; userId: string }): Promise<void> {
+  async save(params: { hashedToken: string; userId: string }) {
     await redis.set(
       this.key(params.hashedToken),
       params.userId,
@@ -19,13 +19,11 @@ export class EmailVerificationTokenKeyValueStore implements IEmailVerificationTo
     )
   }
 
-  async findUserIdByToken(params: {
-    hashedToken: string
-  }): Promise<string | null> {
-    return redis.get(this.key(params.hashedToken))
+  async findUserIdByToken(params: { hashedToken: string }) {
+    return await redis.get(this.key(params.hashedToken))
   }
 
-  async delete(params: { hashedToken: string }): Promise<void> {
+  async delete(params: { hashedToken: string }) {
     await redis.del(this.key(params.hashedToken))
   }
 }

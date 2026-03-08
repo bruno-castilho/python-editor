@@ -1,0 +1,18 @@
+{
+  "name": "@python-editor/redis",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@python-editor/env": "*",
+    "ioredis": "^5.10.0"
+  },
+  "devDependencies": {
+    "@python-editor/config": "*",
+    "@types/node": "^22.13.14",
+    "typescript": "^5"
+  }
+}

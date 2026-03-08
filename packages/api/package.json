@@ -15,14 +15,20 @@
     "@python-editor/cryptography": "*",
     "@python-editor/db": "*",
     "@python-editor/env": "*",
+    "@python-editor/mailer": "*",
+    "@python-editor/redis": "*",
+    "@python-editor/schemas": "*",
     "@trpc/client": "^11.7.2",
     "@trpc/server": "^11.7.2",
     "dotenv": "^17.2.2",
+    "jsonwebtoken": "^9.0.3",
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.3.0",
     "@python-editor/config": "*",
     "@python-editor/test": "*",
+    "@types/jsonwebtoken": "^9.0.10",
     "typescript": "^5"
   }
 }

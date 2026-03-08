@@ -1,0 +1,19 @@
+{
+  "name": "@python-editor/mailer",
+  "type": "module",
+  "exports": {
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "dependencies": {
+    "@python-editor/env": "*",
+    "nodemailer": "^7.0.3"
+  },
+  "devDependencies": {
+    "@python-editor/config": "*",
+    "@types/nodemailer": "^6.4.17",
+    "@types/node": "^22.13.14",
+    "typescript": "^5"
+  }
+}

@@ -1,9 +1,15 @@
-import { Hasher } from './hasher'
+import { createHash, timingSafeEqual } from 'node:crypto'
+import type { IHasher } from '../interfaces/hasher'
 
-export class EmailVerificationTokenHasher extends Hasher {
-  private static readonly ROUNDS = 7
+export class EmailVerificationTokenHasher implements IHasher {
+  async hash(token: string) {
+    return createHash('sha256').update(token).digest('hex')
+  }
 
-  constructor() {
-    super(EmailVerificationTokenHasher.ROUNDS)
+  async compare(token: string, hashedToken: string) {
+    const tokenHash = createHash('sha256').update(token).digest()
+    const hashedTokenBuffer = Buffer.from(hashedToken, 'hex')
+    if (tokenHash.length !== hashedTokenBuffer.length) return false
+    return timingSafeEqual(tokenHash, hashedTokenBuffer)
   }
 }
