@@ -44,8 +44,8 @@ export default function Page() {
     }
   }
 
-  function handleDoLogin() {
-    router.push('/login')
+  function handleDoSignIn() {
+    router.push('/sign-in')
   }
 
   return (
@@ -174,9 +174,9 @@ export default function Page() {
               fullWidth
               variant="contained"
               color="secondary"
-              onClick={handleDoLogin}
+              onClick={handleDoSignIn}
             >
-              LOG IN
+              SIGN IN
             </Button>
           </Box>
         </Box>

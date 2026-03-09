@@ -37,7 +37,7 @@ export function UserMenu() {
 
   function handleLogout() {
     success('Goodbye!')
-    router.push('/login')
+    router.push('/sign-in')
   }
 
   return (

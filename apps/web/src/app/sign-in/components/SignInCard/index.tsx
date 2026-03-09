@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { type LoginDTO, loginSchema } from '@python-editor/schemas/login'
+import { type SignInDTO, signInSchema } from '@python-editor/schemas/sign-in'
 import Link from 'next/link'
 import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
@@ -20,21 +20,21 @@ import { useMutation } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
 import { useRouter } from 'next/navigation'
 
-export function LoginCard() {
+export function SignInCard() {
   const router = useRouter()
   const alert = useContext(AlertContext)
-  const { mutateAsync } = useMutation(trpc.auth.login.mutationOptions())
+  const { mutateAsync } = useMutation(trpc.auth.signIn.mutationOptions())
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { isSubmitting, errors },
-  } = useForm<LoginDTO>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignInDTO>({
+    resolver: zodResolver(signInSchema),
   })
 
-  async function handleSubmitForm(data: LoginDTO) {
+  async function handleSubmitForm(data: SignInDTO) {
     try {
       const { message } = await mutateAsync(data)
       reset()
@@ -56,7 +56,7 @@ export function LoginCard() {
       gap={2}
     >
       <Typography component="h1" variant="h4">
-        Log in
+        Sign in
       </Typography>
       <Box
         component="form"

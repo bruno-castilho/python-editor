@@ -1,7 +1,7 @@
 'use client'
 import { Box, Divider, Stack } from '@mui/material'
 import { InformationContent } from './components/InformationContent '
-import { LoginCard } from './components/LoginCard'
+import { SignInCard } from './components/SignInCard'
 
 export default function Page() {
   return (
@@ -26,7 +26,7 @@ export default function Page() {
           spacing={4}
         >
           <InformationContent />
-          <LoginCard />
+          <SignInCard />
         </Stack>
       </Box>
     </Box>

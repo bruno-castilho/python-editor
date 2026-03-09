@@ -1,4 +1,4 @@
-import type { LoginDTO } from '@python-editor/schemas/login'
+import type { SignInDTO } from '@python-editor/schemas/sign-in'
 import type { IJWT } from '../cryptography/interfaces/jwt'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import type { IHasher } from '../cryptography/interfaces/hasher'
@@ -6,7 +6,7 @@ import type { IHasher } from '../cryptography/interfaces/hasher'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
 
-export class LoginUseCase {
+export class SignInUseCase {
   constructor(
     private usersRepository: IUsersRepository,
     private accessToken: IJWT,
@@ -14,7 +14,7 @@ export class LoginUseCase {
     private passwordHasher: IHasher,
   ) {}
 
-  async execute(params: LoginDTO) {
+  async execute(params: SignInDTO) {
     const { email, password } = params
 
     const user = await this.usersRepository.findByEmailWithPassword({

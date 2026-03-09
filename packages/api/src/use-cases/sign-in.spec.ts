@@ -1,6 +1,6 @@
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
-import { LoginUseCase } from './login'
+import { SignInUseCase } from './sign-in'
 import { FakeJWT } from '../../test/cryptography/fake-jwt'
 import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { Data } from '../../test/repositories/data'
@@ -8,19 +8,19 @@ import { FakeUsersRepository } from '../../test/repositories/fake-users-reposito
 
 let data: Data
 let usersRepository: FakeUsersRepository
-let sut: LoginUseCase
+let sut: SignInUseCase
 let accessToken: FakeJWT
 let refreshToken: FakeJWT
 let hasher: FakeHasher
 
-describe('Login Use Case', () => {
+describe('Sign In Use Case', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
     accessToken = new FakeJWT()
     refreshToken = new FakeJWT()
     hasher = new FakeHasher()
-    sut = new LoginUseCase(usersRepository, accessToken, refreshToken, hasher)
+    sut = new SignInUseCase(usersRepository, accessToken, refreshToken, hasher)
 
     vi.useFakeTimers()
   })
@@ -29,7 +29,7 @@ describe('Login Use Case', () => {
     vi.useRealTimers()
   })
 
-  it('should be able to do login with a verified email', async () => {
+  it('should be able to do sign in with a verified email', async () => {
     const hashedPassword = await hasher.hash('123456')
 
     const user = await usersRepository.create({
@@ -50,7 +50,7 @@ describe('Login Use Case', () => {
     expect(refreshToken).toEqual(expect.any(String))
   })
 
-  it('should not be able to do login with an unverified email', async () => {
+  it('should not be able to do sign in with an unverified email', async () => {
     const hashedPassword = await hasher.hash('123456')
 
     await usersRepository.create({
@@ -68,7 +68,7 @@ describe('Login Use Case', () => {
     ).rejects.toBeInstanceOf(EmailNotVerifiedError)
   })
 
-  it('should not be able to do login with wrong email', async () => {
+  it('should not be able to do sign in with wrong email', async () => {
     await expect(() =>
       sut.execute({
         email: 'johndoe@example.com',
@@ -77,7 +77,7 @@ describe('Login Use Case', () => {
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })
 
-  it('should not be able to do login with wrong password', async () => {
+  it('should not be able to do sign in with wrong password', async () => {
     const hashedPassword = await hasher.hash('123456')
 
     await usersRepository.create({
