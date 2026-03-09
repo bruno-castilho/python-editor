@@ -6,8 +6,7 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 
 - **TypeScript** - For type safety and improved developer experience
 - **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
+- **MUI** - Reusable UI components
 - **Fastify** - Fast, low-overhead web framework
 - **tRPC** - End-to-end type-safe APIs
 - **Node.js** - Runtime environment
