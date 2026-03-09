@@ -22,7 +22,7 @@ export default function Page() {
   useEffect(() => {
     if (!token) {
       setStatus('error')
-      setErrorMessage('Token de verificação não encontrado na URL.')
+      setErrorMessage('Verification token not found in the URL.')
       return
     }
 
@@ -31,7 +31,7 @@ export default function Page() {
       .catch((e) => {
         setStatus('error')
         setErrorMessage(
-          e instanceof Error ? e.message : 'Erro ao verificar e-mail.',
+          e instanceof Error ? e.message : 'Error verifying email.',
         )
       })
   }, [token])
@@ -59,24 +59,24 @@ export default function Page() {
         {status === 'loading' && (
           <>
             <CircularProgress />
-            <Typography>Verificando seu e-mail...</Typography>
+            <Typography>Verifying your email...</Typography>
           </>
         )}
 
         {status === 'success' && (
           <>
             <Typography component="h1" variant="h5" textAlign="center">
-              E-mail verificado com sucesso!
+              Email verified successfully!
             </Typography>
             <Typography textAlign="center" color="text.secondary">
-              Sua conta está ativa. Agora você pode fazer login.
+              Your account is active. You can now sign in.
             </Typography>
             <Button
               variant="contained"
               fullWidth
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/sign-in')}
             >
-              Fazer login
+              Sign in
             </Button>
           </>
         )}
@@ -84,7 +84,7 @@ export default function Page() {
         {status === 'error' && (
           <>
             <Typography component="h1" variant="h5" textAlign="center">
-              Link inválido ou expirado
+              Invalid or expired link
             </Typography>
             <Typography textAlign="center" color="text.secondary">
               {errorMessage}
@@ -92,9 +92,9 @@ export default function Page() {
             <Button
               variant="outlined"
               fullWidth
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/sign-in')}
             >
-              Voltar ao login
+              Back to sign in
             </Button>
           </>
         )}
