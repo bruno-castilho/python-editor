@@ -28,7 +28,7 @@ export class RegisterUserUseCase {
 
     const token = this.emailVerificationToken.generate()
 
-    await this.saveEncryptedVerificationToken({ userId: user.id, token })
+    await this.saveEncryptedEmailVerificationToken({ userId: user.id, token })
 
     await this.sendEmailVerification.send({ email, token })
   }
@@ -54,7 +54,7 @@ export class RegisterUserUseCase {
     })
   }
 
-  private async saveEncryptedVerificationToken(params: {
+  private async saveEncryptedEmailVerificationToken(params: {
     userId: string
     token: string
   }) {

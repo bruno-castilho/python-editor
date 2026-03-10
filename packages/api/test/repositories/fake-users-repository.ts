@@ -66,4 +66,13 @@ export class FakeUsersRepository implements IUsersRepository {
       user.emailVerified = true
     }
   }
+
+  async updatePassword(params: { userId: string; hashedPassword: string }) {
+    const { userId, hashedPassword } = params
+    const user = this.data.items.users.find((u) => u.id === userId)
+
+    if (user) {
+      user.hashedPassword = hashedPassword
+    }
+  }
 }

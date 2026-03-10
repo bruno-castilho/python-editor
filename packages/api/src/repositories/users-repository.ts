@@ -48,4 +48,15 @@ export class UsersRepository implements IUsersRepository {
       data: { emailVerified: true },
     })
   }
+
+  async updatePassword(params: {
+    userId: string
+    hashedPassword: string
+  }): Promise<void> {
+    const { userId, hashedPassword } = params
+    await prisma.user.update({
+      where: { id: userId },
+      data: { hashedPassword },
+    })
+  }
 }

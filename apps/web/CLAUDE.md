@@ -40,6 +40,8 @@ Part of a monorepo — shared packages:
 | `/sign-in` | Auth page |
 | `/register` | Registration |
 | `/verify-email` | Email verification (token via URL) |
+| `/forgot-password` | Request password reset (email form) |
+| `/reset-password` | Set new password (token via URL) |
 
 ---
 

@@ -8,4 +8,9 @@ export interface IUsersRepository {
   findByEmailWithPassword(params: { email: string }): Promise<User | null>
 
   markEmailAsVerified(params: { userId: string }): Promise<void>
+
+  updatePassword(params: {
+    userId: string
+    hashedPassword: string
+  }): Promise<void>
 }

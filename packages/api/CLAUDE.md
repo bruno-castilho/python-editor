@@ -30,7 +30,7 @@ src/
   routers/
     index.ts                # Merges all routers into appRouter
     auth.ts                 # signIn mutation
-    users.ts                # registerUser, verifyEmail, resendVerificationEmail
+    users.ts                # registerUser, verifyEmail, resendVerificationEmail, forgotPassword, resetPassword
   use-cases/                # Business logic (framework-agnostic classes)
     *.ts                    # Each use case is a class with an execute() method
     *.spec.ts               # Co-located unit tests
@@ -41,15 +41,17 @@ src/
     interfaces/             # IUsersRepository interface
     types/                  # User, UserWithoutPassword, UserCreateParams
   cryptography/
-    hasher/                 # PasswordHasher, EmailVerificationTokenHasher
+    hasher/                 # PasswordHasher, EmailVerificationTokenHasher, PasswordResetTokenHasher
     jwt/                    # AccessToken, RefreshToken (jsonwebtoken)
-    token/                  # EmailVerificationToken (random token generator)
+    token/                  # EmailVerificationToken, PasswordResetToken (random token generators)
     interfaces/             # IHasher, IJWT, IToken
   key-value-stores/
     email-verification-token-key-value-store.ts  # Redis implementation
+    password-reset-token-key-value-store.ts      # Redis implementation (TTL: 1 hour)
     interfaces/
   emails/
     send-email-verification.ts  # Mailer implementation
+    send-password-reset.ts      # Mailer implementation
     interfaces/
 
 test/                       # Fake implementations for unit tests
@@ -57,8 +59,8 @@ test/                       # Fake implementations for unit tests
     data.ts                 # Shared in-memory store (Data class with items.users[])
     fake-users-repository.ts
   cryptography/             # FakeHasher, FakeJWT, FakeToken
-  key-value-stores/         # FakeEmailVerificationTokenKeyValueStore
-  emails/                   # FakeSendEmailVerification
+  key-value-stores/         # FakeEmailVerificationTokenKeyValueStore, FakePasswordResetTokenKeyValueStore
+  emails/                   # FakeSendEmailVerification, FakeSendPasswordReset
 ```
 
 ## Key Files
