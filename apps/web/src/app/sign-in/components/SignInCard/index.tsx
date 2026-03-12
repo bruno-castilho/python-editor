@@ -20,6 +20,7 @@ import { useMutation } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
 import { useRouter } from 'next/navigation'
 import { ForgotPasswordDialog } from '@/components/ForgotPasswordDialog'
+import { setAccessToken } from '@/utils/access-token-store'
 
 export function SignInCard() {
   const [openForgotPasswordDialog, setOpenForgotPasswordDialog] =
@@ -40,8 +41,9 @@ export function SignInCard() {
 
   async function handleSubmitForm(data: SignInDTO) {
     try {
-      const { message } = await mutateAsync(data)
+      const { message, accessToken } = await mutateAsync(data)
       reset()
+      setAccessToken(accessToken)
       alert.success(message)
       router.push('/')
     } catch (e) {

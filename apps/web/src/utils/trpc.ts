@@ -5,6 +5,7 @@ import { QueryCache, QueryClient } from '@tanstack/react-query'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import { toast } from 'sonner'
+import { getAccessToken } from './access-token-store'
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -23,6 +24,11 @@ const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${env.NEXT_PUBLIC_SERVER_URL}/trpc`,
+      headers() {
+        const token = getAccessToken()
+        if (!token) return {}
+        return { Authorization: `Bearer ${token}` }
+      },
     }),
   ],
 })
