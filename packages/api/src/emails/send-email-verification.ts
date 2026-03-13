@@ -9,11 +9,11 @@ export class SendEmailVerification implements ISendEmailVerification {
 
     await mailer.send({
       to: email,
-      subject: 'Verifique seu e-mail',
+      subject: 'Verify your email',
       html: `
-        <p>Obrigado por se cadastrar!</p>
-        <p>Clique no link abaixo para verificar seu e-mail. O link expira em 24 horas.</p>
-        <a href="${verificationLink}">Verificar e-mail</a>
+        <p>Thank you for signing up!</p>
+        <p>Click the link below to verify your email. The link expires in 24 hours.</p>
+        <a href="${verificationLink}">Verify email</a>
       `,
     })
   }

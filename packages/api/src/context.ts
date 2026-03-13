@@ -30,7 +30,7 @@ export async function createContext({ req, res }: CreateFastifyContextOptions) {
 
 function createContextErrorHandler(error: unknown): never {
   if (error instanceof TokenExpiredError) {
-    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token expirado' })
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token expired' })
   }
   throw error
 }

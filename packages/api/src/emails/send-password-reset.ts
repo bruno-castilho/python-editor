@@ -9,12 +9,12 @@ export class SendPasswordReset implements ISendPasswordReset {
 
     await mailer.send({
       to: email,
-      subject: 'Redefinição de senha',
+      subject: 'Password reset',
       html: `
-        <p>Recebemos uma solicitação para redefinir a senha da sua conta.</p>
-        <p>Clique no link abaixo para criar uma nova senha. O link expira em 1 hora.</p>
-        <a href="${resetLink}">Redefinir senha</a>
-        <p>Se você não solicitou a redefinição de senha, ignore este e-mail.</p>
+        <p>We received a request to reset your account password.</p>
+        <p>Click the link below to create a new password. The link expires in 1 hour.</p>
+        <a href="${resetLink}">Reset password</a>
+        <p>If you did not request a password reset, ignore this email.</p>
       `,
     })
   }

@@ -1,19 +1,19 @@
 import z from 'zod'
 
 export const signInSchema = z.object({
-  email: z.email({ message: 'E-mail inválido' }),
+  email: z.email({ message: 'Invalid email' }),
   password: z
     .string()
     .trim()
-    .min(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+    .min(8, { message: 'Password must be at least 8 characters' })
     .regex(/(?=.*[A-Z])/, {
-      message: 'A senha deve conter pelo menos uma letra maiúscula',
+      message: 'Password must contain at least one uppercase letter',
     })
     .regex(/(?=.*[0-9])/, {
-      message: 'A senha deve conter pelo menos um número',
+      message: 'Password must contain at least one number',
     })
     .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, {
-      message: 'A senha deve conter pelo menos um símbolo especial',
+      message: 'Password must contain at least one special character',
     }),
 })
 

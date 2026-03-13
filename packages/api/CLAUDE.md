@@ -81,4 +81,4 @@ test/                       # Fake implementations for unit tests
 - **Password never leaves the use case** — `findByEmail` always omits `hashedPassword`; only `findByEmailWithPassword` includes it.
 - `uuid` v7 is used for user IDs (time-ordered).
 - Refresh token is set as an `httpOnly` secure cookie; access token is returned in the response body.
-- Response messages are in Portuguese (pt-BR).
+- Response messages are in Inglês (en-US).

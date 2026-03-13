@@ -2,29 +2,29 @@ import z from 'zod'
 
 export const newFile = z.object({
   fileName: z
-    .string({ message: 'Nome de arquivo inválido' })
+    .string({ message: 'Invalid file name' })
     .trim()
-    .min(1, 'O nome do arquivo não pode ser vazio')
-    .max(255, 'O nome do arquivo deve ter no máximo 255 caracteres')
+    .min(1, 'File name cannot be empty')
+    .max(255, 'File name must be at most 255 characters')
     .refine(
       (fileName) => !fileName.includes('/'),
-      'O nome do arquivo não pode conter "/"',
+      'File name cannot contain "/"',
     )
     .refine(
       (fileName) => !/\0/.test(fileName),
-      'O nome do arquivo não pode conter caracteres nulos',
+      'File name cannot contain null characters',
     )
     .refine(
       (fileName) => !fileName.startsWith('.'),
-      'O nome do arquivo não pode começar com "."',
+      'File name cannot start with "."',
     )
     .refine(
       (fileName) => !fileName.endsWith('.'),
-      'O nome do arquivo não pode terminar com "."',
+      'File name cannot end with "."',
     )
     .refine(
       (fileName) => !fileName.includes('..'),
-      'O nome do arquivo não pode conter dois ou mais pontos consecutivos',
+      'File name cannot contain two or more consecutive dots',
     ),
 })
 

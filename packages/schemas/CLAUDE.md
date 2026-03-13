@@ -36,7 +36,7 @@ import { registerUserSchema } from '@python-editor/schemas/register-user'
 
 - **One schema per file.** Each file exports exactly one Zod schema and one inferred DTO type.
 - **Naming pattern:** `<camelCaseName>Schema` for the Zod object, `<PascalCaseName>DTO` for the inferred type via `z.infer<typeof ...>`.
-- **Validation messages are in Portuguese (pt-BR).** All user-facing `message` strings use pt-BR.
+- **Validation messages are in Portuguese (pt-BR).** All user-facing `message` strings use en-US.
 - **String fields use `.trim()`** before length/regex validation.
 - **Password rules** (used in both `register-user` and `sign-in`): min 8 chars, at least one uppercase letter, one digit, one special character — validated with chained `.regex()` calls.
 - **No barrel `index.ts`.** Consumers must import from individual sub-paths.

@@ -27,7 +27,7 @@ export const authRouter = router({
           user,
           accessToken,
           refreshToken,
-          message: `Olá, ${user.name}! Que bom ter você por aqui 😊`,
+          message: `Hello, ${user.name}! Welcome back.`,
         }
       } catch (error) {
         signInErrorHandler(error)

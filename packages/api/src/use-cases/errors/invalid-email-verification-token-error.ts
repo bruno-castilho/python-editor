@@ -1,5 +1,5 @@
 export class InvalidEmailVerificationTokenError extends Error {
   constructor() {
-    super('Token de verificação inválido ou expirado.')
+    super('Invalid or expired verification token.')
   }
 }

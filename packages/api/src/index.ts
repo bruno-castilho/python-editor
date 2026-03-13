@@ -13,7 +13,7 @@ export const authenticatedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
-      message: 'Você precisa estar autenticado para acessar este recurso.',
+      message: 'You must be authenticated to access this resource.',
     })
   }
   return next({

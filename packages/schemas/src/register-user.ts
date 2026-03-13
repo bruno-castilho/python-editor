@@ -5,43 +5,43 @@ export const registerUserSchema = z
     name: z
       .string()
       .trim()
-      .min(1, { message: 'Digite um nome' })
+      .min(1, { message: 'Enter a first name' })
       .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, {
-        message: 'O nome deve conter apenas letras',
+        message: 'Name must contain only letters',
       }),
 
     lastName: z
       .string()
       .trim()
-      .min(1, { message: 'Digite um sobrenome' })
+      .min(1, { message: 'Enter a last name' })
       .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, {
-        message: 'O sobrenome deve conter apenas letras',
+        message: 'Last name must contain only letters',
       }),
 
-    email: z.email({ message: 'E-mail inválido' }),
+    email: z.email({ message: 'Invalid email' }),
 
     password: z
       .string()
       .trim()
-      .min(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+      .min(8, { message: 'Password must be at least 8 characters' })
       .regex(/(?=.*[A-Z])/, {
-        message: 'A senha deve conter pelo menos uma letra maiúscula',
+        message: 'Password must contain at least one uppercase letter',
       })
       .regex(/(?=.*[0-9])/, {
-        message: 'A senha deve conter pelo menos um número',
+        message: 'Password must contain at least one number',
       })
       .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, {
-        message: 'A senha deve conter pelo menos um símbolo especial',
+        message: 'Password must contain at least one special character',
       }),
 
     repeatPassword: z
       .string()
       .trim()
-      .min(1, { message: 'Este campo não pode ficar vazio' }),
+      .min(1, { message: 'This field cannot be empty' }),
   })
   .refine((data) => data.password === data.repeatPassword, {
     path: ['repeat_password'],
-    message: 'As senhas não coincidem',
+    message: 'Passwords do not match',
   })
 
 export type RegisterUserDTO = z.infer<typeof registerUserSchema>

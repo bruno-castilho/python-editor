@@ -1,5 +1,5 @@
 export class EmailNotVerifiedError extends Error {
   constructor() {
-    super('E-mail não verificado. Por favor, verifique sua caixa de entrada.')
+    super('Email not verified. Please check your inbox.')
   }
 }

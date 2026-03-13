@@ -30,7 +30,7 @@ export const usersRouter = router({
 
         return {
           message:
-            'Conta criada com sucesso! Verifique seu e-mail para ativar sua conta.',
+            'Account created successfully! Check your email to activate your account.',
         }
       } catch (error) {
         registerUserErrorHandler(error)
@@ -46,7 +46,7 @@ export const usersRouter = router({
         await verifyEmailUseCase.execute({ dto })
 
         return {
-          message: 'E-mail verificado com sucesso!',
+          message: 'Email verified successfully!',
         }
       } catch (error) {
         verifyEmailErrorHandler(error)
@@ -63,7 +63,7 @@ export const usersRouter = router({
         await resendEmailVerificationUseCase.execute({ dto })
 
         return {
-          message: 'Um novo link foi enviado para o seu e-mail.',
+          message: 'A new link has been sent to your email.',
         }
       } catch (error) {
         resendVerificationEmailErrorHandler(error)
@@ -78,7 +78,7 @@ export const usersRouter = router({
         await forgotPasswordUseCase.execute({ dto })
 
         return {
-          message: 'Você receberá um e-mail para alterar sua senha.',
+          message: 'You will receive an email to reset your password.',
         }
       } catch (error) {
         forgotPasswordErrorHandler(error)
@@ -92,7 +92,7 @@ export const usersRouter = router({
         const resetPasswordUseCase = makeResetPasswordUseCase()
         await resetPasswordUseCase.execute({ dto })
         return {
-          message: 'Senha redefinida com sucesso!',
+          message: 'Password reset successfully!',
         }
       } catch (error) {
         resetPasswordErrorHandler(error)
@@ -124,7 +124,7 @@ export const usersRouter = router({
           dto,
         })
 
-        return { message: 'Perfil atualizado com sucesso!' }
+        return { message: 'Profile updated successfully!' }
       } catch (error) {
         updateProfileErrorHandler(error)
       }

@@ -2,30 +2,30 @@ import z from 'zod'
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(1, { message: 'Token inválido' }),
+    token: z.string().min(1, { message: 'Invalid token' }),
 
     password: z
       .string()
       .trim()
-      .min(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+      .min(8, { message: 'Password must be at least 8 characters' })
       .regex(/(?=.*[A-Z])/, {
-        message: 'A senha deve conter pelo menos uma letra maiúscula',
+        message: 'Password must contain at least one uppercase letter',
       })
       .regex(/(?=.*[0-9])/, {
-        message: 'A senha deve conter pelo menos um número',
+        message: 'Password must contain at least one number',
       })
       .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, {
-        message: 'A senha deve conter pelo menos um símbolo especial',
+        message: 'Password must contain at least one special character',
       }),
 
     repeatPassword: z
       .string()
       .trim()
-      .min(1, { message: 'Este campo não pode ficar vazio' }),
+      .min(1, { message: 'This field cannot be empty' }),
   })
   .refine((data) => data.password === data.repeatPassword, {
     path: ['repeatPassword'],
-    message: 'As senhas não coincidem',
+    message: 'Passwords do not match',
   })
 
 export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>
