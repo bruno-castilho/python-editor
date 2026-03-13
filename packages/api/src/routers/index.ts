@@ -1,12 +1,12 @@
 import { publicProcedure, router } from '../index'
 import { authRouter } from './auth'
-import { userRouter } from './users'
+import { usersRouter } from './users'
 
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
     return 'OK'
   }),
-  user: userRouter,
+  users: usersRouter,
   auth: authRouter,
 })
 export type AppRouter = typeof appRouter

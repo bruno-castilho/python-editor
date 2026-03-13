@@ -23,7 +23,7 @@ import { AlertContext } from '@/context/AlertContext'
 export default function Page() {
   const router = useRouter()
   const alert = useContext(AlertContext)
-  const { mutateAsync } = useMutation(trpc.user.registerUser.mutationOptions())
+  const { mutateAsync } = useMutation(trpc.users.registerUser.mutationOptions())
 
   const {
     register,

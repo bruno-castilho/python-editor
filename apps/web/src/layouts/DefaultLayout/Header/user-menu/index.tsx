@@ -30,6 +30,10 @@ export function UserMenu() {
     setAnchorElUser(null)
   }
 
+  function handleProfile() {
+    router.push('/profile')
+  }
+
   function handleChangeMode() {
     setMode(mode === 'dark' || systemMode === 'dark' ? 'light' : 'dark')
     setAnchorElUser(null)
@@ -64,7 +68,7 @@ export function UserMenu() {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        <MenuItem>
+        <MenuItem onClick={handleProfile}>
           <ListItemIcon>
             <Person fontSize="small" color="primary" />
           </ListItemIcon>

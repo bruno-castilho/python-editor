@@ -45,7 +45,7 @@ export function SignInCard() {
       reset()
       setAccessToken(accessToken)
       alert.success(message)
-      router.push('/')
+      router.push('/profile')
     } catch (e) {
       console.log(e)
       alert.error(e instanceof Error ? e.message : 'Login error')

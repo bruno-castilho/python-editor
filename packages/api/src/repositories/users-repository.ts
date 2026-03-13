@@ -41,6 +41,14 @@ export class UsersRepository implements IUsersRepository {
     })
   }
 
+  async findById(params: { userId: string }) {
+    const { userId } = params
+    return prisma.user.findUnique({
+      omit: { hashedPassword: true },
+      where: { id: userId },
+    })
+  }
+
   async markEmailAsVerified(params: { userId: string }): Promise<void> {
     const { userId } = params
     await prisma.user.update({
@@ -57,6 +65,27 @@ export class UsersRepository implements IUsersRepository {
     await prisma.user.update({
       where: { id: userId },
       data: { hashedPassword },
+    })
+  }
+
+  async findByIdWithPassword(params: { userId: string }) {
+    const { userId } = params
+    return await prisma.user.findUnique({
+      where: { id: userId },
+    })
+  }
+
+  async update(params: {
+    userId: string
+    name: string
+    lastName: string
+    email: string
+    hashedPassword?: string
+  }): Promise<void> {
+    const { userId, name, lastName, hashedPassword } = params
+    await prisma.user.update({
+      where: { id: userId },
+      data: { name, lastName, ...(hashedPassword && { hashedPassword }) },
     })
   }
 }

@@ -48,6 +48,20 @@ export class FakeUsersRepository implements IUsersRepository {
     }
   }
 
+  async findById(params: { userId: string }) {
+    const { userId } = params
+    const user = this.data.items.users.find((u) => u.id === userId)
+    if (!user) return null
+    return {
+      id: user.id,
+      name: user.name,
+      lastName: user.lastName,
+      email: user.email,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+    }
+  }
+
   async findByEmailWithPassword(params: { email: string }) {
     const { email } = params
 
@@ -73,6 +87,27 @@ export class FakeUsersRepository implements IUsersRepository {
 
     if (user) {
       user.hashedPassword = hashedPassword
+    }
+  }
+
+  async findByIdWithPassword(params: { userId: string }) {
+    const { userId } = params
+    return this.data.items.users.find((u) => u.id === userId) ?? null
+  }
+
+  async update(params: {
+    userId: string
+    name: string
+    lastName: string
+    hashedPassword?: string
+  }): Promise<void> {
+    const { userId, name, lastName, hashedPassword } = params
+    const user = this.data.items.users.find((u) => u.id === userId)
+
+    if (user) {
+      user.name = name
+      user.lastName = lastName
+      if (hashedPassword) user.hashedPassword = hashedPassword
     }
   }
 }
