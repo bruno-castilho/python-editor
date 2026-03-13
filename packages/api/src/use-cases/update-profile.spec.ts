@@ -1,9 +1,9 @@
 import { UpdateProfileUseCase } from './update-profile'
-import { UserNotFoundError } from './errors/user-not-found-error'
 import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
 import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 let data: Data
 let usersRepository: FakeUsersRepository
@@ -81,7 +81,7 @@ describe('Update Profile Use Case', () => {
         userId: 'non-existent-id',
         dto: { name: 'John', lastName: 'Doe', password: 'Senha@123' },
       }),
-    ).rejects.toBeInstanceOf(UserNotFoundError)
+    ).rejects.toBeInstanceOf(UserDoesNotExistsError)
   })
 
   it('should not be able to update profile with wrong current password', async () => {

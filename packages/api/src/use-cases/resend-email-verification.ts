@@ -5,7 +5,7 @@ import type { ISendEmailVerification } from '../emails/interfaces/send-email-ver
 import type { IEmailVerificationTokenKeyValueStore } from '../key-value-stores/interfaces/email-verification-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { EmailAlreadyVerifiedError } from './errors/email-already-verified-error'
-import { InvalidCredentialsError } from './errors/invalid-credentials-error'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 interface ResendEmailVerificationUseCaseParams {
   dto: ResendEmailVerificationDTO
@@ -26,7 +26,7 @@ export class ResendEmailVerificationUseCase {
     const user = await this.usersRepository.findByEmail({ email })
 
     if (!user) {
-      throw new InvalidCredentialsError()
+      throw new UserDoesNotExistsError()
     }
 
     if (user.emailVerified) {

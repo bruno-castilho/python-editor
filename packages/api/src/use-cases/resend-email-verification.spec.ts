@@ -1,12 +1,12 @@
 import { ResendEmailVerificationUseCase } from './resend-email-verification'
 import { EmailAlreadyVerifiedError } from './errors/email-already-verified-error'
-import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
 import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { FakeToken } from '../../test/cryptography/fake-token'
 import { FakeEmailVerificationTokenKeyValueStore } from '../../test/key-value-stores/fake-email-verification-token-key-value-store'
 import { FakeSendEmailVerification } from '../../test/emails/fake-send-email-verification'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 let sut: ResendEmailVerificationUseCase
 
@@ -88,6 +88,6 @@ describe('Resend email verification', () => {
   it('should not be able to resend the verification email if the user not exits', async () => {
     await expect(() =>
       sut.execute({ dto: { email: 'johndoe@example.com' } }),
-    ).rejects.toBeInstanceOf(InvalidCredentialsError)
+    ).rejects.toBeInstanceOf(UserDoesNotExistsError)
   })
 })

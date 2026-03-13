@@ -1,8 +1,9 @@
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import type { IHasher } from '../cryptography/interfaces/hasher'
 import type { UpdateUserDTO } from '@python-editor/schemas/update-user'
-import { UserNotFoundError } from './errors/user-not-found-error'
+
 import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 interface UpdateProfileParams {
   dto: UpdateUserDTO
@@ -21,7 +22,7 @@ export class UpdateProfileUseCase {
     const user = await this.usersRepository.findByIdWithPassword({ userId })
 
     if (!user) {
-      throw new UserNotFoundError()
+      throw new UserDoesNotExistsError()
     }
 
     const passwordMatches = await this.passwordHasher.compare(

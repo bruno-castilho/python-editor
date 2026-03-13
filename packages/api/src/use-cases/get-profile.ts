@@ -1,5 +1,5 @@
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
-import { UserNotFoundError } from './errors/user-not-found-error'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 interface GetProfileParams {
   userId: string
@@ -14,7 +14,7 @@ export class GetProfileUseCase {
     const user = await this.usersRepository.findById({ userId })
 
     if (!user) {
-      throw new UserNotFoundError()
+      throw new UserDoesNotExistsError()
     }
 
     return { user }

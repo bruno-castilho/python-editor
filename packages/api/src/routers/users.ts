@@ -12,129 +12,121 @@ import { makeForgotPasswordUseCase } from '../use-cases/factories/make-forgot-pa
 import { makeResetPasswordUseCase } from '../use-cases/factories/make-reset-password'
 import { makeGetProfileUseCase } from '../use-cases/factories/make-get-profile'
 import { makeUpdateProfileUseCase } from '../use-cases/factories/make-update-profile'
-import { InvalidPasswordResetTokenError } from '../use-cases/errors/invalid-password-reset-token-error'
-import { InvalidCurrentPasswordError } from '../use-cases/errors/invalid-current-password-error'
-import { UserNotFoundError } from '../use-cases/errors/user-not-found-error'
-import { TRPCError } from '@trpc/server'
+import { registerUserErrorHandler } from './error-handlers/register-user-error-handler'
+import { verifyEmailErrorHandler } from './error-handlers/verify-email-error-handler'
+import { resendVerificationEmailErrorHandler } from './error-handlers/resend-verification-email-error-handler'
+import { forgotPasswordErrorHandler } from './error-handlers/forgot-password-error-handler'
+import { resetPasswordErrorHandler } from './error-handlers/reset-password-erro-handler'
+import { getProfileErrorHandler } from './error-handlers/get-profile-error-handler'
+import { updateProfileErrorHandler } from './error-handlers/update-profile-error-handler'
 
 export const usersRouter = router({
   registerUser: publicProcedure
     .input(registerUserSchema)
     .mutation(async ({ input: dto }) => {
-      const registerUserUseCase = makeRegisterUserUseCase()
-      await registerUserUseCase.execute({ dto })
+      try {
+        const registerUserUseCase = makeRegisterUserUseCase()
+        await registerUserUseCase.execute({ dto })
 
-      return {
-        message:
-          'Conta criada com sucesso! Verifique seu e-mail para ativar a conta.',
+        return {
+          message:
+            'Conta criada com sucesso! Verifique seu e-mail para ativar sua conta.',
+        }
+      } catch (error) {
+        registerUserErrorHandler(error)
       }
     }),
 
   verifyEmail: publicProcedure
     .input(verifyEmailSchema)
     .mutation(async ({ input: dto }) => {
-      const verifyEmailUseCase = makeVerifyEmailUseCase()
+      try {
+        const verifyEmailUseCase = makeVerifyEmailUseCase()
 
-      await verifyEmailUseCase.execute({ dto })
+        await verifyEmailUseCase.execute({ dto })
 
-      return {
-        message: 'E-mail verificado com sucesso!',
+        return {
+          message: 'E-mail verificado com sucesso!',
+        }
+      } catch (error) {
+        verifyEmailErrorHandler(error)
       }
     }),
 
   resendVerificationEmail: publicProcedure
     .input(resendemailverificationSchema)
     .mutation(async ({ input: dto }) => {
-      const resendEmailVerificationUseCase =
-        makeResendEmailVerificationUseCase()
+      try {
+        const resendEmailVerificationUseCase =
+          makeResendEmailVerificationUseCase()
 
-      await resendEmailVerificationUseCase.execute({ dto })
+        await resendEmailVerificationUseCase.execute({ dto })
 
-      return {
-        message: 'Um novo link foi enviado para o seu e-mail.',
+        return {
+          message: 'Um novo link foi enviado para o seu e-mail.',
+        }
+      } catch (error) {
+        resendVerificationEmailErrorHandler(error)
       }
     }),
 
   forgotPassword: publicProcedure
     .input(forgotPasswordSchema)
     .mutation(async ({ input: dto }) => {
-      const forgotPasswordUseCase = makeForgotPasswordUseCase()
-      await forgotPasswordUseCase.execute({ dto })
+      try {
+        const forgotPasswordUseCase = makeForgotPasswordUseCase()
+        await forgotPasswordUseCase.execute({ dto })
 
-      return {
-        message: 'Você receberá um e-mail para alterar sua senha.',
+        return {
+          message: 'Você receberá um e-mail para alterar sua senha.',
+        }
+      } catch (error) {
+        forgotPasswordErrorHandler(error)
       }
     }),
 
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ input: dto }) => {
-      const resetPasswordUseCase = makeResetPasswordUseCase()
-
       try {
+        const resetPasswordUseCase = makeResetPasswordUseCase()
         await resetPasswordUseCase.execute({ dto })
-      } catch (e) {
-        if (e instanceof InvalidPasswordResetTokenError) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: e.message,
-          })
+        return {
+          message: 'Senha redefinida com sucesso!',
         }
-        throw e
-      }
-
-      return {
-        message: 'Senha redefinida com sucesso!',
+      } catch (error) {
+        resetPasswordErrorHandler(error)
       }
     }),
 
   getProfile: authenticatedProcedure.query(async ({ ctx }) => {
-    const getProfileUseCase = makeGetProfileUseCase()
-
     try {
+      const getProfileUseCase = makeGetProfileUseCase()
       const { user } = await getProfileUseCase.execute({
         userId: ctx.session.userId,
       })
       return { user }
-    } catch (e) {
-      if (e instanceof UserNotFoundError) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: e.message,
-        })
-      }
-      throw e
+    } catch (error) {
+      getProfileErrorHandler(error)
     }
   }),
 
   updateProfile: authenticatedProcedure
     .input(updateUserSchema)
     .mutation(async ({ ctx, input: dto }) => {
-      const updateProfileUseCase = makeUpdateProfileUseCase()
-
-      const { userId } = ctx.session
-
       try {
+        const updateProfileUseCase = makeUpdateProfileUseCase()
+
+        const { userId } = ctx.session
+
         await updateProfileUseCase.execute({
           userId,
           dto,
         })
 
         return { message: 'Perfil atualizado com sucesso!' }
-      } catch (e) {
-        if (e instanceof UserNotFoundError) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: e.message,
-          })
-        }
-        if (e instanceof InvalidCurrentPasswordError) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: e.message,
-          })
-        }
-        throw e
+      } catch (error) {
+        updateProfileErrorHandler(error)
       }
     }),
 })

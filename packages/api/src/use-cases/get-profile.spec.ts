@@ -1,8 +1,9 @@
 import { GetProfileUseCase } from './get-profile'
-import { UserNotFoundError } from './errors/user-not-found-error'
+
 import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 let data: Data
 let usersRepository: FakeUsersRepository
@@ -37,6 +38,6 @@ describe('Get Profile Use Case', () => {
   it('should not be able to get the profile if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'non-existent-id' }),
-    ).rejects.toBeInstanceOf(UserNotFoundError)
+    ).rejects.toBeInstanceOf(UserDoesNotExistsError)
   })
 })
