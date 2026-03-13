@@ -4,6 +4,10 @@ import type { IEmailVerificationTokenKeyValueStore } from '../key-value-stores/i
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { InvalidEmailVerificationTokenError } from './errors/invalid-email-verification-token-error'
 
+interface VerifyEmailUseCaseParams {
+  dto: VerifyEmailDTO
+}
+
 export class VerifyEmailUseCase {
   constructor(
     private usersRepository: IUsersRepository,
@@ -11,8 +15,8 @@ export class VerifyEmailUseCase {
     private emailVerificationTokenKeyValueStore: IEmailVerificationTokenKeyValueStore,
   ) {}
 
-  async execute(params: VerifyEmailDTO) {
-    const { token } = params
+  async execute({ dto }: VerifyEmailUseCaseParams) {
+    const { token } = dto
     const hashedToken = await this.emailVerificationTokenHasher.hash(token)
 
     const userId =

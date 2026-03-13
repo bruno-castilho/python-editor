@@ -5,10 +5,11 @@ import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
 export const authRouter = router({
   signIn: publicProcedure
     .input(signInSchema)
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input: dto, ctx }) => {
       const signInUseCase = makeSignInUseCase()
-      const { user, accessToken, refreshToken } =
-        await signInUseCase.execute(input)
+      const { user, accessToken, refreshToken } = await signInUseCase.execute({
+        dto,
+      })
 
       ctx.res.setCookie('refresh_token', refreshToken, {
         httpOnly: true,

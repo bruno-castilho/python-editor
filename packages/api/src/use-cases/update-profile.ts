@@ -4,7 +4,8 @@ import type { UpdateUserDTO } from '@python-editor/schemas/update-user'
 import { UserNotFoundError } from './errors/user-not-found-error'
 import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
 
-interface UpdateProfileParams extends UpdateUserDTO {
+interface UpdateProfileParams {
+  dto: UpdateUserDTO
   userId: string
 }
 
@@ -14,8 +15,8 @@ export class UpdateProfileUseCase {
     private passwordHasher: IHasher,
   ) {}
 
-  async execute(params: UpdateProfileParams): Promise<void> {
-    const { userId, name, lastName, password, newPassword } = params
+  async execute({ dto, userId }: UpdateProfileParams): Promise<void> {
+    const { name, lastName, password, newPassword } = dto
 
     const user = await this.usersRepository.findByIdWithPassword({ userId })
 

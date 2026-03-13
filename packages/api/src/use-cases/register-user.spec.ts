@@ -43,21 +43,25 @@ describe('Register user', () => {
 
   it('should be able to register a new user', async () => {
     await sut.execute({
-      name: 'John',
-      lastName: 'Doe',
-      email: 'johndoe@example.com',
-      password: '123456',
-      repeatPassword: '123456',
+      dto: {
+        name: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: '123456',
+        repeatPassword: '123456',
+      },
     })
   })
 
   it('should store the hashed token in the token store', async () => {
     await sut.execute({
-      name: 'John',
-      lastName: 'Doe',
-      email: 'johndoe@example.com',
-      password: '123456',
-      repeatPassword: '123456',
+      dto: {
+        name: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: '123456',
+        repeatPassword: '123456',
+      },
     })
 
     expect(emailVerificationTokenKeyValueStore.store.size).toEqual(1)
@@ -65,11 +69,13 @@ describe('Register user', () => {
 
   it('should send a verification email after registration', async () => {
     await sut.execute({
-      name: 'John',
-      lastName: 'Doe',
-      email: 'johndoe@example.com',
-      password: '123456',
-      repeatPassword: '123456',
+      dto: {
+        name: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: '123456',
+        repeatPassword: '123456',
+      },
     })
 
     expect(fakeSendEmailVerification.emailsSsent[0]).toEqual({
@@ -87,10 +93,10 @@ describe('Register user', () => {
       repeatPassword: '123456',
     }
 
-    await sut.execute(newUser)
+    await sut.execute({ dto: { ...newUser } })
 
-    await expect(() => sut.execute(newUser)).rejects.toBeInstanceOf(
-      UserAlreadyExistsError,
-    )
+    await expect(() =>
+      sut.execute({ dto: { ...newUser } }),
+    ).rejects.toBeInstanceOf(UserAlreadyExistsError)
   })
 })

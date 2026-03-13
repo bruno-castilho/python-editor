@@ -6,6 +6,10 @@ import type { IEmailVerificationTokenKeyValueStore } from '../key-value-stores/i
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { UserAlreadyExistsError } from './errors/user-already-exists-error'
 
+interface RegisterUserUseCaseParams {
+  dto: RegisterUserDTO
+}
+
 export class RegisterUserUseCase {
   constructor(
     private usersRepository: IUsersRepository,
@@ -16,15 +20,15 @@ export class RegisterUserUseCase {
     private sendEmailVerification: ISendEmailVerification,
   ) {}
 
-  async execute(params: RegisterUserDTO) {
-    const { email } = params
+  async execute({ dto }: RegisterUserUseCaseParams) {
+    const { email } = dto
 
     const userExists = await this.checkIfEmailAlreadyExists(email)
     if (userExists) {
       throw new UserAlreadyExistsError()
     }
 
-    const user = await this.createUserWithEncryptedPassword(params)
+    const user = await this.createUserWithEncryptedPassword(dto)
 
     const token = this.emailVerificationToken.generate()
 

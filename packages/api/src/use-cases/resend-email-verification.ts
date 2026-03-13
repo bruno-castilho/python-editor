@@ -7,6 +7,10 @@ import type { IUsersRepository } from '../repositories/interfaces/users-reposito
 import { EmailAlreadyVerifiedError } from './errors/email-already-verified-error'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 
+interface ResendEmailVerificationUseCaseParams {
+  dto: ResendEmailVerificationDTO
+}
+
 export class ResendEmailVerificationUseCase {
   constructor(
     private usersRepository: IUsersRepository,
@@ -16,8 +20,8 @@ export class ResendEmailVerificationUseCase {
     private sendEmailVerification: ISendEmailVerification,
   ) {}
 
-  async execute(params: ResendEmailVerificationDTO) {
-    const { email } = params
+  async execute({ dto }: ResendEmailVerificationUseCaseParams) {
+    const { email } = dto
 
     const user = await this.usersRepository.findByEmail({ email })
 

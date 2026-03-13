@@ -51,7 +51,7 @@ describe('Verify email', () => {
       userId: user.id,
     })
 
-    await sut.execute({ token: rawToken })
+    await sut.execute({ dto: { token: rawToken } })
 
     const updatedUser = await usersRepository.findByEmail({
       email: 'johndoe@example.com',
@@ -66,7 +66,7 @@ describe('Verify email', () => {
 
   it('should not be able to verify the email if de token not exists', async () => {
     await expect(() =>
-      sut.execute({ token: 'nonexistent-token' }),
+      sut.execute({ dto: { token: 'nonexistent-token' } }),
     ).rejects.toBeInstanceOf(InvalidEmailVerificationTokenError)
   })
 })

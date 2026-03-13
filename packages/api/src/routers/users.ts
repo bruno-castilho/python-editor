@@ -20,9 +20,9 @@ import { TRPCError } from '@trpc/server'
 export const usersRouter = router({
   registerUser: publicProcedure
     .input(registerUserSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input: dto }) => {
       const registerUserUseCase = makeRegisterUserUseCase()
-      await registerUserUseCase.execute(input)
+      await registerUserUseCase.execute({ dto })
 
       return {
         message:
@@ -32,10 +32,10 @@ export const usersRouter = router({
 
   verifyEmail: publicProcedure
     .input(verifyEmailSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input: dto }) => {
       const verifyEmailUseCase = makeVerifyEmailUseCase()
 
-      await verifyEmailUseCase.execute(input)
+      await verifyEmailUseCase.execute({ dto })
 
       return {
         message: 'E-mail verificado com sucesso!',
@@ -44,11 +44,11 @@ export const usersRouter = router({
 
   resendVerificationEmail: publicProcedure
     .input(resendemailverificationSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input: dto }) => {
       const resendEmailVerificationUseCase =
         makeResendEmailVerificationUseCase()
 
-      await resendEmailVerificationUseCase.execute(input)
+      await resendEmailVerificationUseCase.execute({ dto })
 
       return {
         message: 'Um novo link foi enviado para o seu e-mail.',
@@ -57,9 +57,9 @@ export const usersRouter = router({
 
   forgotPassword: publicProcedure
     .input(forgotPasswordSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input: dto }) => {
       const forgotPasswordUseCase = makeForgotPasswordUseCase()
-      await forgotPasswordUseCase.execute(input)
+      await forgotPasswordUseCase.execute({ dto })
 
       return {
         message: 'Você receberá um e-mail para alterar sua senha.',
@@ -68,12 +68,11 @@ export const usersRouter = router({
 
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
-    .mutation(async ({ input }) => {
-      const { token, password } = input
+    .mutation(async ({ input: dto }) => {
       const resetPasswordUseCase = makeResetPasswordUseCase()
 
       try {
-        await resetPasswordUseCase.execute({ token, password })
+        await resetPasswordUseCase.execute({ dto })
       } catch (e) {
         if (e instanceof InvalidPasswordResetTokenError) {
           throw new TRPCError({
@@ -110,13 +109,15 @@ export const usersRouter = router({
 
   updateProfile: authenticatedProcedure
     .input(updateUserSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input: dto }) => {
       const updateProfileUseCase = makeUpdateProfileUseCase()
+
+      const { userId } = ctx.session
 
       try {
         await updateProfileUseCase.execute({
-          userId: ctx.session.userId,
-          ...input,
+          userId,
+          dto,
         })
 
         return { message: 'Perfil atualizado com sucesso!' }

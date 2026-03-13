@@ -6,6 +6,10 @@ import type { IHasher } from '../cryptography/interfaces/hasher'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
 
+interface SignInUseCaseParams {
+  dto: SignInDTO
+}
+
 export class SignInUseCase {
   constructor(
     private usersRepository: IUsersRepository,
@@ -14,8 +18,8 @@ export class SignInUseCase {
     private passwordHasher: IHasher,
   ) {}
 
-  async execute(params: SignInDTO) {
-    const { email, password } = params
+  async execute({ dto }: SignInUseCaseParams) {
+    const { email, password } = dto
 
     const user = await this.usersRepository.findByEmailWithPassword({
       email,

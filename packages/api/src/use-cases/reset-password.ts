@@ -1,11 +1,11 @@
+import type { ResetPasswordDTO } from '@python-editor/schemas/reset-password'
 import type { IHasher } from '../cryptography/interfaces/hasher'
 import type { IPasswordResetTokenKeyValueStore } from '../key-value-stores/interfaces/password-reset-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { InvalidPasswordResetTokenError } from './errors/invalid-password-reset-token-error'
 
 interface ResetPasswordParams {
-  token: string
-  password: string
+  dto: ResetPasswordDTO
 }
 
 export class ResetPasswordUseCase {
@@ -16,8 +16,8 @@ export class ResetPasswordUseCase {
     private passwordResetTokenKeyValueStore: IPasswordResetTokenKeyValueStore,
   ) {}
 
-  async execute(params: ResetPasswordParams) {
-    const { token, password } = params
+  async execute({ dto }: ResetPasswordParams) {
+    const { token, password } = dto
 
     const hashedToken = await this.passwordResetTokenHasher.hash(token)
 

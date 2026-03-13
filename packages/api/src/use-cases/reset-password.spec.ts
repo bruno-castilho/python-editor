@@ -47,7 +47,13 @@ describe('Reset password', () => {
     const hashedToken = await tokenHasher.hash(rawToken)
     await passwordResetTokenKeyValueStore.save({ hashedToken, userId: user.id })
 
-    await sut.execute({ token: rawToken, password: 'NewPassword1!' })
+    await sut.execute({
+      dto: {
+        token: rawToken,
+        password: 'NewPassword1!',
+        repeatPassword: 'NewPassword1!',
+      },
+    })
 
     const updatedUser = await usersRepository.findByEmailWithPassword({
       email: 'johndoe@example.com',
@@ -59,7 +65,13 @@ describe('Reset password', () => {
 
   it('should not be able to reset the password with a nonexistent token', async () => {
     await expect(() =>
-      sut.execute({ token: 'invalid-token', password: 'NewPassword1!' }),
+      sut.execute({
+        dto: {
+          token: 'invalid-token',
+          password: 'NewPassword1!',
+          repeatPassword: 'NewPassword1!',
+        },
+      }),
     ).rejects.toBeInstanceOf(InvalidPasswordResetTokenError)
   })
 })

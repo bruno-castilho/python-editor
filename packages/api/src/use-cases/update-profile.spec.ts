@@ -30,9 +30,11 @@ describe('Update Profile Use Case', () => {
 
     await sut.execute({
       userId: created.id,
-      name: 'Jane',
-      lastName: 'Smith',
-      password: 'Senha@123',
+      dto: {
+        name: 'Jane',
+        lastName: 'Smith',
+        password: 'Senha@123',
+      },
     })
 
     const user = await usersRepository.findByIdWithPassword({
@@ -55,11 +57,13 @@ describe('Update Profile Use Case', () => {
 
     await sut.execute({
       userId: created.id,
-      name: 'John',
-      lastName: 'Doe',
-      password: 'Senha@123',
-      newPassword: 'NovaSenha@456',
-      repeatPassword: 'NovaSenha@456',
+      dto: {
+        name: 'John',
+        lastName: 'Doe',
+        password: 'Senha@123',
+        newPassword: 'NovaSenha@456',
+        repeatPassword: 'NovaSenha@456',
+      },
     })
 
     const user = await usersRepository.findByIdWithPassword({
@@ -75,9 +79,7 @@ describe('Update Profile Use Case', () => {
     await expect(() =>
       sut.execute({
         userId: 'non-existent-id',
-        name: 'John',
-        lastName: 'Doe',
-        password: 'Senha@123',
+        dto: { name: 'John', lastName: 'Doe', password: 'Senha@123' },
       }),
     ).rejects.toBeInstanceOf(UserNotFoundError)
   })
@@ -95,9 +97,7 @@ describe('Update Profile Use Case', () => {
     await expect(() =>
       sut.execute({
         userId: created.id,
-        name: 'John',
-        lastName: 'Doe',
-        password: 'SenhaErrada@123',
+        dto: { name: 'John', lastName: 'Doe', password: 'SenhaErrada@123' },
       }),
     ).rejects.toBeInstanceOf(InvalidCurrentPasswordError)
   })

@@ -42,8 +42,10 @@ describe('Sign In Use Case', () => {
     await usersRepository.markEmailAsVerified({ userId: user.id })
 
     const { accessToken, refreshToken } = await sut.execute({
-      email: 'johndoe@example.com',
-      password: '123456',
+      dto: {
+        email: 'johndoe@example.com',
+        password: '123456',
+      },
     })
 
     expect(accessToken).toEqual(expect.any(String))
@@ -62,8 +64,10 @@ describe('Sign In Use Case', () => {
 
     await expect(() =>
       sut.execute({
-        email: 'johndoe@example.com',
-        password: '123456',
+        dto: {
+          email: 'johndoe@example.com',
+          password: '123456',
+        },
       }),
     ).rejects.toBeInstanceOf(EmailNotVerifiedError)
   })
@@ -71,8 +75,10 @@ describe('Sign In Use Case', () => {
   it('should not be able to do sign in with wrong email', async () => {
     await expect(() =>
       sut.execute({
-        email: 'johndoe@example.com',
-        password: '123456',
+        dto: {
+          email: 'johndoe@example.com',
+          password: '123456',
+        },
       }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })
@@ -89,8 +95,10 @@ describe('Sign In Use Case', () => {
 
     await expect(() =>
       sut.execute({
-        email: 'johndoe@example.com',
-        password: '123123',
+        dto: {
+          email: 'johndoe@example.com',
+          password: '123123',
+        },
       }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })

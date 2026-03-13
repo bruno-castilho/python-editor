@@ -5,6 +5,10 @@ import type { ISendPasswordReset } from '../emails/interfaces/send-password-rese
 import type { IPasswordResetTokenKeyValueStore } from '../key-value-stores/interfaces/password-reset-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 
+interface ForgotPasswordUseCaseParams {
+  dto: ForgotPasswordDTO
+}
+
 export class ForgotPasswordUseCase {
   constructor(
     private usersRepository: IUsersRepository,
@@ -14,8 +18,8 @@ export class ForgotPasswordUseCase {
     private sendPasswordReset: ISendPasswordReset,
   ) {}
 
-  async execute(params: ForgotPasswordDTO) {
-    const { email } = params
+  async execute({ dto }: ForgotPasswordUseCaseParams) {
+    const { email } = dto
 
     const user = await this.usersRepository.findByEmail({ email })
 

@@ -49,7 +49,7 @@ describe('Resend email verification', () => {
       hashedPassword: 'hashed-password',
     })
 
-    await sut.execute({ email: 'johndoe@example.com' })
+    await sut.execute({ dto: { email: 'johndoe@example.com' } })
 
     expect(fakeSendEmailVerification.emailsSsent[0]).toEqual({
       email: 'johndoe@example.com',
@@ -65,7 +65,7 @@ describe('Resend email verification', () => {
       hashedPassword: 'hashed-password',
     })
 
-    await sut.execute({ email: 'johndoe@example.com' })
+    await sut.execute({ dto: { email: 'johndoe@example.com' } })
 
     expect(emailVerificationTokenKeyValueStore.store.size).toEqual(1)
   })
@@ -81,13 +81,13 @@ describe('Resend email verification', () => {
     await usersRepository.markEmailAsVerified({ userId: user.id })
 
     await expect(() =>
-      sut.execute({ email: 'johndoe@example.com' }),
+      sut.execute({ dto: { email: 'johndoe@example.com' } }),
     ).rejects.toBeInstanceOf(EmailAlreadyVerifiedError)
   })
 
   it('should not be able to resend the verification email if the user not exits', async () => {
     await expect(() =>
-      sut.execute({ email: 'johndoe@example.com' }),
+      sut.execute({ dto: { email: 'johndoe@example.com' } }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })
 })

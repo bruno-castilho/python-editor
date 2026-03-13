@@ -44,7 +44,7 @@ describe('Forgot password', () => {
       hashedPassword: 'hashed-password',
     })
 
-    await sut.execute({ email: 'johndoe@example.com' })
+    await sut.execute({ dto: { email: 'johndoe@example.com' } })
 
     expect(passwordResetTokenKeyValueStore.store.size).toBe(1)
     expect(sendPasswordReset.emailsSent).toHaveLength(1)
@@ -55,7 +55,7 @@ describe('Forgot password', () => {
   })
 
   it('should not be able to send a password reset email when user does not exist', async () => {
-    await sut.execute({ email: 'nonexistent@example.com' })
+    await sut.execute({ dto: { email: 'nonexistent@example.com' } })
 
     expect(sendPasswordReset.emailsSent).toHaveLength(0)
     expect(passwordResetTokenKeyValueStore.store.size).toBe(0)
