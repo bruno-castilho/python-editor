@@ -1,19 +1,19 @@
+import { PasswordHashCompare } from '../../cryptography/hash-compare'
+import { AccessTokenSign, RefreshTokenSign } from '../../cryptography/jwt-sign'
 import { UsersRepository } from '../../repositories/users-repository'
-import { PasswordHasher } from '../../cryptography/hasher/password-hasher'
-import { AccessToken } from '../../cryptography/jwt/access-token'
-import { RefreshToken } from '../../cryptography/jwt/refresh-token'
+
 import { SignInUseCase } from '../sign-in'
 
 export function makeSignInUseCase() {
   const usersRepository = new UsersRepository()
-  const accessToken = new AccessToken()
-  const refreshToken = new RefreshToken()
-  const passwordHasher = new PasswordHasher()
+  const accessTokenSign = new AccessTokenSign()
+  const refreshTokenSign = new RefreshTokenSign()
+  const passwordHashCompare = new PasswordHashCompare()
 
   return new SignInUseCase(
     usersRepository,
-    accessToken,
-    refreshToken,
-    passwordHasher,
+    accessTokenSign,
+    refreshTokenSign,
+    passwordHashCompare,
   )
 }

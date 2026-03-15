@@ -3,36 +3,31 @@ import { InvalidEmailVerificationTokenError } from './errors/invalid-email-verif
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
 import { FakeEmailVerificationTokenKeyValueStore } from '../../test/key-value-stores/fake-email-verification-token-key-value-store'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
-import { FakeToken } from '../../test/cryptography/fake-token'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeTokenGenerator } from '../../test/cryptography/fake-token-generator'
 
 let data: Data
 let sut: VerifyEmailUseCase
 
 let usersRepository: FakeUsersRepository
-let hasher: FakeHasher
+let hashGenerator: FakeHashGenerator
 let emailVerificationTokenKeyValueStore: FakeEmailVerificationTokenKeyValueStore
-let token: FakeToken
+let tokenGenerator: FakeTokenGenerator
 
 describe('Verify email', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    hasher = new FakeHasher()
+    hashGenerator = new FakeHashGenerator()
     emailVerificationTokenKeyValueStore =
       new FakeEmailVerificationTokenKeyValueStore()
     sut = new VerifyEmailUseCase(
       usersRepository,
-      hasher,
+      hashGenerator,
       emailVerificationTokenKeyValueStore,
     )
 
-    token = new FakeToken()
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
+    tokenGenerator = new FakeTokenGenerator()
   })
 
   it('should be able to verify the email', async () => {
@@ -43,8 +38,8 @@ describe('Verify email', () => {
       hashedPassword: 'hashed-password',
     })
 
-    const rawToken = token.generate()
-    const hashedToken = await hasher.hash(rawToken)
+    const rawToken = tokenGenerator.generate()
+    const hashedToken = await hashGenerator.hash(rawToken)
 
     await emailVerificationTokenKeyValueStore.save({
       hashedToken,

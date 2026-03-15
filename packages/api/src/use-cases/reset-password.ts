@@ -1,8 +1,8 @@
 import type { ResetPasswordDTO } from '@python-editor/schemas/reset-password'
-import type { IHasher } from '../cryptography/interfaces/hasher'
-import type { IPasswordResetTokenKeyValueStore } from '../key-value-stores/interfaces/password-reset-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { InvalidPasswordResetTokenError } from './errors/invalid-password-reset-token-error'
+import type { IHashGenerator } from '../cryptography/interfaces/hash-generator'
+import type { IPasswordResetTokenKeyValueStore } from '../key-value-stores/interfaces/password-reset-token-key-value-store'
 
 interface ResetPasswordParams {
   dto: ResetPasswordDTO
@@ -11,15 +11,15 @@ interface ResetPasswordParams {
 export class ResetPasswordUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private passwordHasher: IHasher,
-    private passwordResetTokenHasher: IHasher,
+    private passwordHashGenerator: IHashGenerator,
+    private passwordResetTokenHashGenerator: IHashGenerator,
     private passwordResetTokenKeyValueStore: IPasswordResetTokenKeyValueStore,
   ) {}
 
   async execute({ dto }: ResetPasswordParams) {
     const { token, password } = dto
 
-    const hashedToken = await this.passwordResetTokenHasher.hash(token)
+    const hashedToken = await this.passwordResetTokenHashGenerator.hash(token)
 
     const userId = await this.passwordResetTokenKeyValueStore.findUserIdByToken(
       {
@@ -31,7 +31,7 @@ export class ResetPasswordUseCase {
       throw new InvalidPasswordResetTokenError()
     }
 
-    const hashedPassword = await this.passwordHasher.hash(password)
+    const hashedPassword = await this.passwordHashGenerator.hash(password)
 
     await this.usersRepository.updatePassword({ userId, hashedPassword })
     await this.passwordResetTokenKeyValueStore.delete({ hashedToken })

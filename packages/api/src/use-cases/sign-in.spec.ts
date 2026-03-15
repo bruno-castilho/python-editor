@@ -1,36 +1,32 @@
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
 import { SignInUseCase } from './sign-in'
-import { FakeJWT } from '../../test/cryptography/fake-jwt'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
+import { FakeJWTSign } from '../../test/cryptography/fake-jwt-sign'
+import { FakeHashCompare } from '../../test/cryptography/fake-hash-compare'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
 
 let data: Data
 let usersRepository: FakeUsersRepository
 let sut: SignInUseCase
-let accessToken: FakeJWT
-let refreshToken: FakeJWT
-let hasher: FakeHasher
+let jwtSign: FakeJWTSign
+let hashCompare: FakeHashCompare
+let hashGenerator: FakeHashGenerator
 
 describe('Sign In Use Case', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    accessToken = new FakeJWT()
-    refreshToken = new FakeJWT()
-    hasher = new FakeHasher()
-    sut = new SignInUseCase(usersRepository, accessToken, refreshToken, hasher)
+    jwtSign = new FakeJWTSign()
+    hashCompare = new FakeHashCompare()
+    sut = new SignInUseCase(usersRepository, jwtSign, jwtSign, hashCompare)
 
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
+    hashGenerator = new FakeHashGenerator()
   })
 
   it('should be able to do sign in with a verified email', async () => {
-    const hashedPassword = await hasher.hash('123456')
+    const hashedPassword = await hashGenerator.hash('123456')
 
     const user = await usersRepository.create({
       name: 'John',
@@ -53,7 +49,7 @@ describe('Sign In Use Case', () => {
   })
 
   it('should not be able to do sign in with an unverified email', async () => {
-    const hashedPassword = await hasher.hash('123456')
+    const hashedPassword = await hashGenerator.hash('123456')
 
     await usersRepository.create({
       name: 'John',
@@ -84,7 +80,7 @@ describe('Sign In Use Case', () => {
   })
 
   it('should not be able to do sign in with wrong password', async () => {
-    const hashedPassword = await hasher.hash('123456')
+    const hashedPassword = await hashGenerator.hash('123456')
 
     await usersRepository.create({
       name: 'John',

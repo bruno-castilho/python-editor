@@ -1,10 +1,11 @@
 import '@fastify/cookie'
-import { AccessToken } from './cryptography/jwt/access-token'
+
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import { TRPCError } from '@trpc/server'
 import { TokenExpiredError } from 'jsonwebtoken'
+import { AccessTokenVerify } from './cryptography/jwt-verify'
 
-const accessToken = new AccessToken()
+const accessTokenVerify = new AccessTokenVerify()
 
 export async function createContext({ req, res }: CreateFastifyContextOptions) {
   try {
@@ -14,7 +15,7 @@ export async function createContext({ req, res }: CreateFastifyContextOptions) {
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7)
 
-      const payload = accessToken.verify(token)
+      const payload = accessTokenVerify.verifyAndParse(token)
       session = { userId: payload.userId }
     }
 

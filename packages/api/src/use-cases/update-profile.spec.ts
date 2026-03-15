@@ -1,25 +1,28 @@
 import { UpdateProfileUseCase } from './update-profile'
 import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
 import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeHashCompare } from '../../test/cryptography/fake-hash-compare'
 
 let data: Data
 let usersRepository: FakeUsersRepository
-let hasher: FakeHasher
+let hashCompare: FakeHashCompare
+let hashGenerator: FakeHashGenerator
 let sut: UpdateProfileUseCase
 
 describe('Update Profile Use Case', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    hasher = new FakeHasher()
-    sut = new UpdateProfileUseCase(usersRepository, hasher)
+    hashCompare = new FakeHashCompare()
+    hashGenerator = new FakeHashGenerator()
+    sut = new UpdateProfileUseCase(usersRepository, hashCompare, hashGenerator)
   })
 
   it('should be able to update name, lastName and email', async () => {
-    const hashedPassword = await hasher.hash('Senha@123')
+    const hashedPassword = await hashGenerator.hash('Senha@123')
 
     const created = await usersRepository.create({
       name: 'John',
@@ -46,7 +49,7 @@ describe('Update Profile Use Case', () => {
   })
 
   it('should be able to update the password when newPassword is provided', async () => {
-    const hashedPassword = await hasher.hash('Senha@123')
+    const hashedPassword = await hashGenerator.hash('Senha@123')
 
     const created = await usersRepository.create({
       name: 'John',
@@ -71,7 +74,7 @@ describe('Update Profile Use Case', () => {
     })
 
     await expect(
-      hasher.compare('NovaSenha@456', user?.hashedPassword ?? ''),
+      hashCompare.compare('NovaSenha@456', user?.hashedPassword ?? ''),
     ).resolves.toEqual(true)
   })
 
@@ -85,7 +88,7 @@ describe('Update Profile Use Case', () => {
   })
 
   it('should not be able to update profile with wrong current password', async () => {
-    const hashedPassword = await hasher.hash('Senha@123')
+    const hashedPassword = await hashGenerator.hash('Senha@123')
 
     const created = await usersRepository.create({
       name: 'John',

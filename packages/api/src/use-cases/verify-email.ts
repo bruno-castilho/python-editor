@@ -1,8 +1,8 @@
 import type { VerifyEmailDTO } from '@python-editor/schemas/verify-email'
-import type { IHasher } from '../cryptography/interfaces/hasher'
 import type { IEmailVerificationTokenKeyValueStore } from '../key-value-stores/interfaces/email-verification-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { InvalidEmailVerificationTokenError } from './errors/invalid-email-verification-token-error'
+import type { IHashGenerator } from '../cryptography/interfaces/hash-generator'
 
 interface VerifyEmailUseCaseParams {
   dto: VerifyEmailDTO
@@ -11,13 +11,14 @@ interface VerifyEmailUseCaseParams {
 export class VerifyEmailUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private emailVerificationTokenHasher: IHasher,
+    private emailVerificationTokenHashGenerator: IHashGenerator,
     private emailVerificationTokenKeyValueStore: IEmailVerificationTokenKeyValueStore,
   ) {}
 
   async execute({ dto }: VerifyEmailUseCaseParams) {
     const { token } = dto
-    const hashedToken = await this.emailVerificationTokenHasher.hash(token)
+    const hashedToken =
+      await this.emailVerificationTokenHashGenerator.hash(token)
 
     const userId =
       await this.emailVerificationTokenKeyValueStore.findUserIdByToken({
@@ -29,6 +30,8 @@ export class VerifyEmailUseCase {
     }
 
     await this.usersRepository.markEmailAsVerified({ userId })
-    await this.emailVerificationTokenKeyValueStore.delete({ hashedToken })
+    await this.emailVerificationTokenKeyValueStore.delete({
+      hashedToken,
+    })
   }
 }

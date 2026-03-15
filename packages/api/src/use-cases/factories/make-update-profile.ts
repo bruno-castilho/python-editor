@@ -1,9 +1,17 @@
+import { PasswordHashCompare } from '../../cryptography/hash-compare'
+import { PasswordHashGenerator } from '../../cryptography/hash-generator'
 import { UsersRepository } from '../../repositories/users-repository'
-import { PasswordHasher } from '../../cryptography/hasher/password-hasher'
+
 import { UpdateProfileUseCase } from '../update-profile'
 
 export function makeUpdateProfileUseCase() {
   const usersRepository = new UsersRepository()
-  const passwordHasher = new PasswordHasher()
-  return new UpdateProfileUseCase(usersRepository, passwordHasher)
+  const passwordHashCompare = new PasswordHashCompare()
+  const passwordHashGenerator = new PasswordHashGenerator()
+
+  return new UpdateProfileUseCase(
+    usersRepository,
+    passwordHashCompare,
+    passwordHashGenerator,
+  )
 }

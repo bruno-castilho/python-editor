@@ -1,9 +1,9 @@
 import type { ForgotPasswordDTO } from '@python-editor/schemas/forgot-password'
-import type { IHasher } from '../cryptography/interfaces/hasher'
-import type { IToken } from '../cryptography/interfaces/token'
+import type { ITokenGenerator } from '../cryptography/interfaces/token-generator'
 import type { ISendPasswordReset } from '../emails/interfaces/send-password-reset'
 import type { IPasswordResetTokenKeyValueStore } from '../key-value-stores/interfaces/password-reset-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
+import type { IHashGenerator } from '../cryptography/interfaces/hash-generator'
 
 interface ForgotPasswordUseCaseParams {
   dto: ForgotPasswordDTO
@@ -12,13 +12,13 @@ interface ForgotPasswordUseCaseParams {
 export class ForgotPasswordUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private passwordResetToken: IToken,
-    private passwordResetTokenHasher: IHasher,
+    private passwordResetTokenGenerator: ITokenGenerator,
+    private passwordResetTokenGeneratorHashGenerator: IHashGenerator,
     private passwordResetTokenKeyValueStore: IPasswordResetTokenKeyValueStore,
     private sendPasswordReset: ISendPasswordReset,
   ) {}
 
-  async execute({ dto }: ForgotPasswordUseCaseParams) {
+  public async execute({ dto }: ForgotPasswordUseCaseParams) {
     const { email } = dto
 
     const user = await this.usersRepository.findByEmail({ email })
@@ -27,9 +27,9 @@ export class ForgotPasswordUseCase {
       return
     }
 
-    const token = this.passwordResetToken.generate()
+    const token = this.passwordResetTokenGenerator.generate()
 
-    await this.saveEncryptedPasswordResetToken({
+    await this.saveEncryptedPasswordResetTokenGenerator({
       userId: user.id,
       token,
     })
@@ -37,12 +37,13 @@ export class ForgotPasswordUseCase {
     await this.sendPasswordReset.send({ email, token })
   }
 
-  private async saveEncryptedPasswordResetToken(params: {
+  private async saveEncryptedPasswordResetTokenGenerator(params: {
     userId: string
     token: string
   }) {
     const { userId, token } = params
-    const hashedToken = await this.passwordResetTokenHasher.hash(token)
+    const hashedToken =
+      await this.passwordResetTokenGeneratorHashGenerator.hash(token)
     await this.passwordResetTokenKeyValueStore.save({
       hashedToken,
       userId,

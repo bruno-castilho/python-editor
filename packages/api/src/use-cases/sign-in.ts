@@ -1,8 +1,8 @@
 import type { SignInDTO } from '@python-editor/schemas/sign-in'
-import type { IJWT } from '../cryptography/interfaces/jwt'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
-import type { IHasher } from '../cryptography/interfaces/hasher'
-
+import type { IHashCompare } from '../cryptography/interfaces/hash-compare'
+import type { IJWTSign } from '../cryptography/interfaces/jwt-sign'
+import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
 
@@ -13,9 +13,9 @@ interface SignInUseCaseParams {
 export class SignInUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private accessToken: IJWT,
-    private refreshToken: IJWT,
-    private passwordHasher: IHasher,
+    private accessTokenSign: IJWTSign<JWTPayloadDTO>,
+    private refreshTokenSign: IJWTSign<JWTPayloadDTO>,
+    private passwordHashCompare: IHashCompare,
   ) {}
 
   async execute({ dto }: SignInUseCaseParams) {
@@ -29,7 +29,7 @@ export class SignInUseCase {
 
     const { hashedPassword, ...userWithoutPassword } = user
 
-    const doesPasswordMatches = await this.passwordHasher.compare(
+    const doesPasswordMatches = await this.passwordHashCompare.compare(
       password,
       hashedPassword ?? '',
     )
@@ -40,8 +40,8 @@ export class SignInUseCase {
 
     const payload = { userId: user.id }
 
-    const accessToken = this.accessToken.sign(payload)
-    const refreshToken = this.refreshToken.sign(payload)
+    const accessToken = this.accessTokenSign.sign(payload)
+    const refreshToken = this.refreshTokenSign.sign(payload)
 
     return {
       accessToken,

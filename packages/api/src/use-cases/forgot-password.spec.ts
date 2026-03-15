@@ -1,16 +1,16 @@
 import { ForgotPasswordUseCase } from './forgot-password'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
-import { FakeToken } from '../../test/cryptography/fake-token'
-import { FakePasswordResetTokenKeyValueStore } from '../../test/key-value-stores/fake-password-reset-token-key-value-store'
 import { FakeSendPasswordReset } from '../../test/emails/fake-send-password-reset'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeTokenGenerator } from '../../test/cryptography/fake-token-generator'
+import { FakePasswordResetTokenKeyValueStore } from '../../test/key-value-stores/fake-password-reset-token-key-value-store'
 
 let data: Data
 let sut: ForgotPasswordUseCase
 let usersRepository: FakeUsersRepository
-let hasher: FakeHasher
-let token: FakeToken
+let tokenGenerator: FakeTokenGenerator
+let hashGenerator: FakeHashGenerator
 let passwordResetTokenKeyValueStore: FakePasswordResetTokenKeyValueStore
 let sendPasswordReset: FakeSendPasswordReset
 
@@ -18,22 +18,17 @@ describe('Forgot password', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    hasher = new FakeHasher()
-    token = new FakeToken()
+    tokenGenerator = new FakeTokenGenerator()
+    hashGenerator = new FakeHashGenerator()
     passwordResetTokenKeyValueStore = new FakePasswordResetTokenKeyValueStore()
     sendPasswordReset = new FakeSendPasswordReset()
     sut = new ForgotPasswordUseCase(
       usersRepository,
-      token,
-      hasher,
+      tokenGenerator,
+      hashGenerator,
       passwordResetTokenKeyValueStore,
       sendPasswordReset,
     )
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('Should be able to send a password reset email.', async () => {

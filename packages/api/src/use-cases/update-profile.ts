@@ -1,9 +1,9 @@
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
-import type { IHasher } from '../cryptography/interfaces/hasher'
 import type { UpdateUserDTO } from '@python-editor/schemas/update-user'
-
 import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
 import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
+import type { IHashGenerator } from '../cryptography/interfaces/hash-generator'
+import type { IHashCompare } from '../cryptography/interfaces/hash-compare'
 
 interface UpdateProfileParams {
   dto: UpdateUserDTO
@@ -13,7 +13,8 @@ interface UpdateProfileParams {
 export class UpdateProfileUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private passwordHasher: IHasher,
+    private passwordHashCompare: IHashCompare,
+    private passwordHashGenerator: IHashGenerator,
   ) {}
 
   async execute({ dto, userId }: UpdateProfileParams): Promise<void> {
@@ -25,7 +26,7 @@ export class UpdateProfileUseCase {
       throw new UserDoesNotExistsError()
     }
 
-    const passwordMatches = await this.passwordHasher.compare(
+    const passwordMatches = await this.passwordHashCompare.compare(
       password,
       user.hashedPassword,
     )
@@ -37,7 +38,7 @@ export class UpdateProfileUseCase {
     let hashedPassword: string | undefined
 
     if (newPassword) {
-      hashedPassword = await this.passwordHasher.hash(newPassword)
+      hashedPassword = await this.passwordHashGenerator.hash(newPassword)
     }
 
     await this.usersRepository.update({

@@ -1,10 +1,10 @@
 import type { RegisterUserDTO } from '@python-editor/schemas/register-user'
-import type { IHasher } from '../cryptography/interfaces/hasher'
-import type { IToken } from '../cryptography/interfaces/token'
+import type { ITokenGenerator } from '../cryptography/interfaces/token-generator'
 import type { ISendEmailVerification } from '../emails/interfaces/send-email-verification'
 import type { IEmailVerificationTokenKeyValueStore } from '../key-value-stores/interfaces/email-verification-token-key-value-store'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { UserAlreadyExistsError } from './errors/user-already-exists-error'
+import type { IHashGenerator } from '../cryptography/interfaces/hash-generator'
 
 interface RegisterUserUseCaseParams {
   dto: RegisterUserDTO
@@ -13,9 +13,9 @@ interface RegisterUserUseCaseParams {
 export class RegisterUserUseCase {
   constructor(
     private usersRepository: IUsersRepository,
-    private passwordHasher: IHasher,
-    private emailVerificationToken: IToken,
-    private emailVerificationTokenHasher: IHasher,
+    private passwordHashGenerator: IHashGenerator,
+    private emailVerificationTokenGenerator: ITokenGenerator,
+    private emailVerificationTokenHashGenerator: IHashGenerator,
     private emailVerificationTokenKeyValueStore: IEmailVerificationTokenKeyValueStore,
     private sendEmailVerification: ISendEmailVerification,
   ) {}
@@ -30,9 +30,12 @@ export class RegisterUserUseCase {
 
     const user = await this.createUserWithEncryptedPassword(dto)
 
-    const token = this.emailVerificationToken.generate()
+    const token = this.emailVerificationTokenGenerator.generate()
 
-    await this.saveEncryptedEmailVerificationToken({ userId: user.id, token })
+    await this.saveEncryptedEmailVerificationTokenGenerator({
+      userId: user.id,
+      token,
+    })
 
     await this.sendEmailVerification.send({ email, token })
   }
@@ -49,7 +52,7 @@ export class RegisterUserUseCase {
     password: string
   }) {
     const { name, lastName, email, password } = params
-    const hashedPassword = await this.passwordHasher.hash(password)
+    const hashedPassword = await this.passwordHashGenerator.hash(password)
     return this.usersRepository.create({
       name,
       lastName,
@@ -58,12 +61,13 @@ export class RegisterUserUseCase {
     })
   }
 
-  private async saveEncryptedEmailVerificationToken(params: {
+  private async saveEncryptedEmailVerificationTokenGenerator(params: {
     userId: string
     token: string
   }) {
     const { userId, token } = params
-    const hashedToken = await this.emailVerificationTokenHasher.hash(token)
+    const hashedToken =
+      await this.emailVerificationTokenHashGenerator.hash(token)
     return await this.emailVerificationTokenKeyValueStore.save({
       hashedToken,
       userId,

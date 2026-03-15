@@ -2,37 +2,30 @@ import { ResetPasswordUseCase } from './reset-password'
 import { InvalidPasswordResetTokenError } from './errors/invalid-password-reset-token-error'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
-import { FakeToken } from '../../test/cryptography/fake-token'
 import { FakePasswordResetTokenKeyValueStore } from '../../test/key-value-stores/fake-password-reset-token-key-value-store'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeTokenGenerator } from '../../test/cryptography/fake-token-generator'
 
 let data: Data
 let sut: ResetPasswordUseCase
 let usersRepository: FakeUsersRepository
-let passwordHasher: FakeHasher
-let tokenHasher: FakeHasher
-let token: FakeToken
+let hashGenerator: FakeHashGenerator
+let tokenGenerator: FakeTokenGenerator
 let passwordResetTokenKeyValueStore: FakePasswordResetTokenKeyValueStore
 
 describe('Reset password', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    passwordHasher = new FakeHasher()
-    tokenHasher = new FakeHasher()
-    token = new FakeToken()
+    hashGenerator = new FakeHashGenerator()
+    tokenGenerator = new FakeTokenGenerator()
     passwordResetTokenKeyValueStore = new FakePasswordResetTokenKeyValueStore()
     sut = new ResetPasswordUseCase(
       usersRepository,
-      passwordHasher,
-      tokenHasher,
+      hashGenerator,
+      hashGenerator,
       passwordResetTokenKeyValueStore,
     )
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('should be able to reset the password', async () => {
@@ -43,8 +36,8 @@ describe('Reset password', () => {
       hashedPassword: 'old-hashed-password',
     })
 
-    const rawToken = token.generate()
-    const hashedToken = await tokenHasher.hash(rawToken)
+    const rawToken = tokenGenerator.generate()
+    const hashedToken = await hashGenerator.hash(rawToken)
     await passwordResetTokenKeyValueStore.save({ hashedToken, userId: user.id })
 
     await sut.execute({

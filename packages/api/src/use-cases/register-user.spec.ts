@@ -2,17 +2,17 @@ import { RegisterUserUseCase } from './register-user'
 import { UserAlreadyExistsError } from './errors/user-already-exists-error'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
-import { FakeHasher } from '../../test/cryptography/fake-hasher'
-import { FakeToken } from '../../test/cryptography/fake-token'
 import { FakeEmailVerificationTokenKeyValueStore } from '../../test/key-value-stores/fake-email-verification-token-key-value-store'
 import { FakeSendEmailVerification } from '../../test/emails/fake-send-email-verification'
+import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeTokenGenerator } from '../../test/cryptography/fake-token-generator'
 
 let sut: RegisterUserUseCase
 
 let data: Data
 let usersRepository: FakeUsersRepository
-let hasher: FakeHasher
-let token: FakeToken
+let hashGenerator: FakeHashGenerator
+let tokenGenerator: FakeTokenGenerator
 let emailVerificationTokenKeyValueStore: FakeEmailVerificationTokenKeyValueStore
 let fakeSendEmailVerification: FakeSendEmailVerification
 
@@ -20,25 +20,19 @@ describe('Register user', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    hasher = new FakeHasher()
-    token = new FakeToken()
+    hashGenerator = new FakeHashGenerator()
+    tokenGenerator = new FakeTokenGenerator()
     emailVerificationTokenKeyValueStore =
       new FakeEmailVerificationTokenKeyValueStore()
     fakeSendEmailVerification = new FakeSendEmailVerification()
     sut = new RegisterUserUseCase(
       usersRepository,
-      hasher,
-      token,
-      hasher,
+      hashGenerator,
+      tokenGenerator,
+      hashGenerator,
       emailVerificationTokenKeyValueStore,
       fakeSendEmailVerification,
     )
-
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('should be able to register a new user', async () => {
