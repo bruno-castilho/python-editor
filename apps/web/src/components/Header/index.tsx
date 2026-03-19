@@ -4,7 +4,7 @@ import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import Container from '@mui/material/Container'
 
-import logo from '../../../assets/logo-python.svg'
+import logo from '../../assets/logo-python.svg'
 import { UserMenu } from './user-menu'
 import { PageMenu } from './page-menu'
 

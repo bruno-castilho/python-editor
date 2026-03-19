@@ -1,5 +1,4 @@
 'use client'
-import { DefaultLayout } from '@/layouts/DefaultLayout'
 import { trpc } from '@/utils/trpc'
 import { Edit } from '@mui/icons-material'
 import {
@@ -168,13 +167,12 @@ export default function Page() {
   }
 
   return (
-    <DefaultLayout>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="80dvh"
-      >
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="80dvh"
+    >
         <Box
           variant="outlined"
           component={Card}
@@ -340,7 +338,6 @@ export default function Page() {
             </Button>
           </Box>
         </Box>
-      </Box>
-    </DefaultLayout>
+    </Box>
   )
 }

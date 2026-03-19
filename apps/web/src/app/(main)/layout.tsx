@@ -1,11 +1,11 @@
-import { Header } from './Header'
+import { Header } from '@/components/Header'
 import { Box } from '@mui/material'
 
-interface DefaultLayoutProps {
+export default function MainLayout({
+  children,
+}: {
   children: React.ReactNode
-}
-
-export function DefaultLayout({ children }: DefaultLayoutProps) {
+}) {
   return (
     <>
       <Header />

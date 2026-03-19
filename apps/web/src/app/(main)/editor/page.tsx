@@ -16,10 +16,10 @@ import { VSEditor } from './components/VSEditor'
 import { Terminal, type TerminalEntry } from './components/Terminal'
 import { FileTabBar } from './components/FileTabBar'
 import { editor } from 'monaco-editor'
-import { DefaultLayout } from '@/layouts/DefaultLayout'
-import { usePyodide, type PythonFile } from '../../hooks/usePyodide'
+
 import { NewFileDialog } from '@/components/NewFileDialog'
 import { AlertContext } from '@/context/AlertContext'
+import { usePyodide, type PythonFile } from '@/hooks/usePyodide'
 
 const MAIN_DEFAULT_CONTENT = `# Python Editor\ndef greet(name: str) -> str:\n    """Return a greeting message."""\n    return f"Hello, {name}!"\n\nname = input("Enter your name: ")\n\nprint(greet(name))`
 
@@ -158,122 +158,120 @@ export default function Page() {
 
   return (
     <>
-      <DefaultLayout>
-        <Box component={Card} variant="outlined" maxWidth="1488px" width="100%">
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              px: 1,
-              py: 0.5,
-              gap: 1,
-            }}
-          >
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <FileTabBar
-                files={files}
-                activeFile={activeFile}
-                onSwitchFile={handleSwitchFile}
-                onDeleteFile={handleDeleteFile}
-              />
-            </Box>
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, flexShrink: 0 }}>
+      <Box component={Card} variant="outlined" maxWidth="1488px" width="100%">
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            px: 1,
+            py: 0.5,
+            gap: 1,
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <FileTabBar
+              files={files}
+              activeFile={activeFile}
+              onSwitchFile={handleSwitchFile}
+              onDeleteFile={handleDeleteFile}
+            />
+          </Box>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, flexShrink: 0 }}>
+            <Button
+              onClick={handleOpenNewFileDialog}
+              startIcon={<Add />}
+              color="primary"
+            >
+              New File
+            </Button>
+            <Button onClick={handleSave} startIcon={<Save />} color="primary">
+              Save
+            </Button>
+
+            {status === 'idle' ? (
               <Button
-                onClick={handleOpenNewFileDialog}
-                startIcon={<Add />}
+                onClick={handleCodeExecution}
+                startIcon={<PlayArrow />}
                 color="primary"
               >
-                New File
+                Run
               </Button>
-              <Button onClick={handleSave} startIcon={<Save />} color="primary">
-                Save
-              </Button>
-
-              {status === 'idle' ? (
-                <Button
-                  onClick={handleCodeExecution}
-                  startIcon={<PlayArrow />}
-                  color="primary"
-                >
-                  Run
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleStopExecution}
-                  startIcon={<Stop />}
-                  color="primary"
-                  loading={status === 'stopping'}
-                >
-                  Stop
-                </Button>
-              )}
-            </Box>
-            <Box sx={{ display: { xs: 'flex', md: 'none' }, flexShrink: 0 }}>
-              <IconButton onClick={handleOptionMenuOpen} color="primary">
-                <MoreVert />
-              </IconButton>
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleOptionMenuClose}
+            ) : (
+              <Button
+                onClick={handleStopExecution}
+                startIcon={<Stop />}
+                color="primary"
+                loading={status === 'stopping'}
               >
-                <MenuItem
-                  onClick={() => {
-                    handleOptionMenuClose()
-                    handleOpenNewFileDialog()
-                  }}
-                >
-                  <Add sx={{ mr: 1 }} fontSize="small" /> New File
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleOptionMenuClose()
-                    handleSave()
-                  }}
-                >
-                  <Save sx={{ mr: 1 }} fontSize="small" /> Save
-                </MenuItem>
-                {status === 'idle' ? (
-                  <MenuItem
-                    onClick={() => {
-                      handleOptionMenuClose()
-                      handleCodeExecution()
-                    }}
-                  >
-                    <PlayArrow sx={{ mr: 1 }} fontSize="small" /> Run
-                  </MenuItem>
-                ) : (
-                  <MenuItem
-                    onClick={() => {
-                      handleOptionMenuClose()
-                      handleStopExecution()
-                    }}
-                  >
-                    {status === 'stopping' ? (
-                      <CircularProgress size={16} sx={{ mr: 1 }} />
-                    ) : (
-                      <Stop sx={{ mr: 1 }} fontSize="small" />
-                    )}
-                    Stop
-                  </MenuItem>
-                )}
-              </Menu>
-            </Box>
+                Stop
+              </Button>
+            )}
           </Box>
-          <Divider />
-          <CardContent>
-            <VSEditor ref={editorRef} defaultValue={MAIN_DEFAULT_CONTENT} />
-          </CardContent>
-          <Divider />
-          <CardContent sx={{ height: '30vh' }}>
-            <Terminal
-              entries={terminalEntries}
-              onSubmitInput={handleSubmitInput}
-              pendingInput={pendingInput}
-            />
-          </CardContent>
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, flexShrink: 0 }}>
+            <IconButton onClick={handleOptionMenuOpen} color="primary">
+              <MoreVert />
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={handleOptionMenuClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleOptionMenuClose()
+                  handleOpenNewFileDialog()
+                }}
+              >
+                <Add sx={{ mr: 1 }} fontSize="small" /> New File
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleOptionMenuClose()
+                  handleSave()
+                }}
+              >
+                <Save sx={{ mr: 1 }} fontSize="small" /> Save
+              </MenuItem>
+              {status === 'idle' ? (
+                <MenuItem
+                  onClick={() => {
+                    handleOptionMenuClose()
+                    handleCodeExecution()
+                  }}
+                >
+                  <PlayArrow sx={{ mr: 1 }} fontSize="small" /> Run
+                </MenuItem>
+              ) : (
+                <MenuItem
+                  onClick={() => {
+                    handleOptionMenuClose()
+                    handleStopExecution()
+                  }}
+                >
+                  {status === 'stopping' ? (
+                    <CircularProgress size={16} sx={{ mr: 1 }} />
+                  ) : (
+                    <Stop sx={{ mr: 1 }} fontSize="small" />
+                  )}
+                  Stop
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
         </Box>
-      </DefaultLayout>
+        <Divider />
+        <CardContent>
+          <VSEditor ref={editorRef} defaultValue={MAIN_DEFAULT_CONTENT} />
+        </CardContent>
+        <Divider />
+        <CardContent sx={{ height: '30vh' }}>
+          <Terminal
+            entries={terminalEntries}
+            onSubmitInput={handleSubmitInput}
+            pendingInput={pendingInput}
+          />
+        </CardContent>
+      </Box>
       <NewFileDialog
         open={openNewFileDialog}
         onClose={handleOpenNewFileDialog}

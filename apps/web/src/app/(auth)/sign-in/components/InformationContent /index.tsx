@@ -8,7 +8,7 @@ import {
 } from '@mui/icons-material'
 
 import Image from 'next/image'
-import logo from '../../../../assets/logo-python.svg'
+import logo from '../../../../../assets/logo-python.svg'
 
 export function InformationContent() {
   return (
