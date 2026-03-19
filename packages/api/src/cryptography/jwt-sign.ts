@@ -28,9 +28,9 @@ export class AccessTokenSign extends JWTSign<JWTPayloadDTO> {
 
 export class RefreshTokenSign extends JWTSign<JWTPayloadDTO> {
   constructor() {
-    const publicKeyBase64: string = env.REFRESH_TOKEN_PUBLIC_KEY
-    const publicKey = Buffer.from(publicKeyBase64, 'base64').toString('utf-8')
+    const pivateKeyBase64: string = env.REFRESH_TOKEN_PRIVATE_KEY
+    const privateKey = Buffer.from(pivateKeyBase64, 'base64').toString('utf-8')
 
-    super(publicKey, 'RS256', '7d')
+    super(privateKey, 'RS256', '7d')
   }
 }

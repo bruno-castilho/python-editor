@@ -17,11 +17,13 @@
     "@python-editor/env": "*",
     "@python-editor/mailer": "*",
     "@python-editor/redis": "*",
+    "@python-editor/s3": "*",
     "@python-editor/schemas": "*",
     "@trpc/client": "^11.7.2",
     "@trpc/server": "^11.7.2",
     "dotenv": "^17.2.2",
     "jsonwebtoken": "^9.0.3",
+    "uuid": "^13.0.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

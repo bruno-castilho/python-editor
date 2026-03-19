@@ -24,4 +24,6 @@ export interface IUsersRepository {
     lastName: string
     hashedPassword?: string
   }): Promise<void>
+
+  updateAvatar(params: { userId: string; avatar: string | null }): Promise<void>
 }

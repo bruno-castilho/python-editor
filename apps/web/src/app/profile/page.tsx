@@ -22,13 +22,16 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
+import { uploadAvatarSchema } from '@python-editor/schemas/upload-avatar'
+
+import { uploadAvatar } from '@/api/upload-avatar'
+import axios from 'axios'
+import { ZodError } from 'zod'
 
 export default function Page() {
-  const alert = useContext(AlertContext)
-
-  const queryClient = useQueryClient()
-  const { data, isPending } = useQuery(trpc.users.getProfile.queryOptions())
-
+  const { data, isPending: isPendingGetProfile } = useQuery(
+    trpc.users.getProfile.queryOptions(),
+  )
   const user = data?.user
 
   const {
@@ -46,7 +49,13 @@ export default function Page() {
     },
   })
 
-  const { mutateAsync, isPending: isMutating } = useMutation(
+  const alert = useContext(AlertContext)
+  const queryClient = useQueryClient()
+
+  const {
+    mutateAsync: updateProfileMutateAsync,
+    isPending: isPendingUpdateProfile,
+  } = useMutation(
     trpc.users.updateProfile.mutationOptions({
       onSuccess(responseData, formData) {
         const queryKey = trpc.users.getProfile.queryKey()
@@ -63,15 +72,101 @@ export default function Page() {
 
         alert.success(responseData.message)
       },
-      onError(err) {
-        alert.error(err.message)
+      onError(error) {
+        alert.error(error.message)
       },
     }),
   )
 
-  async function handleSubmitForm(data: UpdateUserDTO) {
-    await mutateAsync(data)
+  async function handleSubmitProfileForm(data: UpdateUserDTO) {
+    await updateProfileMutateAsync(data)
   }
+
+  const {
+    mutateAsync: uploadAvatarMutateAsync,
+    isPending: isPendingUploadAvatar,
+  } = useMutation({
+    mutationFn: uploadAvatar,
+    onSuccess: (responseData) => {
+      const { avatarUrl, message } = responseData
+
+      const queryKey = trpc.users.getProfile.queryKey()
+      queryClient.setQueryData(queryKey, (currentData) => {
+        if (!currentData?.user) return currentData
+        return {
+          user: {
+            ...currentData.user,
+            avatarUrl,
+          },
+        }
+      })
+
+      alert.success(message)
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response?.data.msg) {
+        const { message } = error.response.data
+        alert.error(message)
+        return
+      }
+
+      alert.error('Something went wrong')
+    },
+  })
+
+  async function handleUploadAvatar(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    try {
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      uploadAvatarSchema.parse({
+        contentType: file.type,
+        fileSize: file.size,
+      })
+
+      await uploadAvatarMutateAsync({ file })
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const message = error.issues[0]?.message
+        alert.error(message ?? 'Invalid file')
+        return
+      }
+
+      alert.error('Something went wrong')
+    }
+  }
+
+  const {
+    mutateAsync: removeAvatarMutateAsync,
+    isPending: isPendingRemoveAvatar,
+  } = useMutation(
+    trpc.users.removeAvatar.mutationOptions({
+      onSuccess(responseData) {
+        const queryKey = trpc.users.getProfile.queryKey()
+        queryClient.setQueryData(queryKey, (currentData) => {
+          if (!currentData?.user) return currentData
+          return {
+            user: {
+              ...currentData.user,
+              avatarUrl: null,
+            },
+          }
+        })
+
+        alert.success(responseData.message)
+      },
+      onError(error) {
+        alert.error(error.message)
+      },
+    }),
+  )
+
+  async function handleRemoveAvatar() {
+    await removeAvatarMutateAsync()
+  }
+
   return (
     <DefaultLayout>
       <Box
@@ -88,33 +183,58 @@ export default function Page() {
           gap={2}
           overflow="auto"
         >
-          <Box display="flex" justifyContent="center">
+          <Box
+            display="flex"
+            justifyContent="center"
+            flexDirection="column"
+            alignItems="center"
+            gap={1}
+            mb={2}
+          >
             <Badge
               overlap="circular"
               badgeContent={
-                <>
-                  <IconButton
-                    size="large"
-                    sx={{ p: 0, color: 'text.secondary' }}
-                  >
-                    <Edit fontSize="large" />
-                  </IconButton>
-                </>
+                <IconButton
+                  component="label"
+                  size="large"
+                  sx={{ p: 0, color: 'text.secondary' }}
+                  disabled={isPendingUploadAvatar}
+                >
+                  <Edit fontSize="large" />
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                    onChange={handleUploadAvatar}
+                  />
+                </IconButton>
               }
             >
               <Avatar
+                src={user?.avatarUrl || ''}
                 alt={user?.name}
                 sx={{
                   width: 128,
                   height: 128,
                   fontSize: 64,
+                  border: 3,
+                  borderColor: 'secondary.main',
                 }}
               />
             </Badge>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={handleRemoveAvatar}
+              disabled={!user?.avatarUrl || isPendingRemoveAvatar}
+            >
+              Remove Avatar
+            </Button>
           </Box>
           <Box
             component="form"
-            onSubmit={handleSubmit(handleSubmitForm)}
+            onSubmit={handleSubmit(handleSubmitProfileForm)}
             display="flex"
             flexDirection="column"
             width="100%"
@@ -214,7 +334,7 @@ export default function Page() {
               size="small"
               fullWidth
               variant="contained"
-              disabled={isPending || isMutating}
+              disabled={isPendingGetProfile || isPendingUpdateProfile}
             >
               Continue
             </Button>

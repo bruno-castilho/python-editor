@@ -1,8 +1,7 @@
 import '@fastify/cookie'
-
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import { TRPCError } from '@trpc/server'
-import { TokenExpiredError } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { AccessTokenVerify } from './cryptography/jwt-verify'
 
 const accessTokenVerify = new AccessTokenVerify()
@@ -30,7 +29,7 @@ export async function createContext({ req, res }: CreateFastifyContextOptions) {
 }
 
 function createContextErrorHandler(error: unknown): never {
-  if (error instanceof TokenExpiredError) {
+  if (error instanceof jwt.TokenExpiredError) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token expired' })
   }
   throw error

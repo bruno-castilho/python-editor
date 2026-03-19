@@ -17,6 +17,7 @@ model User {
   hashedPassword String
   emailVerified  Boolean  @default(false)
   createdAt      DateTime @default(now())
+  avatar         String?
 
   @@map("users")
 }

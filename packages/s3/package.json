@@ -1,0 +1,20 @@
+{
+  "name": "@python-editor/s3",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {},
+
+  "devDependencies": {
+    "@python-editor/config": "*"
+  },
+
+  "dependencies": {
+    "@python-editor/env": "*",
+    "@aws-sdk/client-s3": "^3"
+  }
+
+}

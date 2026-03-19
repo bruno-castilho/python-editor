@@ -88,4 +88,15 @@ export class UsersRepository implements IUsersRepository {
       data: { name, lastName, ...(hashedPassword && { hashedPassword }) },
     })
   }
+
+  async updateAvatar(params: {
+    userId: string
+    avatar: string | null
+  }): Promise<void> {
+    const { userId, avatar } = params
+    await prisma.user.update({
+      where: { id: userId },
+      data: { avatar },
+    })
+  }
 }
