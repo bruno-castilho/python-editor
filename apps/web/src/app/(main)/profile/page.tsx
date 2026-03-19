@@ -26,6 +26,7 @@ import { uploadAvatarSchema } from '@python-editor/schemas/upload-avatar'
 import { uploadAvatar } from '@/api/upload-avatar'
 import axios from 'axios'
 import { ZodError } from 'zod'
+import { OnlyUserPage } from '@/permissions/onlyUserPage'
 
 export default function Page() {
   const { data, isPending: isPendingGetProfile } = useQuery(
@@ -167,12 +168,13 @@ export default function Page() {
   }
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="80dvh"
-    >
+    <OnlyUserPage>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="80dvh"
+      >
         <Box
           variant="outlined"
           component={Card}
@@ -338,6 +340,7 @@ export default function Page() {
             </Button>
           </Box>
         </Box>
-    </Box>
+      </Box>
+    </OnlyUserPage>
   )
 }

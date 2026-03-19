@@ -24,6 +24,9 @@ const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${env.NEXT_PUBLIC_SERVER_URL}/trpc`,
+      fetch(url, options) {
+        return fetch(url, { ...options, credentials: 'include' })
+      },
       headers() {
         const token = getAccessToken()
         if (!token) return {}

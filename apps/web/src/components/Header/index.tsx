@@ -7,8 +7,12 @@ import Container from '@mui/material/Container'
 import logo from '../../assets/logo-python.svg'
 import { UserMenu } from './user-menu'
 import { PageMenu } from './page-menu'
+import { getAccessToken } from '@/utils/access-token-store'
+import { GuestMenu } from './guest-menu'
 
 export function Header() {
+  const accessToken = getAccessToken()
+
   return (
     <Box component={AppBar} position="static">
       <Container maxWidth="xl">
@@ -31,7 +35,8 @@ export function Header() {
             mr={2}
           />
           <Box flexGrow={1} />
-          <UserMenu />
+          {accessToken && <UserMenu />}
+          {!accessToken && <GuestMenu />}
         </Toolbar>
       </Container>
     </Box>
