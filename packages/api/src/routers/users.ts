@@ -12,6 +12,7 @@ import { makeForgotPasswordUseCase } from '../use-cases/factories/make-forgot-pa
 import { makeResetPasswordUseCase } from '../use-cases/factories/make-reset-password'
 import { makeGetProfileUseCase } from '../use-cases/factories/make-get-profile'
 import { makeUpdateProfileUseCase } from '../use-cases/factories/make-update-profile'
+import { makeRemoveAvatar } from '../use-cases/factories/make-remove-avatar'
 import { registerUserErrorHandler } from './error-handlers/register-user-error-handler'
 import { verifyEmailErrorHandler } from './error-handlers/verify-email-error-handler'
 import { resendVerificationEmailErrorHandler } from './error-handlers/resend-verification-email-error-handler'
@@ -19,6 +20,8 @@ import { forgotPasswordErrorHandler } from './error-handlers/forgot-password-err
 import { resetPasswordErrorHandler } from './error-handlers/reset-password-erro-handler'
 import { getProfileErrorHandler } from './error-handlers/get-profile-error-handler'
 import { updateProfileErrorHandler } from './error-handlers/update-profile-error-handler'
+import { removeAvatarErrorHandler } from './error-handlers/remove-avatar-error-handler'
+import { env } from '@python-editor/env/server'
 
 export const usersRouter = router({
   registerUser: publicProcedure
@@ -105,7 +108,11 @@ export const usersRouter = router({
       const { user } = await getProfileUseCase.execute({
         userId: ctx.session.userId,
       })
-      return { user }
+
+      const avatarUrl = user.avatar
+        ? `${env.STORAGE_PUBLIC_URL}/${user.avatar}`
+        : null
+      return { user: { ...user, avatarUrl } }
     } catch (error) {
       getProfileErrorHandler(error)
     }
@@ -129,6 +136,16 @@ export const usersRouter = router({
         updateProfileErrorHandler(error)
       }
     }),
+
+  removeAvatar: authenticatedProcedure.mutation(async ({ ctx }) => {
+    try {
+      const removeAvatarUseCase = makeRemoveAvatar()
+      await removeAvatarUseCase.execute({ userId: ctx.session.userId })
+      return { message: 'Avatar removed successfully!' }
+    } catch (error) {
+      removeAvatarErrorHandler(error)
+    }
+  }),
 })
 
 export type UserRouter = typeof usersRouter

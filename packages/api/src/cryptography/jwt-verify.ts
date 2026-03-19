@@ -1,7 +1,10 @@
 import { env } from '@python-editor/env/server'
 import type { IJWTVerify } from './interfaces/jwt-verify'
-import jwt, { type JwtPayload } from 'jsonwebtoken'
-import { jwtPayloadSchema } from '@python-editor/schemas/jwt-payload'
+import jwt from 'jsonwebtoken'
+import {
+  jwtPayloadSchema,
+  type JWTPayloadDTO,
+} from '@python-editor/schemas/jwt-payload'
 
 abstract class JWTVerify<Payload> implements IJWTVerify<Payload> {
   constructor(
@@ -20,7 +23,7 @@ abstract class JWTVerify<Payload> implements IJWTVerify<Payload> {
   protected abstract parse(payload: unknown): Payload
 }
 
-export class AccessTokenVerify extends JWTVerify<JwtPayload> {
+export class AccessTokenVerify extends JWTVerify<JWTPayloadDTO> {
   constructor() {
     const secret = env.ACCESS_TOKEN_SECRET
     super(secret, 'HS256')
@@ -31,7 +34,7 @@ export class AccessTokenVerify extends JWTVerify<JwtPayload> {
   }
 }
 
-export class RefreshTokenVerify extends JWTVerify<JwtPayload> {
+export class RefreshTokenVerify extends JWTVerify<JWTPayloadDTO> {
   constructor() {
     const publicKeyBase64: string = env.REFRESH_TOKEN_PUBLIC_KEY
     const publicKey = Buffer.from(publicKeyBase64, 'base64').toString('utf-8')

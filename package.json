@@ -26,6 +26,7 @@
     "@python-editor/env": "*",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.2",
+    "uuid": "^13.0.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

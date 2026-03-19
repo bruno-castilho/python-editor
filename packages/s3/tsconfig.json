@@ -1,0 +1,3 @@
+{
+  "extends": "@python-editor/config/tsconfig.base.json"
+}
