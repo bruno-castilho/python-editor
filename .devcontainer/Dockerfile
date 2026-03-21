@@ -16,5 +16,3 @@ RUN apt-get update && apt-get install -y \
     iputils-ping
 
 RUN npm install -g @anthropic-ai/claude-code
-
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
