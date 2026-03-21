@@ -13,138 +13,91 @@ import { makeResetPasswordUseCase } from '../use-cases/factories/make-reset-pass
 import { makeGetProfileUseCase } from '../use-cases/factories/make-get-profile'
 import { makeUpdateProfileUseCase } from '../use-cases/factories/make-update-profile'
 import { makeRemoveAvatar } from '../use-cases/factories/make-remove-avatar'
-import { registerUserErrorHandler } from './error-handlers/register-user-error-handler'
-import { verifyEmailErrorHandler } from './error-handlers/verify-email-error-handler'
-import { resendVerificationEmailErrorHandler } from './error-handlers/resend-verification-email-error-handler'
-import { forgotPasswordErrorHandler } from './error-handlers/forgot-password-error-handler'
-import { resetPasswordErrorHandler } from './error-handlers/reset-password-erro-handler'
-import { getProfileErrorHandler } from './error-handlers/get-profile-error-handler'
-import { updateProfileErrorHandler } from './error-handlers/update-profile-error-handler'
-import { removeAvatarErrorHandler } from './error-handlers/remove-avatar-error-handler'
 import { env } from '@python-editor/env/server'
 
 export const usersRouter = router({
   registerUser: publicProcedure
     .input(registerUserSchema)
     .mutation(async ({ input: dto }) => {
-      try {
-        const registerUserUseCase = makeRegisterUserUseCase()
-        await registerUserUseCase.execute({ dto })
+      const registerUserUseCase = makeRegisterUserUseCase()
+      await registerUserUseCase.execute({ dto })
 
-        return {
-          message:
-            'Account created successfully! Check your email to activate your account.',
-        }
-      } catch (error) {
-        registerUserErrorHandler(error)
+      return {
+        message:
+          'Account created successfully! Check your email to activate your account.',
       }
     }),
 
   verifyEmail: publicProcedure
     .input(verifyEmailSchema)
     .mutation(async ({ input: dto }) => {
-      try {
-        const verifyEmailUseCase = makeVerifyEmailUseCase()
+      const verifyEmailUseCase = makeVerifyEmailUseCase()
+      await verifyEmailUseCase.execute({ dto })
 
-        await verifyEmailUseCase.execute({ dto })
-
-        return {
-          message: 'Email verified successfully!',
-        }
-      } catch (error) {
-        verifyEmailErrorHandler(error)
+      return {
+        message: 'Email verified successfully!',
       }
     }),
 
   resendVerificationEmail: publicProcedure
     .input(resendemailverificationSchema)
     .mutation(async ({ input: dto }) => {
-      try {
-        const resendEmailVerificationUseCase =
-          makeResendEmailVerificationUseCase()
+      const resendEmailVerificationUseCase =
+        makeResendEmailVerificationUseCase()
+      await resendEmailVerificationUseCase.execute({ dto })
 
-        await resendEmailVerificationUseCase.execute({ dto })
-
-        return {
-          message: 'A new link has been sent to your email.',
-        }
-      } catch (error) {
-        resendVerificationEmailErrorHandler(error)
+      return {
+        message: 'A new link has been sent to your email.',
       }
     }),
 
   forgotPassword: publicProcedure
     .input(forgotPasswordSchema)
     .mutation(async ({ input: dto }) => {
-      try {
-        const forgotPasswordUseCase = makeForgotPasswordUseCase()
-        await forgotPasswordUseCase.execute({ dto })
+      const forgotPasswordUseCase = makeForgotPasswordUseCase()
+      await forgotPasswordUseCase.execute({ dto })
 
-        return {
-          message: 'You will receive an email to reset your password.',
-        }
-      } catch (error) {
-        forgotPasswordErrorHandler(error)
+      return {
+        message: 'You will receive an email to reset your password.',
       }
     }),
 
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ input: dto }) => {
-      try {
-        const resetPasswordUseCase = makeResetPasswordUseCase()
-        await resetPasswordUseCase.execute({ dto })
-        return {
-          message: 'Password reset successfully!',
-        }
-      } catch (error) {
-        resetPasswordErrorHandler(error)
+      const resetPasswordUseCase = makeResetPasswordUseCase()
+      await resetPasswordUseCase.execute({ dto })
+      return {
+        message: 'Password reset successfully!',
       }
     }),
 
   getProfile: authenticatedProcedure.query(async ({ ctx }) => {
-    try {
-      const getProfileUseCase = makeGetProfileUseCase()
-      const { user } = await getProfileUseCase.execute({
-        userId: ctx.session.userId,
-      })
+    const getProfileUseCase = makeGetProfileUseCase()
+    const { user } = await getProfileUseCase.execute({
+      userId: ctx.session.userId,
+    })
 
-      const avatarUrl = user.avatar
-        ? `${env.STORAGE_PUBLIC_URL}/${user.avatar}`
-        : null
-      return { user: { ...user, avatarUrl } }
-    } catch (error) {
-      getProfileErrorHandler(error)
-    }
+    const avatarUrl = user.avatar
+      ? `${env.STORAGE_PUBLIC_URL}/${user.avatar}`
+      : null
+    return { user: { ...user, avatarUrl } }
   }),
 
   updateProfile: authenticatedProcedure
     .input(updateUserSchema)
     .mutation(async ({ ctx, input: dto }) => {
-      try {
-        const updateProfileUseCase = makeUpdateProfileUseCase()
+      const updateProfileUseCase = makeUpdateProfileUseCase()
+      const { userId } = ctx.session
+      await updateProfileUseCase.execute({ userId, dto })
 
-        const { userId } = ctx.session
-
-        await updateProfileUseCase.execute({
-          userId,
-          dto,
-        })
-
-        return { message: 'Profile updated successfully!' }
-      } catch (error) {
-        updateProfileErrorHandler(error)
-      }
+      return { message: 'Profile updated successfully!' }
     }),
 
   removeAvatar: authenticatedProcedure.mutation(async ({ ctx }) => {
-    try {
-      const removeAvatarUseCase = makeRemoveAvatar()
-      await removeAvatarUseCase.execute({ userId: ctx.session.userId })
-      return { message: 'Avatar removed successfully!' }
-    } catch (error) {
-      removeAvatarErrorHandler(error)
-    }
+    const removeAvatarUseCase = makeRemoveAvatar()
+    await removeAvatarUseCase.execute({ userId: ctx.session.userId })
+    return { message: 'Avatar removed successfully!' }
   }),
 })
 

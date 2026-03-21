@@ -1,8 +1,5 @@
 import { authenticatedProcedure, publicProcedure, router } from '../index'
 import { signInSchema } from '@python-editor/schemas/sign-in'
-import { signInErrorHandler } from './error-handlers/sign-in-error-handler'
-import { refreshTokenErrorHandler } from './error-handlers/refresh-token-error-handler'
-import { revokeUserSessionErrorHandler } from './error-handlers/revoke-user-session-error-handler'
 import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
 import { makeSessionRefreshUseCase } from '../use-cases/factories/make-session-refresh'
 import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
@@ -15,52 +12,15 @@ export const authRouter = router({
   signIn: publicProcedure
     .input(signInSchema)
     .mutation(async ({ input: dto, ctx }) => {
-      try {
-        const signInUseCase = makeSignInUseCase()
-        const sessionInfo = parseSessionInfo(ctx.req)
+      const signInUseCase = makeSignInUseCase()
+      const sessionInfo = parseSessionInfo(ctx.req)
 
-        const { user, accessToken, refreshToken } = await signInUseCase.execute(
-          {
-            dto,
-            sessionInfo,
-          },
-        )
+      const { user, accessToken, refreshToken } = await signInUseCase.execute({
+        dto,
+        sessionInfo,
+      })
 
-        ctx.res.setCookie('refresh_token', refreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          path: '/',
-          maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
-        })
-
-        return {
-          user,
-          accessToken,
-          message: `Hello, ${user.name}! Welcome back.`,
-        }
-      } catch (error) {
-        signInErrorHandler(error)
-      }
-    }),
-
-  sessionRefresh: publicProcedure.mutation(async ({ ctx }) => {
-    try {
-      const refreshToken = ctx.req.cookies.refresh_token
-
-      if (!refreshToken) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Missing refresh token.',
-        })
-      }
-
-      const sessionRefreshUseCase = makeSessionRefreshUseCase()
-
-      const { accessToken, refreshToken: newRefreshToken } =
-        await sessionRefreshUseCase.execute({ refreshToken })
-
-      ctx.res.setCookie('refresh_token', newRefreshToken, {
+      ctx.res.setCookie('refresh_token', refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -68,10 +28,37 @@ export const authRouter = router({
         maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
       })
 
-      return { accessToken }
-    } catch (error) {
-      refreshTokenErrorHandler(error)
+      return {
+        user,
+        accessToken,
+        message: `Hello, ${user.name}! Welcome back.`,
+      }
+    }),
+
+  sessionRefresh: publicProcedure.mutation(async ({ ctx }) => {
+    const refreshToken = ctx.req.cookies.refresh_token
+
+    if (!refreshToken) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Missing refresh token.',
+      })
     }
+
+    const sessionRefreshUseCase = makeSessionRefreshUseCase()
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await sessionRefreshUseCase.execute({ refreshToken })
+
+    ctx.res.setCookie('refresh_token', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+    })
+
+    return { accessToken }
   }),
 
   getUserSessions: authenticatedProcedure.query(async ({ ctx }) => {
@@ -82,16 +69,12 @@ export const authRouter = router({
   revokeUserSession: authenticatedProcedure
     .input(z.object({ sessionId: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
-      try {
-        const useCase = makeRevokeUserSessionUseCase()
-        await useCase.execute({
-          sessionId: input.sessionId,
-          userId: ctx.session.userId,
-        })
-        return { message: 'Session revoked successfully.' }
-      } catch (error) {
-        revokeUserSessionErrorHandler(error)
-      }
+      const useCase = makeRevokeUserSessionUseCase()
+      await useCase.execute({
+        sessionId: input.sessionId,
+        userId: ctx.session.userId,
+      })
+      return { message: 'Session revoked successfully.' }
     }),
 })
 
