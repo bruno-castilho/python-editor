@@ -3,11 +3,18 @@ import type { IUsersRepository } from '../repositories/interfaces/users-reposito
 import type { IHashCompare } from '../cryptography/interfaces/hash-compare'
 import type { IJWTSign } from '../cryptography/interfaces/jwt-sign'
 import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
+import type { IUserSessionsKeyValueStore } from '../key-value-stores/interfaces/user-sessions-key-value-store'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 import { EmailNotVerifiedError } from './errors/email-not-verified-error'
 
 interface SignInUseCaseParams {
   dto: SignInDTO
+  sessionInfo: {
+    ip: string
+    device: string
+    browser: string
+    location: string
+  }
 }
 
 export class SignInUseCase {
@@ -16,9 +23,10 @@ export class SignInUseCase {
     private accessTokenSign: IJWTSign<JWTPayloadDTO>,
     private refreshTokenSign: IJWTSign<JWTPayloadDTO>,
     private passwordHashCompare: IHashCompare,
+    private userSessionsKeyValueStore: IUserSessionsKeyValueStore,
   ) {}
 
-  async execute({ dto }: SignInUseCaseParams) {
+  async execute({ dto, sessionInfo }: SignInUseCaseParams) {
     const { email, password } = dto
 
     const user = await this.usersRepository.findByEmailWithPassword({
@@ -38,7 +46,16 @@ export class SignInUseCase {
 
     if (!user.emailVerified) throw new EmailNotVerifiedError()
 
-    const payload = { userId: user.id }
+    const sessionId = await this.userSessionsKeyValueStore.save({
+      userId: user.id,
+      ip: sessionInfo.ip,
+      device: sessionInfo.device,
+      browser: sessionInfo.browser,
+      location: sessionInfo.location,
+      lastAccess: new Date().toISOString(),
+    })
+
+    const payload: JWTPayloadDTO = { sessionId, userId: user.id }
 
     const accessToken = this.accessTokenSign.sign(payload)
     const refreshToken = this.refreshTokenSign.sign(payload)

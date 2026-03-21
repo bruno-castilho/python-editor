@@ -2,7 +2,7 @@
 import { Header } from '@/components/Header'
 import { setAccessToken } from '@/utils/access-token-store'
 import { trpc } from '@/utils/trpc'
-import { Box, CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Container } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
@@ -26,12 +26,7 @@ export default function MainLayout({
 
   if (statussessionRefresh === 'idle' || statussessionRefresh === 'pending') {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
+      <Box>
         <CircularProgress />
       </Box>
     )
@@ -40,16 +35,13 @@ export default function MainLayout({
   return (
     <>
       <Header />
-      <Box
+      <Container
         component="main"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        margin={2}
+        maxWidth="xl"
+        sx={{ mt: 2, minHeight: '100%' }}
       >
         {children}
-      </Box>
+      </Container>
     </>
   )
 }

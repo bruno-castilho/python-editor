@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 
 import { useContext, useState } from 'react'
-import { DarkMode, LightMode, Logout, Person } from '@mui/icons-material'
+import { DarkMode, LightMode, Logout, Settings } from '@mui/icons-material'
 import { useRouter } from 'next/navigation'
 import { AlertContext } from '@/context/AlertContext'
 import { useQuery } from '@tanstack/react-query'
@@ -37,8 +37,8 @@ export function UserMenu() {
     setAnchorElUser(null)
   }
 
-  function handleProfile() {
-    router.push('/profile')
+  function handleSettings() {
+    router.push('/settings/profile')
   }
 
   function handleChangeMode() {
@@ -84,11 +84,11 @@ export function UserMenu() {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        <MenuItem onClick={handleProfile}>
+        <MenuItem onClick={handleSettings}>
           <ListItemIcon>
-            <Person fontSize="small" color="primary" />
+            <Settings fontSize="small" color="primary" />
           </ListItemIcon>
-          <Typography textAlign="center">Profile</Typography>
+          <Typography textAlign="center">Settings</Typography>
         </MenuItem>
 
         {(mode === 'light' || systemMode === 'light') && (

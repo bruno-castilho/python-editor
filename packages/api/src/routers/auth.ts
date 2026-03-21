@@ -1,10 +1,15 @@
-import { publicProcedure, router } from '../index'
+import { authenticatedProcedure, publicProcedure, router } from '../index'
 import { signInSchema } from '@python-editor/schemas/sign-in'
 import { signInErrorHandler } from './error-handlers/sign-in-error-handler'
 import { refreshTokenErrorHandler } from './error-handlers/refresh-token-error-handler'
+import { revokeUserSessionErrorHandler } from './error-handlers/revoke-user-session-error-handler'
 import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
 import { makeSessionRefreshUseCase } from '../use-cases/factories/make-session-refresh'
+import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
+import { makeRevokeUserSessionUseCase } from '../use-cases/factories/make-revoke-user-session'
 import { TRPCError } from '@trpc/server'
+import { parseSessionInfo } from '../utils/parse-session-info'
+import { z } from 'zod'
 
 export const authRouter = router({
   signIn: publicProcedure
@@ -12,9 +17,12 @@ export const authRouter = router({
     .mutation(async ({ input: dto, ctx }) => {
       try {
         const signInUseCase = makeSignInUseCase()
+        const sessionInfo = parseSessionInfo(ctx.req)
+
         const { user, accessToken, refreshToken } = await signInUseCase.execute(
           {
             dto,
+            sessionInfo,
           },
         )
 
@@ -65,6 +73,26 @@ export const authRouter = router({
       refreshTokenErrorHandler(error)
     }
   }),
+
+  getUserSessions: authenticatedProcedure.query(async ({ ctx }) => {
+    const useCase = makeGetUserSessionsUseCase()
+    return await useCase.execute({ userId: ctx.session.userId })
+  }),
+
+  revokeUserSession: authenticatedProcedure
+    .input(z.object({ sessionId: z.uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const useCase = makeRevokeUserSessionUseCase()
+        await useCase.execute({
+          sessionId: input.sessionId,
+          userId: ctx.session.userId,
+        })
+        return { message: 'Session revoked successfully.' }
+      } catch (error) {
+        revokeUserSessionErrorHandler(error)
+      }
+    }),
 })
 
 export type AuthRouter = typeof authRouter

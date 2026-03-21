@@ -1,8 +1,8 @@
-import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
+import 'fastify'
 
 declare module 'fastify' {
   interface FastifyRequest {
-    session: JWTPayloadDTO
+    session: { userId: string; sessionId: string }
     uploadedFile: {
       buffer: Buffer
       contentType: string

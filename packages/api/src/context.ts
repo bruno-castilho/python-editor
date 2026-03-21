@@ -3,19 +3,19 @@ import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import { TRPCError } from '@trpc/server'
 import jwt from 'jsonwebtoken'
 import { AccessTokenVerify } from './cryptography/jwt-verify'
+import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
 
 const accessTokenVerify = new AccessTokenVerify()
 
 export async function createContext({ req, res }: CreateFastifyContextOptions) {
   try {
-    let session: { userId: string } | null = null
+    let session: JWTPayloadDTO | null = null
 
     const authHeader = req.headers.authorization
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7)
 
-      const payload = accessTokenVerify.verifyAndParse(token)
-      session = { userId: payload.userId }
+      session = accessTokenVerify.verifyAndParse(token)
     }
 
     return {

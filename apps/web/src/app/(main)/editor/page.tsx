@@ -158,7 +158,7 @@ export default function Page() {
 
   return (
     <>
-      <Box component={Card} variant="outlined" maxWidth="1488px" width="100%">
+      <Box component={Card} variant="outlined" width="100%">
         <Box
           sx={{
             display: 'flex',

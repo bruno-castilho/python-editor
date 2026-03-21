@@ -6,6 +6,14 @@ import { FakeUsersRepository } from '../../test/repositories/fake-users-reposito
 import { FakeJWTSign } from '../../test/cryptography/fake-jwt-sign'
 import { FakeHashCompare } from '../../test/cryptography/fake-hash-compare'
 import { FakeHashGenerator } from '../../test/cryptography/fake-hash-generator'
+import { FakeUserSessionsKeyValueStore } from '../../test/key-value-stores/fake-session-key-value-store'
+
+const sessionInfo = {
+  ip: '127.0.0.1',
+  device: 'Linux',
+  browser: 'Chrome',
+  location: 'Desconhecido',
+}
 
 let data: Data
 let usersRepository: FakeUsersRepository
@@ -13,6 +21,7 @@ let sut: SignInUseCase
 let jwtSign: FakeJWTSign
 let hashCompare: FakeHashCompare
 let hashGenerator: FakeHashGenerator
+let userSessionsKeyValueStore: FakeUserSessionsKeyValueStore
 
 describe('Sign In Use Case', () => {
   beforeEach(() => {
@@ -20,7 +29,14 @@ describe('Sign In Use Case', () => {
     usersRepository = new FakeUsersRepository(data)
     jwtSign = new FakeJWTSign()
     hashCompare = new FakeHashCompare()
-    sut = new SignInUseCase(usersRepository, jwtSign, jwtSign, hashCompare)
+    userSessionsKeyValueStore = new FakeUserSessionsKeyValueStore()
+    sut = new SignInUseCase(
+      usersRepository,
+      jwtSign,
+      jwtSign,
+      hashCompare,
+      userSessionsKeyValueStore,
+    )
 
     hashGenerator = new FakeHashGenerator()
   })
@@ -42,10 +58,12 @@ describe('Sign In Use Case', () => {
         email: 'johndoe@example.com',
         password: '123456',
       },
+      sessionInfo,
     })
 
     expect(accessToken).toEqual(expect.any(String))
     expect(refreshToken).toEqual(expect.any(String))
+    expect(userSessionsKeyValueStore.store.size).toBe(1)
   })
 
   it('should not be able to do sign in with an unverified email', async () => {
@@ -64,6 +82,7 @@ describe('Sign In Use Case', () => {
           email: 'johndoe@example.com',
           password: '123456',
         },
+        sessionInfo,
       }),
     ).rejects.toBeInstanceOf(EmailNotVerifiedError)
   })
@@ -75,6 +94,7 @@ describe('Sign In Use Case', () => {
           email: 'johndoe@example.com',
           password: '123456',
         },
+        sessionInfo,
       }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })
@@ -95,6 +115,7 @@ describe('Sign In Use Case', () => {
           email: 'johndoe@example.com',
           password: '123123',
         },
+        sessionInfo,
       }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError)
   })

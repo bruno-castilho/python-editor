@@ -21,8 +21,12 @@
     "@python-editor/schemas": "*",
     "@trpc/client": "^11.7.2",
     "@trpc/server": "^11.7.2",
+    "@types/geoip-lite": "^1.4.4",
+    "@types/ua-parser-js": "^0.7.39",
     "dotenv": "^17.2.2",
+    "geoip-lite": "^2.0.1",
     "jsonwebtoken": "^9.0.3",
+    "ua-parser-js": "^2.0.9",
     "uuid": "^13.0.0",
     "zod": "^4.1.13"
   },
