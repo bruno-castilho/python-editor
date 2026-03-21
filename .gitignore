@@ -50,4 +50,4 @@ tmp
 temp
 
 # Claude
-.claude
+.claude/settings.local.json
