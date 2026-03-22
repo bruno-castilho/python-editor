@@ -4,6 +4,7 @@ import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
 import { makeSessionRefreshUseCase } from '../use-cases/factories/make-session-refresh'
 import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
 import { makeRevokeUserSessionUseCase } from '../use-cases/factories/make-revoke-user-session'
+import { makeSignOutUseCase } from '../use-cases/factories/make-sign-out'
 import { TRPCError } from '@trpc/server'
 import { parseSessionInfo } from '../utils/parse-session-info'
 import { z } from 'zod'
@@ -76,6 +77,24 @@ export const authRouter = router({
       })
       return { message: 'Session revoked successfully.' }
     }),
+
+  signOut: publicProcedure.mutation(async ({ ctx }) => {
+    const refreshToken = ctx.req.cookies.refresh_token
+
+    if (!refreshToken) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Missing refresh token.',
+      })
+    }
+
+    ctx.res.clearCookie('refresh_token', { path: '/' })
+
+    const useCase = makeSignOutUseCase()
+    await useCase.execute({ refreshToken })
+
+    return { message: 'Goodbye!' }
+  }),
 })
 
 export type AuthRouter = typeof authRouter

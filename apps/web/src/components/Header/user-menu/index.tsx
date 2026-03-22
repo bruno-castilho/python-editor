@@ -15,19 +15,32 @@ import { useContext, useState } from 'react'
 import { DarkMode, LightMode, Logout, Settings } from '@mui/icons-material'
 import { useRouter } from 'next/navigation'
 import { AlertContext } from '@/context/AlertContext'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
+import { setAccessToken } from '@/utils/access-token-store'
 
 export function UserMenu() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
   const { mode, systemMode, setMode } = useColorScheme()
-  const { success } = useContext(AlertContext)
+  const alert = useContext(AlertContext)
   const router = useRouter()
 
   const { data } = useQuery(trpc.users.getProfile.queryOptions())
   const user = data?.user
   const avatarUrl = (user as { avatarUrl?: string | null } | undefined)
     ?.avatarUrl
+
+  const { mutateAsync: signOutMutationAsync, isPending: isPendingSignOut } =
+    useMutation(
+      trpc.auth.signOut.mutationOptions({
+        onSuccess(responseData) {
+          alert.success(responseData.message)
+        },
+        onError(error) {
+          alert.error(error.message)
+        },
+      }),
+    )
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget)
@@ -46,8 +59,9 @@ export function UserMenu() {
     setAnchorElUser(null)
   }
 
-  function handleLogout() {
-    success('Goodbye!')
+  async function handleSignOut() {
+    await signOutMutationAsync()
+    setAccessToken(null)
     router.push('/sign-in')
   }
 
@@ -109,7 +123,7 @@ export function UserMenu() {
           </MenuItem>
         )}
 
-        <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={handleSignOut} disabled={isPendingSignOut}>
           <ListItemIcon>
             <Logout fontSize="small" color="primary" />
           </ListItemIcon>
