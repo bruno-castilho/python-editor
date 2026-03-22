@@ -181,6 +181,7 @@ export const domainRouter = {
 - No try/catch — error middleware handles it globally
 - Use `authenticatedProcedure` for any route that requires a logged-in user
 - Use `ctx.session.userId` (never trust user-supplied userId) for authenticated operations
+- **Always return a message**: every procedure must return a `message` field (e.g., `{ message: 'Done.', ...result }`), whether the operation succeeds or fails
 
 ---
 
@@ -203,6 +204,36 @@ export class ExampleError extends Error {
 - Routers have no try/catch — the global `errorHandlerMiddleware` handles all errors
 - Every custom error must be registered in `ERROR_MAP`
 - `handle-error.ts` is the single source of truth for error → HTTP status mapping
+
+---
+
+## Front-End Mutation Pattern
+
+When consuming a tRPC mutation in React components:
+
+**Naming conventions:**
+- Rename `mutate` → `{backendRouteName}Mutate` (e.g., `signInMutate`)
+- Rename `mutateAsync` → `{backendRouteName}MutateAsync` (e.g., `signInMutateAsync`)
+- Rename `isPending` → `isPending{BackendRouteName}` (e.g., `isPendingSignIn`)
+
+**Handler rule:**
+- Never call mutate functions directly inside JSX/HTML (e.g., `onClick={signInMutate}`)
+- Always invoke them through a named handler function (e.g., `onClick={handleSignIn}`)
+
+```typescript
+// ✅ Correct
+const { mutate: signInMutate, isPending: isPendingSignIn } = trpc.auth.signIn.useMutation()
+
+function handleSignIn() {
+  signInMutate({ email, password })
+}
+
+return <button onClick={handleSignIn} disabled={isPendingSignIn}>Sign in</button>
+
+// ❌ Wrong — mutate called directly in JSX, no renamed variables
+const { mutate, isPending } = trpc.auth.signIn.useMutation()
+return <button onClick={() => mutate({ email, password })} disabled={isPending}>Sign in</button>
+```
 
 ---
 
@@ -246,9 +277,10 @@ describe('ExampleFeatureUseCase', () => {
 - Use `beforeEach()` for setup — never `beforeAll()`
 - Always name the system under test `sut`
 - Use fakes from `packages/api/test/` — never real DB, Redis, mailer, or S3
-- Test every error path, not just the happy path
 - Assertions on fake state (e.g., `usersRepository.items.users.length`) are valid
 - Run a single test file: `npx vitest run packages/api/src/use-cases/{name}.spec.ts`
+- **One happy-path test only**: create exactly one test for the success path; its description must start with `"should be able"`
+- **One test per exception**: create a separate test for each error/exception case; each description must start with `"should not be able"`
 
 ---
 
