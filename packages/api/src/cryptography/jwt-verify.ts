@@ -36,10 +36,8 @@ export class AccessTokenVerify extends JWTVerify<JWTPayloadDTO> {
 
 export class RefreshTokenVerify extends JWTVerify<JWTPayloadDTO> {
   constructor() {
-    const publicKeyBase64: string = env.REFRESH_TOKEN_PUBLIC_KEY
-    const publicKey = Buffer.from(publicKeyBase64, 'base64').toString('utf-8')
-
-    super(publicKey, 'RS256')
+    const secret = env.REFRESH_TOKEN_SECRET
+    super(secret, 'HS256')
   }
 
   protected parse(payload: unknown) {
