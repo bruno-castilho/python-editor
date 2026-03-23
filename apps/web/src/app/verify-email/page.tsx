@@ -16,7 +16,7 @@ export default function Page() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const { mutateAsync: verifyEmail } = useMutation(
-    trpc.user.verifyEmail.mutationOptions(),
+    trpc.users.verifyEmail.mutationOptions(),
   )
 
   useEffect(() => {

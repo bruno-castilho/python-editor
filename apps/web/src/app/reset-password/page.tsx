@@ -26,7 +26,9 @@ export default function Page() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token') ?? ''
 
-  const { mutateAsync } = useMutation(trpc.user.resetPassword.mutationOptions())
+  const { mutateAsync } = useMutation(
+    trpc.users.resetPassword.mutationOptions(),
+  )
 
   const {
     register,
