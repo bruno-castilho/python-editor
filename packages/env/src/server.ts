@@ -1,7 +1,9 @@
 import 'dotenv/config'
+import dotenv from 'dotenv'
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
+dotenv.config({ path: '.env.development' })
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
@@ -10,8 +12,7 @@ export const env = createEnv({
       .enum(['development', 'production', 'test'])
       .default('development'),
     ACCESS_TOKEN_SECRET: z.string().min(1),
-    REFRESH_TOKEN_PRIVATE_KEY: z.string().min(1),
-    REFRESH_TOKEN_PUBLIC_KEY: z.string().min(1),
+    REFRESH_TOKEN_SECRET: z.string().min(1),
     REDIS_URL: z.string().min(1),
     SMTP_HOST: z.string().min(1),
     SMTP_PORT: z.coerce.number().int().positive(),
