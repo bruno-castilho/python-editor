@@ -1,4 +1,4 @@
-import { api } from '@/lib/axios'
+import { server } from '@/lib/axios'
 import { getAccessToken } from '@/utils/access-token-store'
 
 interface uploadAvatarParams {
@@ -14,7 +14,7 @@ export async function uploadAvatar(params: uploadAvatarParams) {
   const { file } = params
   const accessToken = getAccessToken()
 
-  const response = await api.postForm<uploadAvatarResponse>(
+  const response = await server.postForm<uploadAvatarResponse>(
     '/upload-avatar',
     { file },
     {

@@ -23,7 +23,7 @@ import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
 import { uploadAvatarSchema } from '@python-editor/schemas/upload-avatar'
 
-import { uploadAvatar } from '@/api/upload-avatar'
+import { uploadAvatar } from '@/api/server/upload-avatar'
 import axios from 'axios'
 import { ZodError } from 'zod'
 
