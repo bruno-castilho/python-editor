@@ -1,5 +1,12 @@
 'use client'
-import { Add, MoreVert, PlayArrow, Save, Stop } from '@mui/icons-material'
+import {
+  Add,
+  MoreVert,
+  PlayArrow,
+  Save,
+  SmartToy,
+  Stop,
+} from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -16,7 +23,7 @@ import { VSEditor } from './components/VSEditor'
 import { Terminal, type TerminalEntry } from './components/Terminal'
 import { FileTabBar } from './components/FileTabBar'
 import { editor } from 'monaco-editor'
-
+import { ChatAgentDialog } from '@/components/ChatAgentDialog'
 import { NewFileDialog } from '@/components/NewFileDialog'
 import { AlertContext } from '@/context/AlertContext'
 import { usePyodide, type PythonFile } from '@/hooks/usePyodide'
@@ -30,6 +37,7 @@ const INITIAL_FILES: PythonFile[] = [
 export default function Page() {
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([])
   const [openNewFileDialog, setOpenNewFileDialog] = useState<boolean>(false)
+  const [openChatDialog, setOpenChatDialog] = useState<boolean>(false)
   const [files, setFiles] = useState<PythonFile[]>(INITIAL_FILES)
   const [activeFile, setActiveFile] = useState<string>('main.py')
   const [pendingInput, setPendingInput] = useState<string | null>(null)
@@ -50,6 +58,14 @@ export default function Page() {
       setTerminalEntries((prev) => [...prev, { kind: 'error', text }])
     },
   })
+
+  function handleOpenChatDialog() {
+    setOpenChatDialog(true)
+  }
+
+  function handleCloseChatDialog() {
+    setOpenChatDialog(false)
+  }
 
   function handleOptionMenuOpen(e: React.MouseEvent<HTMLElement>) {
     setMenuAnchor(e.currentTarget)
@@ -178,6 +194,13 @@ export default function Page() {
           </Box>
           <Box sx={{ display: { xs: 'none', md: 'flex' }, flexShrink: 0 }}>
             <Button
+              onClick={handleOpenChatDialog}
+              startIcon={<SmartToy />}
+              color="primary"
+            >
+              Chat AI
+            </Button>
+            <Button
               onClick={handleOpenNewFileDialog}
               startIcon={<Add />}
               color="primary"
@@ -216,6 +239,14 @@ export default function Page() {
               open={Boolean(menuAnchor)}
               onClose={handleOptionMenuClose}
             >
+              <MenuItem
+                onClick={() => {
+                  handleOptionMenuClose()
+                  handleOpenChatDialog()
+                }}
+              >
+                <SmartToy sx={{ mr: 1 }} fontSize="small" /> Chat AI
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   handleOptionMenuClose()
@@ -277,6 +308,7 @@ export default function Page() {
         onClose={handleOpenNewFileDialog}
         handleNewFile={handleNewFile}
       />
+      <ChatAgentDialog open={openChatDialog} onClose={handleCloseChatDialog} />
     </>
   )
 }

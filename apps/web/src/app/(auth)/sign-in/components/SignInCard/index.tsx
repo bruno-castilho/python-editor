@@ -47,7 +47,6 @@ export function SignInCard() {
       alert.success(message)
       router.push('/editor')
     } catch (e) {
-      console.log(e)
       alert.error(e instanceof Error ? e.message : 'Login error')
     }
   }
