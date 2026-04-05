@@ -12,7 +12,6 @@
   "scripts": {},
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
-    "@python-editor/cryptography": "*",
     "@python-editor/db": "*",
     "@python-editor/env": "*",
     "@python-editor/mailer": "*",
