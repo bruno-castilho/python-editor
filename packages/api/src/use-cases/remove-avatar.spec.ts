@@ -36,7 +36,6 @@ describe('Remove Avatar Use Case', () => {
     const updatedUser = await usersRepository.findById({ userId: user.id })
     expect(updatedUser?.avatar).toBeNull()
 
-    console.log(storage.store)
     expect(storage.store.has(fileId)).toBe(false)
   })
 
