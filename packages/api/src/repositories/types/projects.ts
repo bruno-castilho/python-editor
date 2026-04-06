@@ -10,3 +10,16 @@ export type ProjectCreateParams = Omit<
 > & {
   createdById: string
 }
+
+export type PersonalProjectListItem = {
+  id: string
+  name: string
+  updatedAt: Date
+  updatedBy: { email: string }
+  sharedWith: {
+    id: string
+    name: string
+    lastName: string
+    avatarUrl: string
+  }[]
+}

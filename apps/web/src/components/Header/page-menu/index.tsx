@@ -27,6 +27,11 @@ const pages: Page[] = [
     route: '/editor',
     icon: <Edit fontSize="small" color="primary" />,
   },
+  {
+    name: 'Projects',
+    route: '/projects/personal',
+    icon: <Edit fontSize="small" color="primary" />,
+  },
 ]
 
 export function PageMenu() {
