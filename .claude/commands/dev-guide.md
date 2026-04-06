@@ -304,16 +304,123 @@ describe('ExampleFeatureUseCase', () => {
 
 ---
 
+## Use-Case Purity — No External Dependencies
+
+Use-cases must contain **only pure business rules**. They are infrastructure-agnostic by design.
+
+**Prohibited inside use-cases:**
+- Importing or calling Prisma, Redis, S3, Nodemailer, or any other infrastructure module directly
+- Importing from `packages/db`, `packages/redis`, `packages/s3`, or `packages/mailer`
+- Using any external library or framework that couples the use-case to a delivery mechanism
+
+**Allowed inside use-cases:**
+- Calling methods on injected interfaces (`IUsersRepository`, `IMailer`, etc.)
+- Importing domain error classes from `@/use-cases/errors/`
+- Importing DTO types from `@packages/schemas/`
+- Pure language built-ins (`Date`, `crypto.randomUUID`, etc.)
+
+This rule enforces the dependency rule of Clean Architecture: the domain layer must never depend on the infrastructure layer.
+
+---
+
+## Repository Type Standardization
+
+The input and output types of all `Repository` classes must be derived from Prisma-generated types.
+
+- Use types from `packages/api/src/repositories/types/` as the reference for repository method signatures
+- Never redefine a type that already exists as a Prisma model or Prisma utility type (e.g., `Prisma.UserCreateInput`)
+- When a Prisma type covers the use-case exactly, use it directly — do not wrap it in a redundant interface
+- Input/output types on `IRepository` interfaces must mirror what the concrete Prisma-backed implementation actually accepts and returns
+
+```typescript
+// ✅ Correct — reuses Prisma-generated type
+import type { User } from '@packages/db'
+
+interface IUsersRepository {
+  findByEmail({ email }: { email: string }): Promise<User | null>
+}
+
+// ❌ Wrong — duplicates a type Prisma already provides
+interface UserRecord {
+  id: string
+  email: string
+  // ... redeclaring what Prisma already generated
+}
+```
+
+---
+
+## Naming Best Practices
+
+Names must be **clear, complete, and self-descriptive**. A reader must understand the intent without needing a comment or mental decoding.
+
+**Prohibited:**
+- Single-letter or single-character names: `a`, `b`, `i`, `e`, `x`, `n`
+- Generic, context-free names: `data`, `obj`, `item`, `temp`, `val`, `result`, `info`, `payload` (use a domain-specific name instead, e.g., `createdUser`, `sessionToken`)
+- Abbreviations that obscure meaning:
+
+| Abbreviation | Use instead |
+|---|---|
+| `bg` | `background` |
+| `cfg` | `config` |
+| `usr` | `user` |
+| `btn` | `button` |
+| `err` | `error` |
+| `msg` | `message` |
+| `req` / `res` | `request` / `response` |
+| `idx` | `index` |
+| `cnt` | `count` |
+| `repo` | `repository` (or full variable name like `usersRepository`) |
+
+**Required:**
+- Function names must describe the action and subject: `findUserByEmail`, `sendPasswordResetEmail`, `createProjectStorage`
+- Boolean variables and functions must read as a predicate: `isExpired`, `hasPermission`, `userExists`
+- Loop variables must be named after what they represent: `for (const session of activeSessions)`, not `for (const s of sessions)`
+
+---
+
+## Readability Over Comments
+
+**Do not use comments to explain what the code does.** If a comment is needed to explain logic, rewrite the logic until it is self-evident.
+
+**Prohibited:**
+```typescript
+// ❌ Comment explains what the code is doing — rewrite instead
+// Check if token is expired
+if (Date.now() > payload.exp * 1000) throw new TokenExpiredError()
+
+// ❌ Comment restates the variable name
+const u = await repo.find(id) // get user
+```
+
+**Allowed (rare exceptions):**
+- Comments that explain **why** a non-obvious decision was made (business rule, legal constraint, known workaround)
+- JSDoc on public interface methods when the signature alone is ambiguous
+
+```typescript
+// ✅ Explains a non-obvious business rule, not the mechanics
+// Prisma omit is used here to prevent hashed passwords from leaking into use-case return values
+const user = await db.user.findUnique({ where: { email }, omit: { hashedPassword: true } })
+```
+
+Write code that reads like well-structured prose. Rename, extract, and restructure until the intent is obvious.
+
+---
+
 ## Anti-Patterns — Never Do These
 
 | Anti-pattern | Why |
 |---|---|
 | Business logic inside tRPC routers | Routers are transport — logic belongs in use-cases |
 | Importing concrete classes inside use-cases | Breaks testability — use interfaces only |
+| Importing infrastructure packages inside use-cases | Violates Clean Architecture's dependency rule |
 | Throwing `TRPCError` from a use-case | Use-cases are framework-agnostic — throw domain errors |
 | Skipping `.input(schema)` on a procedure | All inputs must be validated |
 | Using `any` type | Defeats TypeScript's purpose; fails type check |
 | Direct Prisma/Redis/S3 calls outside their layer | Breaks separation of concerns |
+| Redefining types already provided by Prisma | Causes drift and duplication — reuse Prisma types |
+| Generic or abbreviated variable names | Reduces readability and increases cognitive load |
+| Comments that explain what the code does | Code must be self-explanatory — rewrite unclear logic |
 | `console.log` in committed code | Use structured error handling instead |
 | Creating new packages for single-use utilities | Reuse existing packages; only create packages for truly cross-cutting concerns |
 | Using `beforeAll()` in tests | Leads to state leakage between tests |
