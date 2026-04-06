@@ -16,3 +16,4 @@ export const s3 = new S3Client({
 })
 
 export { PutObjectCommand, DeleteObjectCommand }
+export { Upload } from '@aws-sdk/lib-storage'

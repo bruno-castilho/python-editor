@@ -16,13 +16,29 @@ export default [
       '**/coverage/**',
     ],
   },
+
+  // configs externas
   ...compat.extends('@rocketseat/eslint-config/next'),
   ...tseslint.configs.recommended,
+
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
     rules: {
       camelcase: 'off',
       'no-useless-constructor': 'off',
+
+      // desativa a versão base (IMPORTANTE)
+      'no-unused-vars': 'off',
+
+      // ativa a versão TS corretamente
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ]

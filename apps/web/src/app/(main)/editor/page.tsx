@@ -25,6 +25,7 @@ import { FileTabBar } from './components/FileTabBar'
 import { editor } from 'monaco-editor'
 import { ChatAgentDialog } from '@/components/ChatAgentDialog'
 import { NewFileDialog } from '@/components/NewFileDialog'
+import { SaveProjectDialog } from '@/components/SaveProjectDialog'
 import { AlertContext } from '@/context/AlertContext'
 import { usePyodide, type PythonFile } from '@/hooks/usePyodide'
 
@@ -38,6 +39,9 @@ export default function Page() {
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([])
   const [openNewFileDialog, setOpenNewFileDialog] = useState<boolean>(false)
   const [openChatDialog, setOpenChatDialog] = useState<boolean>(false)
+  const [openSaveProjectDialog, setOpenSaveProjectDialog] =
+    useState<boolean>(false)
+  const [syncedFiles, setSyncedFiles] = useState<PythonFile[]>(INITIAL_FILES)
   const [files, setFiles] = useState<PythonFile[]>(INITIAL_FILES)
   const [activeFile, setActiveFile] = useState<string>('main.py')
   const [pendingInput, setPendingInput] = useState<string | null>(null)
@@ -126,8 +130,20 @@ export default function Page() {
     setActiveFile(newActiveFileName)
   }
 
-  function handleSave() {
-    console.log('handleSaveCode')
+  function handleOpenSaveProjectDialog(): void {
+    const currentContent = editorRef.current?.getValue()
+    const filesToSave = files.map((file) => {
+      if (file.name === activeFile && currentContent !== undefined) {
+        return { ...file, content: currentContent }
+      }
+      return file
+    })
+    setSyncedFiles(filesToSave)
+    setOpenSaveProjectDialog(true)
+  }
+
+  function handleCloseSaveProjectDialog(): void {
+    setOpenSaveProjectDialog(false)
   }
 
   function handleCodeExecution() {
@@ -207,7 +223,11 @@ export default function Page() {
             >
               New File
             </Button>
-            <Button onClick={handleSave} startIcon={<Save />} color="primary">
+            <Button
+              onClick={handleOpenSaveProjectDialog}
+              startIcon={<Save />}
+              color="primary"
+            >
               Save
             </Button>
 
@@ -258,7 +278,7 @@ export default function Page() {
               <MenuItem
                 onClick={() => {
                   handleOptionMenuClose()
-                  handleSave()
+                  handleOpenSaveProjectDialog()
                 }}
               >
                 <Save sx={{ mr: 1 }} fontSize="small" /> Save
@@ -309,6 +329,11 @@ export default function Page() {
         handleNewFile={handleNewFile}
       />
       <ChatAgentDialog open={openChatDialog} onClose={handleCloseChatDialog} />
+      <SaveProjectDialog
+        open={openSaveProjectDialog}
+        onClose={handleCloseSaveProjectDialog}
+        files={syncedFiles}
+      />
     </>
   )
 }

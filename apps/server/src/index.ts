@@ -4,6 +4,7 @@ import fastifyMultipart from '@fastify/multipart'
 import { createContext } from '@python-editor/api/context'
 import { appRouter, type AppRouter } from '@python-editor/api/routers/index'
 import { makeUploadAvatar } from '@python-editor/api/use-cases/factories/make-upload-avatar'
+import { makeUploadProjectUseCase } from '@python-editor/api/use-cases/factories/make-upload-project'
 import { UserDoesNotExistsError } from '@python-editor/api/use-cases/errors/user-does-not-exists-error'
 import { env } from '@python-editor/env/server'
 import {
@@ -13,6 +14,7 @@ import {
 import Fastify from 'fastify'
 import { onlyUserMiddleware } from './middlewares/only-user-middleware'
 import { receiveAvatarFileAndParseMiddleware } from './middlewares/receive-avatar-file-middleware'
+import { receiveProjectFileMiddleware } from './middlewares/receive-project-file-middleware'
 
 const baseCorsConfig = {
   origin: env.CORS_ORIGIN,
@@ -64,6 +66,53 @@ fastify.post(
         return reply.status(404).send({ message: error.message })
       }
       return reply.status(500).send({ message: 'Internal server error.' })
+    }
+  },
+)
+
+fastify.post(
+  '/upload-project',
+  { preHandler: [onlyUserMiddleware, receiveProjectFileMiddleware] },
+  async (request, reply) => {
+    const { userId } = request.session
+    const { stream, filename, contentType } = request.uploadedProjectFile
+
+    reply.header('Content-Type', 'text/event-stream')
+    reply.header('Cache-Control', 'no-cache')
+    reply.header('Connection', 'keep-alive')
+
+    // Flush all Fastify headers (including CORS set by the plugin) to the raw
+    // response before writing the streaming body directly to reply.raw.
+    // Without this, CORS headers set via reply.header() in the onRequest hook
+    // are never written to the HTTP response because reply.send() is never called.
+    reply.raw.writeHead(
+      200,
+      reply.getHeaders() as Record<string, string | string[]>,
+    )
+
+    const send = (event: string, data: object) => {
+      reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+    }
+
+    try {
+      const useCase = makeUploadProjectUseCase()
+      const { project } = await useCase.execute({
+        userId,
+        filename,
+        fileStream: stream,
+        contentType,
+        onProgress: (progress: { loaded: number; total?: number }) =>
+          send('progress', progress),
+      })
+      send('complete', { project, message: 'Project uploaded successfully.' })
+    } catch (error) {
+      const isFileTooLarge =
+        error instanceof Error && error.message.includes('500 MB')
+      send('error', {
+        message: isFileTooLarge ? error.message : 'Internal server error.',
+      })
+    } finally {
+      reply.raw.end()
     }
   },
 )
