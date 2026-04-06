@@ -1,5 +1,6 @@
 'use client'
 
+import { OnlyUserPage } from '@/permissions/onlyUserPage'
 import { Box, Card, Tab, Tabs } from '@mui/material'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -14,19 +15,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   })()
 
   return (
-    <Box component={Card} variant="outlined" maxWidth="1488px">
-      <Tabs value={currentTab}>
-        <Tab
-          label="Personal"
-          onClick={() => router.push('/projects/personal')}
-        />
-        <Tab
-          label="Shared With Me"
-          onClick={() => router.push('/projects/shared-with-me')}
-        />
-      </Tabs>
+    <OnlyUserPage>
+      <Box component={Card} variant="outlined" maxWidth="1488px">
+        <Tabs value={currentTab}>
+          <Tab
+            label="Personal"
+            onClick={() => router.push('/projects/personal')}
+          />
+          <Tab
+            label="Shared With Me"
+            onClick={() => router.push('/projects/shared-with-me')}
+          />
+        </Tabs>
 
-      {children}
-    </Box>
+        {children}
+      </Box>
+    </OnlyUserPage>
   )
 }
