@@ -27,7 +27,10 @@ describe('Remove Project Use Case', () => {
     })
     projectStorage.store.set('file-id-1', { contentType: 'application/zip' })
 
-    await sut.execute({ dto: { projectId: 'project-id-1' }, userId: 'user-id-1' })
+    await sut.execute({
+      dto: { projectId: 'project-id-1' },
+      userId: 'user-id-1',
+    })
 
     expect(projectsRepository.items).toHaveLength(0)
     expect(projectStorage.store.has('file-id-1')).toBe(false)
@@ -35,7 +38,10 @@ describe('Remove Project Use Case', () => {
 
   it('should not be able to remove a project that does not exist', async () => {
     await expect(
-      sut.execute({ dto: { projectId: 'non-existent-id' }, userId: 'user-id-1' }),
+      sut.execute({
+        dto: { projectId: 'non-existent-id' },
+        userId: 'user-id-1',
+      }),
     ).rejects.toBeInstanceOf(ProjectDoesNotExistError)
   })
 

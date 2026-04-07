@@ -5,7 +5,7 @@ import { trpc } from '@/utils/trpc'
 import { Add } from '@mui/icons-material'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { enUS } from 'date-fns/locale'
 import {
   Avatar,
   AvatarGroup,
@@ -23,6 +23,7 @@ import {
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
+import { ShareProjectDialog } from '@/components/ShareProjectDialog'
 
 interface PersonalTableRowProps {
   project: {
@@ -33,16 +34,18 @@ interface PersonalTableRowProps {
     }
     updatedAt: string
     sharedWith: {
+      avatarUrl: string | null
       id: string
       name: string
       lastName: string
-      avatarUrl: string
+      email: string
     }[]
   }
 }
 
 function PersonalTableRow({ project }: PersonalTableRowProps) {
-  const [openDialog, setOpenDialog] = useState<boolean>(false)
+  const [openShareProjectDialog, setOpenShareProjectDialog] =
+    useState<boolean>(false)
   const [openRemoveConfirmationDialog, setOpenRemoveConfirmationDialog] =
     useState<boolean>(false)
 
@@ -58,12 +61,8 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
       }),
     )
 
-  function handleOpenDialog() {
-    setOpenDialog(true)
-  }
-
-  function handleCloseDialog() {
-    setOpenDialog(false)
+  function handleShareProjectDialog() {
+    setOpenShareProjectDialog((open) => !open)
   }
 
   function handleRemoveConfirmationDialog() {
@@ -91,7 +90,7 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
 
         <TableCell component="th" scope="row" align="left">
           {formatDistanceToNow(project.updatedAt, {
-            locale: ptBR,
+            locale: enUS,
             addSuffix: true,
           })}
         </TableCell>
@@ -124,7 +123,7 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
               })}
             >
               <IconButton
-                onClick={handleOpenDialog}
+                onClick={handleShareProjectDialog}
                 sx={(theme) => ({
                   color: theme.palette.primary.contrastText,
                 })}
@@ -152,6 +151,11 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
         description="This action cannot be undone. The project and all associated files will be permanently deleted."
         onConfirm={handleConfirmRemove}
         onClose={handleRemoveConfirmationDialog}
+      />
+      <ShareProjectDialog
+        open={openShareProjectDialog}
+        handleClose={handleShareProjectDialog}
+        project={project}
       />
     </>
   )

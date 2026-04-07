@@ -8,6 +8,11 @@ import type {
 export class FakeProjectsRepository implements IProjectsRepository {
   public items: Project[] = []
   public userEmails: Map<string, string> = new Map()
+  public sharedWithRelations: Map<string, string[]> = new Map()
+  public userDetails: Map<
+    string,
+    { name: string; lastName: string; email: string; avatar: string }
+  > = new Map()
 
   async create(params: ProjectCreateParams): Promise<Project> {
     const project: Project = {
@@ -50,19 +55,53 @@ export class FakeProjectsRepository implements IProjectsRepository {
 
     const paginated = sorted.slice(page * perPage, page * perPage + perPage)
 
-    const projects = paginated.map((project) => ({
-      id: project.id,
-      name: project.name,
-      updatedAt: project.updatedAt,
-      updatedBy: { email: this.userEmails.get(project.createdById) ?? '' },
-      sharedWith: [],
-    }))
+    const projects = paginated.map((project) => {
+      const sharedUserIds = this.sharedWithRelations.get(project.id) ?? []
+      const sharedWith = sharedUserIds
+        .map((sharedUserId) => {
+          const details = this.userDetails.get(sharedUserId)
+          if (!details) return null
+          return { id: sharedUserId, ...details }
+        })
+        .filter(
+          (sharedUser): sharedUser is NonNullable<typeof sharedUser> =>
+            sharedUser !== null,
+        )
+
+      return {
+        id: project.id,
+        name: project.name,
+        updatedAt: project.updatedAt,
+        updatedBy: { email: this.userEmails.get(project.createdById) ?? '' },
+        sharedWith,
+      }
+    })
 
     return { projects, totalCount: userProjects.length }
   }
 
   async delete(params: { projectId: string }): Promise<void> {
-    const index = this.items.findIndex((project) => project.id === params.projectId)
+    const index = this.items.findIndex(
+      (project) => project.id === params.projectId,
+    )
     if (index !== -1) this.items.splice(index, 1)
+  }
+
+  async share(params: { projectId: string; userId: string }): Promise<void> {
+    const sharedUserIds = this.sharedWithRelations.get(params.projectId) ?? []
+    if (!sharedUserIds.includes(params.userId)) {
+      this.sharedWithRelations.set(params.projectId, [
+        ...sharedUserIds,
+        params.userId,
+      ])
+    }
+  }
+
+  async unshare(params: { projectId: string; userId: string }): Promise<void> {
+    const sharedUserIds = this.sharedWithRelations.get(params.projectId) ?? []
+    this.sharedWithRelations.set(
+      params.projectId,
+      sharedUserIds.filter((sharedUserId) => sharedUserId !== params.userId),
+    )
   }
 }

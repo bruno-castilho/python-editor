@@ -7,6 +7,7 @@ import { InvalidCurrentPasswordError } from './use-cases/errors/invalid-current-
 import { InvalidEmailVerificationTokenError } from './use-cases/errors/invalid-email-verification-token-error'
 import { InvalidPasswordResetTokenError } from './use-cases/errors/invalid-password-reset-token-error'
 import { NotAllowedToRemoveProjectError } from './use-cases/errors/not-allowed-to-remove-project-error'
+import { NotAllowedToShareProjectError } from './use-cases/errors/not-allowed-to-share-project-error'
 import { ProjectDoesNotExistError } from './use-cases/errors/project-does-not-exist-error'
 import { SessionDoesNotExistsError } from './use-cases/errors/session-does-not-exists-error'
 import { UserAlreadyExistsError } from './use-cases/errors/user-already-exists-error'
@@ -26,6 +27,7 @@ const ERROR_MAP: Array<[AnyErrorConstructor, TRPC_ERROR_CODE_KEY]> = [
   [InvalidCurrentPasswordError, 'FORBIDDEN'],
   [ProjectDoesNotExistError, 'NOT_FOUND'],
   [NotAllowedToRemoveProjectError, 'FORBIDDEN'],
+  [NotAllowedToShareProjectError, 'FORBIDDEN'],
 ]
 
 export function handleError(error: unknown): never {

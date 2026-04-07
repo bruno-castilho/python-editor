@@ -19,4 +19,8 @@ export interface IProjectsRepository {
   }): Promise<{ projects: PersonalProjectListItem[]; totalCount: number }>
 
   delete(params: { projectId: string }): Promise<void>
+
+  share(params: { projectId: string; userId: string }): Promise<void>
+
+  unshare(params: { projectId: string; userId: string }): Promise<void>
 }

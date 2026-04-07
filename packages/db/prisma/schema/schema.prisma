@@ -19,22 +19,24 @@ model User {
   createdAt      DateTime @default(now())
   avatar         String?
 
-  personalProjects Project[]       @relation("PersonalProjects")
+  personalProjects     Project[] @relation("PersonalProjects")
+  sharedWithMeProjects Project[] @relation("SharedWithMeProjects")
 
   @@map("users")
 }
 
 model Project {
-  id          String   @id
-  name        String
-  fileId      String
+  id        String   @id
+  name      String
+  fileId    String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   createdById String
-  createdBy   User     @relation("PersonalProjects", fields: [createdById], references: [id])
+  createdBy   User @relation("PersonalProjects", fields: [createdById], references: [id])
 
+  sharedWith User[] @relation("SharedWithMeProjects")
 
   @@map("projects")
 }

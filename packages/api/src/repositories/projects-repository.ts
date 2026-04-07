@@ -45,6 +45,15 @@ export class ProjectsRepository implements IProjectsRepository {
           name: true,
           updatedAt: true,
           createdBy: { select: { email: true } },
+          sharedWith: {
+            select: {
+              id: true,
+              name: true,
+              lastName: true,
+              avatar: true,
+              email: true,
+            },
+          },
         },
         orderBy: { [sortBy]: orderBy },
         skip: page * perPage,
@@ -56,7 +65,6 @@ export class ProjectsRepository implements IProjectsRepository {
     const personalProjects = projects.map(({ createdBy, ...project }) => ({
       ...project,
       updatedBy: { email: createdBy.email },
-      sharedWith: [],
     }))
 
     return { projects: personalProjects, totalCount }
@@ -64,5 +72,19 @@ export class ProjectsRepository implements IProjectsRepository {
 
   async delete(params: { projectId: string }) {
     await prisma.project.delete({ where: { id: params.projectId } })
+  }
+
+  async share(params: { projectId: string; userId: string }) {
+    await prisma.project.update({
+      where: { id: params.projectId },
+      data: { sharedWith: { connect: { id: params.userId } } },
+    })
+  }
+
+  async unshare(params: { projectId: string; userId: string }) {
+    await prisma.project.update({
+      where: { id: params.projectId },
+      data: { sharedWith: { disconnect: { id: params.userId } } },
+    })
   }
 }

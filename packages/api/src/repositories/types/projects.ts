@@ -20,6 +20,7 @@ export type PersonalProjectListItem = {
     id: string
     name: string
     lastName: string
-    avatarUrl: string
+    avatar: string | null
+    email: string
   }[]
 }
