@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { getAccessToken } from '@/utils/access-token-store'
 
 interface OnlyUserPageProps {
@@ -7,6 +8,9 @@ interface OnlyUserPageProps {
 export function OnlyUserPage({ children }: OnlyUserPageProps) {
   const accessToken = getAccessToken()
 
-  if (!accessToken) return <h1>Permissão negada</h1>
+  if (!accessToken) {
+    return redirect('/sign-in')
+  }
+
   return children
 }
