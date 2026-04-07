@@ -24,6 +24,10 @@ export class ProjectsRepository implements IProjectsRepository {
     return projectWithoutFileId
   }
 
+  async findById(params: { projectId: string }) {
+    return prisma.project.findUnique({ where: { id: params.projectId } })
+  }
+
   async findManyByUser(params: {
     userId: string
     page: number
@@ -56,5 +60,9 @@ export class ProjectsRepository implements IProjectsRepository {
     }))
 
     return { projects: personalProjects, totalCount }
+  }
+
+  async delete(params: { projectId: string }) {
+    await prisma.project.delete({ where: { id: params.projectId } })
   }
 }

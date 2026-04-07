@@ -6,4 +6,6 @@ export interface IProjectStorage {
     contentType: string
     onProgress?: (progress: { loaded: number; total?: number }) => void
   }): Promise<{ fileId: string }>
+
+  delete(params: { fileId: string }): Promise<void>
 }

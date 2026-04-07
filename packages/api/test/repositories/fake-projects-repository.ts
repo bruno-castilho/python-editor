@@ -22,6 +22,10 @@ export class FakeProjectsRepository implements IProjectsRepository {
     return project
   }
 
+  async findById(params: { projectId: string }): Promise<Project | null> {
+    return this.items.find((project) => project.id === params.projectId) ?? null
+  }
+
   async findManyByUser(params: {
     userId: string
     page: number
@@ -55,5 +59,10 @@ export class FakeProjectsRepository implements IProjectsRepository {
     }))
 
     return { projects, totalCount: userProjects.length }
+  }
+
+  async delete(params: { projectId: string }): Promise<void> {
+    const index = this.items.findIndex((project) => project.id === params.projectId)
+    if (index !== -1) this.items.splice(index, 1)
   }
 }

@@ -6,6 +6,8 @@ import { InvalidCredentialsError } from './use-cases/errors/invalid-credentials-
 import { InvalidCurrentPasswordError } from './use-cases/errors/invalid-current-password-error'
 import { InvalidEmailVerificationTokenError } from './use-cases/errors/invalid-email-verification-token-error'
 import { InvalidPasswordResetTokenError } from './use-cases/errors/invalid-password-reset-token-error'
+import { NotAllowedToRemoveProjectError } from './use-cases/errors/not-allowed-to-remove-project-error'
+import { ProjectDoesNotExistError } from './use-cases/errors/project-does-not-exist-error'
 import { SessionDoesNotExistsError } from './use-cases/errors/session-does-not-exists-error'
 import { UserAlreadyExistsError } from './use-cases/errors/user-already-exists-error'
 import { UserDoesNotExistsError } from './use-cases/errors/user-does-not-exists-error'
@@ -22,6 +24,8 @@ const ERROR_MAP: Array<[AnyErrorConstructor, TRPC_ERROR_CODE_KEY]> = [
   [SessionDoesNotExistsError, 'UNAUTHORIZED'],
   [InvalidPasswordResetTokenError, 'UNAUTHORIZED'],
   [InvalidCurrentPasswordError, 'FORBIDDEN'],
+  [ProjectDoesNotExistError, 'NOT_FOUND'],
+  [NotAllowedToRemoveProjectError, 'FORBIDDEN'],
 ]
 
 export function handleError(error: unknown): never {

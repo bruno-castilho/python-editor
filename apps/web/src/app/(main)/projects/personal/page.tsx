@@ -3,7 +3,7 @@ import { TablePagination } from '@/components/TablePagination'
 import { TableSortLabel } from '@/components/TableSortLabel'
 import { trpc } from '@/utils/trpc'
 import { Add } from '@mui/icons-material'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
@@ -22,6 +22,7 @@ import {
 } from '@mui/material'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 
 interface PersonalTableRowProps {
   project: {
@@ -42,6 +43,20 @@ interface PersonalTableRowProps {
 
 function PersonalTableRow({ project }: PersonalTableRowProps) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
+  const [openRemoveConfirmationDialog, setOpenRemoveConfirmationDialog] =
+    useState<boolean>(false)
+
+  const queryClient = useQueryClient()
+  const { mutate: removeProjectMutate, isPending: isPendingRemoveProject } =
+    useMutation(
+      trpc.projects.removeProject.mutationOptions({
+        onSuccess() {
+          queryClient.invalidateQueries({
+            queryKey: trpc.projects.findPersonalProjects.queryKey(),
+          })
+        },
+      }),
+    )
 
   function handleOpenDialog() {
     setOpenDialog(true)
@@ -51,8 +66,13 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
     setOpenDialog(false)
   }
 
-  async function handleRemoveFile() {
-    console.log('removeFile')
+  function handleRemoveConfirmationDialog() {
+    setOpenRemoveConfirmationDialog((open) => !open)
+  }
+
+  function handleConfirmRemove() {
+    removeProjectMutate({ projectId: project.id })
+    setOpenRemoveConfirmationDialog(false)
   }
 
   return (
@@ -119,12 +139,20 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
             variant="contained"
             color="error"
             size="small"
-            onClick={handleRemoveFile}
+            onClick={handleRemoveConfirmationDialog}
+            disabled={isPendingRemoveProject}
           >
             Remover
           </Button>
         </TableCell>
       </TableRow>
+      <ConfirmationDialog
+        open={openRemoveConfirmationDialog}
+        title="Are you sure you want to remove this project?"
+        description="This action cannot be undone. The project and all associated files will be permanently deleted."
+        onConfirm={handleConfirmRemove}
+        onClose={handleRemoveConfirmationDialog}
+      />
     </>
   )
 }

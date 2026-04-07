@@ -1,11 +1,14 @@
 import type {
   PersonalProjectListItem,
+  Project,
   ProjectCreateParams,
   ProjectWithoutFileId,
 } from '../types/projects'
 
 export interface IProjectsRepository {
   create(params: ProjectCreateParams): Promise<ProjectWithoutFileId>
+
+  findById(params: { projectId: string }): Promise<Project | null>
 
   findManyByUser(params: {
     userId: string
@@ -14,4 +17,6 @@ export interface IProjectsRepository {
     sortBy: 'name' | 'updatedAt'
     orderBy: 'asc' | 'desc'
   }): Promise<{ projects: PersonalProjectListItem[]; totalCount: number }>
+
+  delete(params: { projectId: string }): Promise<void>
 }

@@ -26,4 +26,8 @@ export class FakeProjectStorage implements IProjectStorage {
     this.store.set(fileId, { contentType })
     return { fileId }
   }
+
+  async delete(params: { fileId: string }): Promise<void> {
+    this.store.delete(params.fileId)
+  }
 }

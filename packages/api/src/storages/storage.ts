@@ -81,4 +81,15 @@ export class ProjectStorage implements IProjectStorage {
     await upload.done()
     return { fileId }
   }
+
+  async delete(params: { fileId: string }): Promise<void> {
+    const { fileId } = params
+
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: fileId,
+      }),
+    )
+  }
 }
