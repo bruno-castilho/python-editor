@@ -78,11 +78,11 @@ export function useAuthOpenRouter() {
   }
 
   function saveOpenRouterKey(key: string) {
-    localStorage.setItem('openrouter_api_key', key)
+    sessionStorage.setItem('openrouter_api_key', key)
   }
 
   function getOpenRouterKey() {
-    return localStorage.getItem('openrouter_api_key')
+    return sessionStorage.getItem('openrouter_api_key')
   }
 
   return {
