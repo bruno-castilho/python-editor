@@ -301,6 +301,18 @@ describe('ExampleFeatureUseCase', () => {
 - Add `.input(schema)` on every tRPC procedure — no raw unvalidated input ever reaches a use-case
 - For JWT payloads: always parse with Zod at the point of verification (`jwtPayloadSchema.parse(payload)`)
 - Validation error messages must be written in English (en-US)
+- **Never use deprecated Zod APIs** — always prefer the current top-level form:
+
+| Deprecated | Use instead |
+|---|---|
+| `z.string().uuid()` | `z.uuid()` |
+| `z.string().email()` | `z.email()` |
+| `z.string().url()` | `z.url()` |
+| `z.string().ip()` | `z.ip()` |
+| `z.string().emoji()` | `z.emoji()` |
+| `z.string().base64()` | `z.base64()` |
+
+This principle applies beyond Zod: **always verify that deprecated APIs or patterns are not used in any library**, and prefer the current recommended alternatives according to the official documentation.
 
 ---
 
@@ -422,6 +434,7 @@ Write code that reads like well-structured prose. Rename, extract, and restructu
 | Generic or abbreviated variable names | Reduces readability and increases cognitive load |
 | Comments that explain what the code does | Code must be self-explanatory — rewrite unclear logic |
 | `console.log` in committed code | Use structured error handling instead |
+| Deprecated API usage (e.g., `z.string().uuid()` instead of `z.uuid()`) | Always use current recommended APIs per official documentation |
 | Creating new packages for single-use utilities | Reuse existing packages; only create packages for truly cross-cutting concerns |
 | Using `beforeAll()` in tests | Leads to state leakage between tests |
 | Non-English identifiers, comments, or messages | Violates the project's language standard |
