@@ -3,6 +3,7 @@ import type {
   Project,
   ProjectCreateParams,
   ProjectWithoutFileId,
+  SharedWithMeProjectListItem,
 } from '../types/projects'
 
 export interface IProjectsRepository {
@@ -23,4 +24,12 @@ export interface IProjectsRepository {
   share(params: { projectId: string; userId: string }): Promise<void>
 
   unshare(params: { projectId: string; userId: string }): Promise<void>
+
+  findManySharedWithUser(params: {
+    userId: string
+    page: number
+    perPage: number
+    sortBy: 'name' | 'updatedAt'
+    orderBy: 'asc' | 'desc'
+  }): Promise<{ projects: SharedWithMeProjectListItem[]; totalCount: number }>
 }

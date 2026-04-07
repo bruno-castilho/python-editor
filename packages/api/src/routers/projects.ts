@@ -1,9 +1,11 @@
 import { findPersonalProjectsSchema } from '@python-editor/schemas/find-personal-projects'
+import { findSharedWithMeProjectsSchema } from '@python-editor/schemas/find-shared-with-me-projects'
 import { removeProjectSchema } from '@python-editor/schemas/remove-project'
 import { shareProjectSchema } from '@python-editor/schemas/share-project'
 import { unshareProjectSchema } from '@python-editor/schemas/unshare-project'
 import { authenticatedProcedure } from '..'
 import { makeFindPersonalProjectsUseCase } from '../use-cases/factories/make-find-personal-projects'
+import { makeFindSharedWithMeProjectsUseCase } from '../use-cases/factories/make-find-shared-with-me-projects'
 import { makeRemoveProjectUseCase } from '../use-cases/factories/make-remove-project'
 import { makeShareProjectUseCase } from '../use-cases/factories/make-share-project'
 import { makeUnshareProjectUseCase } from '../use-cases/factories/make-unshare-project'
@@ -28,6 +30,23 @@ export const projectsRouter = {
             avatarUrl: avatar ? `${env.STORAGE_PUBLIC_URL}/${avatar}` : null,
           })),
         })),
+        totalCount,
+      }
+    }),
+
+  findSharedWithMeProjects: authenticatedProcedure
+    .input(findSharedWithMeProjectsSchema)
+    .query(async ({ input: dto, ctx }) => {
+      const findSharedWithMeProjectsUseCase =
+        makeFindSharedWithMeProjectsUseCase()
+      const { projects, totalCount } =
+        await findSharedWithMeProjectsUseCase.execute({
+          dto,
+          userId: ctx.session.userId,
+        })
+      return {
+        message: 'Shared with me projects retrieved successfully.',
+        projects,
         totalCount,
       }
     }),

@@ -70,6 +70,42 @@ export class ProjectsRepository implements IProjectsRepository {
     return { projects: personalProjects, totalCount }
   }
 
+  async findManySharedWithUser(params: {
+    userId: string
+    page: number
+    perPage: number
+    sortBy: 'name' | 'updatedAt'
+    orderBy: 'asc' | 'desc'
+  }) {
+    const { userId, page, perPage, sortBy, orderBy } = params
+
+    const [projects, totalCount] = await Promise.all([
+      prisma.project.findMany({
+        where: { sharedWith: { some: { id: userId } } },
+        select: {
+          id: true,
+          name: true,
+          updatedAt: true,
+          createdBy: { select: { email: true } },
+        },
+        orderBy: { [sortBy]: orderBy },
+        skip: page * perPage,
+        take: perPage,
+      }),
+      prisma.project.count({
+        where: { sharedWith: { some: { id: userId } } },
+      }),
+    ])
+
+    return {
+      projects: projects.map((project) => ({
+        ...project,
+        updatedBy: { email: project.createdBy.email },
+      })),
+      totalCount,
+    }
+  }
+
   async delete(params: { projectId: string }) {
     await prisma.project.delete({ where: { id: params.projectId } })
   }

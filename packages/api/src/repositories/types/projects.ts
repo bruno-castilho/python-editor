@@ -24,3 +24,11 @@ export type PersonalProjectListItem = {
     email: string
   }[]
 }
+
+export type SharedWithMeProjectListItem = {
+  id: string
+  name: string
+  updatedAt: Date
+  createdBy: { email: string }
+  updatedBy: { email: string }
+}

@@ -3,6 +3,7 @@ import type { IProjectsRepository } from '../../src/repositories/interfaces/proj
 import type {
   Project,
   ProjectCreateParams,
+  SharedWithMeProjectListItem,
 } from '../../src/repositories/types/projects'
 
 export class FakeProjectsRepository implements IProjectsRepository {
@@ -78,6 +79,45 @@ export class FakeProjectsRepository implements IProjectsRepository {
     })
 
     return { projects, totalCount: userProjects.length }
+  }
+
+  async findManySharedWithUser(params: {
+    userId: string
+    page: number
+    perPage: number
+    sortBy: 'name' | 'updatedAt'
+    orderBy: 'asc' | 'desc'
+  }): Promise<{ projects: SharedWithMeProjectListItem[]; totalCount: number }> {
+    const { userId, page, perPage, sortBy, orderBy } = params
+
+    const sharedProjects = this.items.filter((project) => {
+      const sharedUserIds = this.sharedWithRelations.get(project.id) ?? []
+      return sharedUserIds.includes(userId)
+    })
+
+    const sorted = [...sharedProjects].sort((projectA, projectB) => {
+      const fieldA = projectA[sortBy]
+      const fieldB = projectB[sortBy]
+
+      if (fieldA < fieldB) return orderBy === 'asc' ? -1 : 1
+      if (fieldA > fieldB) return orderBy === 'asc' ? 1 : -1
+      return 0
+    })
+
+    const paginated = sorted.slice(page * perPage, page * perPage + perPage)
+
+    const projects = paginated.map((project) => {
+      const createdByEmail = this.userEmails.get(project.createdById) ?? ''
+      return {
+        id: project.id,
+        name: project.name,
+        updatedAt: project.updatedAt,
+        createdBy: { email: createdByEmail },
+        updatedBy: { email: createdByEmail },
+      }
+    })
+
+    return { projects, totalCount: sharedProjects.length }
   }
 
   async delete(params: { projectId: string }): Promise<void> {
