@@ -23,22 +23,20 @@ import { AlertContext } from '@/context/AlertContext'
 import type { PythonFile } from '@/hooks/usePyodide'
 import { saveProjectSchema, type SaveProjectDTO } from './schema'
 import { getAccessToken } from '@/utils/access-token-store'
+import { useEditor } from '@/hooks/useEditor'
 
 interface SaveProjectDialogProps {
   open: boolean
   onClose: () => void
-  files: PythonFile[]
 }
 
 type UploadStatus = 'idle' | 'uploading' | 'error'
 
-export function SaveProjectDialog({
-  open,
-  onClose,
-  files,
-}: SaveProjectDialogProps) {
+export function SaveProjectDialog({ open, onClose }: SaveProjectDialogProps) {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle')
   const [uploadProgress, setUploadProgress] = useState<number>(0)
+
+  const { getUpdatedFiles } = useEditor()
 
   const alert = useContext(AlertContext)
 
@@ -106,8 +104,11 @@ export function SaveProjectDialog({
   }
 
   async function handleFormSubmit(data: SaveProjectDTO): Promise<void> {
+    const updatedFiles = getUpdatedFiles()
+    if (!updatedFiles) return
+
     const zipFilename = `${data.projectName}.zip`
-    const blob = await buildZipBlob(files)
+    const blob = await buildZipBlob(updatedFiles)
 
     if (data.saveLocation === 'local') {
       await saveProjectLocally(zipFilename, blob)

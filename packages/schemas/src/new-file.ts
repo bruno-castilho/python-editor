@@ -1,6 +1,6 @@
 import z from 'zod'
 
-export const newFile = z.object({
+export const newFileSchema = z.object({
   fileName: z
     .string({ message: 'Invalid file name' })
     .trim()
@@ -28,4 +28,4 @@ export const newFile = z.object({
     ),
 })
 
-export type newFileDTO = z.infer<typeof newFile>
+export type newFileDTO = z.infer<typeof newFileSchema>

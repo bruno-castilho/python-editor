@@ -1,29 +1,17 @@
 'use client'
+import { useEditor } from '@/hooks/useEditor'
 import { Box, InputBase } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 
-export type TerminalEntry =
-  | { kind: 'output'; text: string }
-  | { kind: 'error'; text: string }
-  | { kind: 'input'; text: string }
-
-interface TerminalProps {
-  entries: TerminalEntry[]
-  pendingInput: string | null
-  onSubmitInput: (value: string) => void
-}
-
-export function Terminal({
-  entries,
-  pendingInput,
-  onSubmitInput,
-}: TerminalProps) {
+export function Terminal() {
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const { terminalEntries, pendingInput, submitInput } = useEditor()
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
-      onSubmitInput(inputValue)
+      submitInput(inputValue)
       setInputValue('')
     }
   }
@@ -65,8 +53,8 @@ export function Terminal({
       }}
       onClick={() => inputRef.current?.focus()}
     >
-      {entries.map((entry, i) => {
-        if (entry.kind === 'output') {
+      {terminalEntries.map((terminalEntry, i) => {
+        if (terminalEntry.kind === 'output') {
           return (
             <Box
               key={i}
@@ -78,11 +66,11 @@ export function Terminal({
                 color: 'text.primary',
               }}
             >
-              {entry.text}
+              {terminalEntry.text}
             </Box>
           )
         }
-        if (entry.kind === 'error') {
+        if (terminalEntry.kind === 'error') {
           return (
             <Box
               key={i}
@@ -94,7 +82,7 @@ export function Terminal({
                 color: 'error.main',
               }}
             >
-              {entry.text}
+              {terminalEntry.text}
             </Box>
           )
         }
@@ -109,7 +97,7 @@ export function Terminal({
               color: 'text.secondary',
             }}
           >
-            {entry.text}
+            {terminalEntry.text}
           </Box>
         )
       })}

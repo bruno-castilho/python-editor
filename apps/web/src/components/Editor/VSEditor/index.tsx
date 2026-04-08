@@ -2,8 +2,8 @@
 import MonacoEditor, { type Monaco } from '@monaco-editor/react'
 import { editor } from 'monaco-editor'
 import { VSEditorSkeleton } from './skeleton'
-import type { RefObject } from 'react'
 import { useMediaQuery, useTheme } from '@mui/material'
+import { useEditor } from '@/hooks/useEditor'
 
 const defineMonacoThemes = (monacoInstance: Monaco) => {
   monacoInstance.editor.defineTheme('python-dark', {
@@ -289,14 +289,15 @@ const defineMonacoThemes = (monacoInstance: Monaco) => {
 }
 
 interface VSEditorProps {
-  ref: RefObject<editor.IStandaloneCodeEditor | null>
   defaultValue?: string
 }
 
-export function VSEditor({ ref, defaultValue }: VSEditorProps) {
+export function VSEditor({ defaultValue }: VSEditorProps) {
   const theme = useTheme()
   const isMobile = useMediaQuery('(max-width:600px)')
   const isTablet = useMediaQuery('(max-width:1024px)')
+
+  const { editorRef } = useEditor()
 
   async function handleEditorMount(
     editor: editor.IStandaloneCodeEditor,
@@ -305,7 +306,7 @@ export function VSEditor({ ref, defaultValue }: VSEditorProps) {
     defineMonacoThemes(monacoInstance)
     monacoInstance.editor.setTheme(isDarkMode ? 'python-dark' : 'python-light')
 
-    ref.current = editor
+    editorRef.current = editor
   }
 
   const isDarkMode = theme.palette.mode === 'dark'

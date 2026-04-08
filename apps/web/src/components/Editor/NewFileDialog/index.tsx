@@ -1,3 +1,5 @@
+import { AlertContext } from '@/context/AlertContext'
+import { useEditor } from '@/hooks/useEditor'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
@@ -8,33 +10,40 @@ import {
   TextField,
 } from '@mui/material'
 
-import { type newFileDTO, newFile } from '@python-editor/schemas/new-file'
+import { type newFileDTO, newFileSchema } from '@python-editor/schemas/new-file'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 
 interface NewFileDialogProps {
   open: boolean
   onClose: () => void
-  handleNewFile: (name: string) => void
 }
 
-export function NewFileDialog({
-  open,
-  onClose,
-  handleNewFile,
-}: NewFileDialogProps) {
+export function NewFileDialog({ open, onClose }: NewFileDialogProps) {
   const {
     register,
     handleSubmit,
     reset,
     formState: { isSubmitting, errors },
   } = useForm<newFileDTO>({
-    resolver: zodResolver(newFile),
+    resolver: zodResolver(newFileSchema),
   })
 
+  const { newFile } = useEditor()
+  const alert = useContext(AlertContext)
+
   function handleSubmitForm(data: newFileDTO) {
-    handleNewFile(data.fileName)
-    onClose()
-    reset()
+    try {
+      newFile(data.fileName)
+      onClose()
+      reset()
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred while creating the file.'
+      alert.error(message)
+    }
   }
 
   return (

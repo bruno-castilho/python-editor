@@ -6,7 +6,7 @@ export interface PythonFile {
   content: string
 }
 
-type Status = 'idle' | 'running' | 'stopping'
+export type PyodideStatus = 'idle' | 'running' | 'stopping'
 
 interface usePyodideProps {
   stdoutCallback: (text: string) => void
@@ -24,7 +24,7 @@ export function usePyodide({
   stderrCallback,
   stdinCallback,
 }: usePyodideProps) {
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<PyodideStatus>('idle')
 
   const workerRef = useRef<Worker | null>(null)
 
