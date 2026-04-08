@@ -6,6 +6,7 @@ import {
   Badge,
   Box,
   Button,
+  CircularProgress,
   FormControl,
   FormLabel,
   IconButton,
@@ -19,12 +20,11 @@ import {
   updateUserSchema,
 } from '@python-editor/schemas/update-user'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AlertContext } from '@/context/AlertContext'
 import { uploadAvatarSchema } from '@python-editor/schemas/upload-avatar'
 
 import { uploadAvatar } from '@/api/server/upload-avatar'
-import axios from 'axios'
 import { ZodError } from 'zod'
 
 export default function Page() {
@@ -77,41 +77,12 @@ export default function Page() {
     }),
   )
 
-  async function handleSubmitProfileForm(data: UpdateUserDTO) {
-    await updateProfileMutateAsync(data)
+  async function handleSubmitProfileForm(formData: UpdateUserDTO) {
+    await updateProfileMutateAsync(formData)
   }
 
-  const {
-    mutateAsync: uploadAvatarMutateAsync,
-    isPending: isPendingUploadAvatar,
-  } = useMutation({
-    mutationFn: uploadAvatar,
-    onSuccess: (responseData) => {
-      const { avatarUrl, message } = responseData
-
-      const queryKey = trpc.users.getProfile.queryKey()
-      queryClient.setQueryData(queryKey, (currentData) => {
-        if (!currentData?.user) return currentData
-        return {
-          user: {
-            ...currentData.user,
-            avatarUrl,
-          },
-        }
-      })
-
-      alert.success(message)
-    },
-    onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data.msg) {
-        const { message } = error.response.data
-        alert.error(message)
-        return
-      }
-
-      alert.error('Something went wrong')
-    },
-  })
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [uploadAvatarProgress, setUploadAvatarProgress] = useState(0)
 
   async function handleUploadAvatar(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -125,7 +96,37 @@ export default function Page() {
         fileSize: file.size,
       })
 
-      await uploadAvatarMutateAsync({ file })
+      setIsUploadingAvatar(true)
+      setUploadAvatarProgress(0)
+
+      await uploadAvatar({
+        file,
+        onProgress: ({ loaded, total }) => {
+          if (total !== undefined) {
+            setUploadAvatarProgress(Math.round((loaded / total) * 100))
+          }
+        },
+        onComplete: ({ avatarUrl, message }) => {
+          const queryKey = trpc.users.getProfile.queryKey()
+          queryClient.setQueryData(queryKey, (currentData) => {
+            if (!currentData?.user) return currentData
+            return {
+              user: {
+                ...currentData.user,
+                avatarUrl,
+              },
+            }
+          })
+          alert.success(message)
+          setIsUploadingAvatar(false)
+          setUploadAvatarProgress(0)
+        },
+        onError: (message) => {
+          alert.error(message)
+          setIsUploadingAvatar(false)
+          setUploadAvatarProgress(0)
+        },
+      })
     } catch (error) {
       if (error instanceof ZodError) {
         const message = error.issues[0]?.message
@@ -192,7 +193,7 @@ export default function Page() {
                 component="label"
                 size="large"
                 sx={{ p: 0, color: 'text.secondary' }}
-                disabled={isPendingUploadAvatar}
+                disabled={isUploadingAvatar}
               >
                 <Edit fontSize="large" />
                 <input
@@ -204,17 +205,40 @@ export default function Page() {
               </IconButton>
             }
           >
-            <Avatar
-              src={user?.avatarUrl || ''}
-              alt={user?.name}
-              sx={{
-                width: 256,
-                height: 256,
-                fontSize: 64,
-                border: 3,
-                borderColor: 'secondary.main',
-              }}
-            />
+            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+              <Avatar
+                src={user?.avatarUrl || ''}
+                alt={user?.name}
+                sx={{
+                  width: 256,
+                  height: 256,
+                  fontSize: 64,
+                  border: 3,
+                  borderColor: 'secondary.main',
+                  opacity: isUploadingAvatar ? 0.5 : 1,
+                  transition: 'opacity 0.2s',
+                }}
+              />
+              {isUploadingAvatar && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CircularProgress
+                    variant={
+                      uploadAvatarProgress > 0 ? 'determinate' : 'indeterminate'
+                    }
+                    value={uploadAvatarProgress}
+                    size={128}
+                  />
+                </Box>
+              )}
+            </Box>
           </Badge>
           <Button
             variant="outlined"

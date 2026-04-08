@@ -1,8 +1,8 @@
 import type { IProjectsRepository } from '../repositories/interfaces/projects-repository'
-import type { IProjectStorage } from '../storages/interfaces/project-storage'
 import type { RemoveProjectDTO } from '@python-editor/schemas/remove-project'
 import { NotAllowedToRemoveProjectError } from './errors/not-allowed-to-remove-project-error'
 import { ProjectDoesNotExistError } from './errors/project-does-not-exist-error'
+import type { IStorage } from '../storages/interfaces/storage'
 
 interface RemoveProjectUseCaseParams {
   dto: RemoveProjectDTO
@@ -12,7 +12,7 @@ interface RemoveProjectUseCaseParams {
 export class RemoveProjectUseCase {
   constructor(
     private projectsRepository: IProjectsRepository,
-    private projectStorage: IProjectStorage,
+    private projectStorage: IStorage,
   ) {}
 
   async execute({ dto, userId }: RemoveProjectUseCaseParams) {

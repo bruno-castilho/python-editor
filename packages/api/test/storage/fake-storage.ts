@@ -1,14 +1,13 @@
+import type { Readable } from 'node:stream'
 import { v7 as uuidv7 } from 'uuid'
 import type { IStorage } from '../../src/storages/interfaces/storage'
 
 export class FakeStorage implements IStorage {
   public store = new Map<string, { contentType: string }>()
 
-  async upload(params: { body: Buffer; contentType: string }) {
+  async upload(params: { body: Readable; contentType: string }) {
     const fileId = uuidv7()
-
     this.store.set(fileId, { contentType: params.contentType })
-
     return { fileId }
   }
 

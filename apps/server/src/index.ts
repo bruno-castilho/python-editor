@@ -5,7 +5,6 @@ import { createContext } from '@python-editor/api/context'
 import { appRouter, type AppRouter } from '@python-editor/api/routers/index'
 import { makeUploadAvatar } from '@python-editor/api/use-cases/factories/make-upload-avatar'
 import { makeUploadProjectUseCase } from '@python-editor/api/use-cases/factories/make-upload-project'
-import { UserDoesNotExistsError } from '@python-editor/api/use-cases/errors/user-does-not-exists-error'
 import { env } from '@python-editor/env/server'
 import {
   fastifyTRPCPlugin,
@@ -47,25 +46,40 @@ fastify.post(
   '/upload-avatar',
   { preHandler: [onlyUserMiddleware, receiveAvatarFileAndParseMiddleware] },
   async (request, reply) => {
+    const { userId } = request.session
+    const { stream, contentType } = request.uploadedAvatarFile
+
+    reply.header('Content-Type', 'text/event-stream')
+    reply.header('Cache-Control', 'no-cache')
+    reply.header('Connection', 'keep-alive')
+
+    reply.raw.writeHead(
+      200,
+      reply.getHeaders() as Record<string, string | string[]>,
+    )
+
+    const send = (event: string, data: object) => {
+      reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+    }
+
     try {
-      const { userId } = request.session
-      const { buffer, contentType } = request.uploadedFile
-
-      const uploadAvatarUseCase = makeUploadAvatar()
-      const { avatarUrl } = await uploadAvatarUseCase.execute({
+      const useCase = makeUploadAvatar()
+      const { avatarUrl } = await useCase.execute({
         userId,
-        fileBuffer: buffer,
+        fileStream: stream,
         contentType,
+        onProgress: (progress: { loaded: number; total?: number }) =>
+          send('progress', progress),
       })
-
-      return reply
-        .status(200)
-        .send({ avatarUrl, message: 'Avatar uploaded successfully' })
+      send('complete', { avatarUrl, message: 'Avatar uploaded successfully.' })
     } catch (error) {
-      if (error instanceof UserDoesNotExistsError) {
-        return reply.status(404).send({ message: error.message })
-      }
-      return reply.status(500).send({ message: 'Internal server error.' })
+      const isFileTooLarge =
+        error instanceof Error && error.message.includes('File too large.')
+      send('error', {
+        message: isFileTooLarge ? error.message : 'Internal server error.',
+      })
+    } finally {
+      reply.raw.end()
     }
   },
 )
@@ -81,10 +95,6 @@ fastify.post(
     reply.header('Cache-Control', 'no-cache')
     reply.header('Connection', 'keep-alive')
 
-    // Flush all Fastify headers (including CORS set by the plugin) to the raw
-    // response before writing the streaming body directly to reply.raw.
-    // Without this, CORS headers set via reply.header() in the onRequest hook
-    // are never written to the HTTP response because reply.send() is never called.
     reply.raw.writeHead(
       200,
       reply.getHeaders() as Record<string, string | string[]>,
@@ -107,7 +117,7 @@ fastify.post(
       send('complete', { project, message: 'Project uploaded successfully.' })
     } catch (error) {
       const isFileTooLarge =
-        error instanceof Error && error.message.includes('500 MB')
+        error instanceof Error && error.message.includes('File too large.')
       send('error', {
         message: isFileTooLarge ? error.message : 'Internal server error.',
       })

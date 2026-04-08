@@ -1,18 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { RemoveProjectUseCase } from './remove-project'
 import { FakeProjectsRepository } from '../../test/repositories/fake-projects-repository'
-import { FakeProjectStorage } from '../../test/storage/fake-project-storage'
 import { ProjectDoesNotExistError } from './errors/project-does-not-exist-error'
 import { NotAllowedToRemoveProjectError } from './errors/not-allowed-to-remove-project-error'
+import { FakeStorage } from '../../test/storage/fake-storage'
 
 let projectsRepository: FakeProjectsRepository
-let projectStorage: FakeProjectStorage
+let projectStorage: FakeStorage
 let sut: RemoveProjectUseCase
 
 describe('Remove Project Use Case', () => {
   beforeEach(() => {
     projectsRepository = new FakeProjectsRepository()
-    projectStorage = new FakeProjectStorage()
+    projectStorage = new FakeStorage()
     sut = new RemoveProjectUseCase(projectsRepository, projectStorage)
   })
 

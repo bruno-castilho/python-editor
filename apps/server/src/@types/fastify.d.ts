@@ -4,8 +4,8 @@ import type { Readable } from 'node:stream'
 declare module 'fastify' {
   interface FastifyRequest {
     session: { userId: string; sessionId: string }
-    uploadedFile: {
-      buffer: Buffer
+    uploadedAvatarFile: {
+      stream: Readable
       contentType: string
     }
     uploadedProjectFile: {

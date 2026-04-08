@@ -1,6 +1,6 @@
 import type { Readable } from 'node:stream'
 import type { IProjectsRepository } from '../repositories/interfaces/projects-repository'
-import type { IProjectStorage } from '../storages/interfaces/project-storage'
+import type { IStorage } from '../storages/interfaces/storage'
 
 interface UploadProjectParams {
   userId: string
@@ -13,7 +13,7 @@ interface UploadProjectParams {
 export class UploadProjectUseCase {
   constructor(
     private projectsRepository: IProjectsRepository,
-    private projectStorage: IProjectStorage,
+    private projectStorage: IStorage,
   ) {}
 
   async execute(params: UploadProjectParams) {

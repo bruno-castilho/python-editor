@@ -1,3 +1,4 @@
+import { Transform } from 'node:stream'
 import {
   MAX_FILE_SIZE_BYTES,
   uploadAvatarSchema,
@@ -16,25 +17,25 @@ export async function receiveAvatarFileAndParseMiddleware(
       return reply.status(400).send({ message: 'No file uploaded.' })
     }
 
-    const chunks: Buffer[] = []
-    let totalSize = 0
+    uploadAvatarSchema
+      .pick({ contentType: true })
+      .parse({ contentType: data.mimetype })
 
-    for await (const chunk of data.file) {
-      totalSize += chunk.length
-      if (totalSize > MAX_FILE_SIZE_BYTES) {
-        data.file.resume()
-        return reply.status(413).send({ message: 'File too large.' })
-      }
-      chunks.push(chunk)
-    }
-
-    uploadAvatarSchema.parse({
-      contentType: data.mimetype,
-      fileSize: totalSize,
+    let totalBytes = 0
+    const sizeGuard = new Transform({
+      transform(chunk: Buffer, _encoding, callback) {
+        totalBytes += chunk.length
+        if (totalBytes > MAX_FILE_SIZE_BYTES) {
+          callback(new Error('File too large.'))
+        } else {
+          this.push(chunk)
+          callback()
+        }
+      },
     })
 
-    request.uploadedFile = {
-      buffer: Buffer.concat(chunks),
+    request.uploadedAvatarFile = {
+      stream: data.file.pipe(sizeGuard),
       contentType: data.mimetype,
     }
   } catch (error) {
@@ -47,16 +48,11 @@ function receiveAvatarFileMiddlewareErrorHandler(
   reply: FastifyReply,
 ) {
   if (error instanceof ZodError) {
-    const contentTypeIssue = error.issues.find((i) =>
-      i.path.includes('contenType'),
+    const contentTypeIssue = error.issues.find((issue) =>
+      issue.path.includes('contentType'),
     )
     if (contentTypeIssue) {
       return reply.status(415).send({ message: contentTypeIssue.message })
-    }
-
-    const fileSizeIssue = error.issues.find((i) => i.path.includes('fileSize'))
-    if (fileSizeIssue) {
-      return reply.status(413).send({ message: fileSizeIssue.message })
     }
   }
   return reply.status(500).send({ message: 'Internal server error.' })

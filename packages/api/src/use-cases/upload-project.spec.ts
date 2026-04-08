@@ -2,10 +2,10 @@ import { Readable } from 'node:stream'
 import { describe, it, expect, beforeEach } from 'vitest'
 import { UploadProjectUseCase } from './upload-project'
 import { FakeProjectsRepository } from '../../test/repositories/fake-projects-repository'
-import { FakeProjectStorage } from '../../test/storage/fake-project-storage'
+import { FakeStorage } from '../../test/storage/fake-storage'
 
 let projectsRepository: FakeProjectsRepository
-let projectStorage: FakeProjectStorage
+let projectStorage: FakeStorage
 let sut: UploadProjectUseCase
 
 const makeFileStream = () => Readable.from(Buffer.from('fake-zip-content'))
@@ -13,7 +13,7 @@ const makeFileStream = () => Readable.from(Buffer.from('fake-zip-content'))
 describe('Upload Project Use Case', () => {
   beforeEach(() => {
     projectsRepository = new FakeProjectsRepository()
-    projectStorage = new FakeProjectStorage()
+    projectStorage = new FakeStorage()
     sut = new UploadProjectUseCase(projectsRepository, projectStorage)
   })
 

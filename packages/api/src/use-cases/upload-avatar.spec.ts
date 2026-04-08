@@ -1,3 +1,4 @@
+import { Readable } from 'node:stream'
 import { UploadAvatarUseCase } from './upload-avatar'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
@@ -9,7 +10,7 @@ let usersRepository: FakeUsersRepository
 let storage: FakeStorage
 let sut: UploadAvatarUseCase
 
-const fakeFileBuffer = Buffer.from('fake-image-data')
+const fakeFileStream = () => Readable.from(Buffer.from('fake-image-data'))
 const fakeFileContentType = 'image/jpeg'
 
 describe('Upload Avatar Use Case', () => {
@@ -34,7 +35,7 @@ describe('Upload Avatar Use Case', () => {
 
     const { avatarUrl } = await sut.execute({
       userId: user.id,
-      fileBuffer: fakeFileBuffer,
+      fileStream: fakeFileStream(),
       contentType: fakeFileContentType,
     })
 
@@ -48,15 +49,15 @@ describe('Upload Avatar Use Case', () => {
     await expect(
       sut.execute({
         userId: 'non-existent-id',
-        fileBuffer: fakeFileBuffer,
+        fileStream: fakeFileStream(),
         contentType: fakeFileContentType,
       }),
     ).rejects.toBeInstanceOf(UserDoesNotExistsError)
   })
 
-  it('should delete the previous avatar before uploading a new one', async () => {
+  it('should not be able to upload a new avatar without deleting the previous one', async () => {
     const { fileId } = await storage.upload({
-      body: fakeFileBuffer,
+      body: fakeFileStream(),
       contentType: fakeFileContentType,
     })
 
@@ -70,7 +71,7 @@ describe('Upload Avatar Use Case', () => {
 
     await sut.execute({
       userId: user.id,
-      fileBuffer: fakeFileBuffer,
+      fileStream: fakeFileStream(),
       contentType: fakeFileContentType,
     })
 

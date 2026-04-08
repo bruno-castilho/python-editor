@@ -1,58 +1,10 @@
 import type { Readable } from 'node:stream'
 import { v7 as uuidv7 } from 'uuid'
+import { DeleteObjectCommand, Upload, s3 } from '@python-editor/s3'
 import type { IStorage } from './interfaces/storage'
-import type { IProjectStorage } from './interfaces/project-storage'
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-  Upload,
-  s3,
-} from '@python-editor/s3'
 
-abstract class S3Storage implements IStorage {
+export class Storage implements IStorage {
   constructor(private bucket: string) {}
-
-  async upload(params: {
-    body: Buffer
-    contentType: string
-  }): Promise<{ fileId: string }> {
-    const { body, contentType } = params
-
-    const fileId = uuidv7()
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: fileId,
-        Body: body,
-        ContentType: contentType,
-      }),
-    )
-
-    return { fileId }
-  }
-
-  async delete(params: { fileId: string }): Promise<void> {
-    const { fileId } = params
-
-    await s3.send(
-      new DeleteObjectCommand({
-        Bucket: this.bucket,
-        Key: fileId,
-      }),
-    )
-  }
-}
-
-export class AvatarStorage extends S3Storage {
-  constructor() {
-    const bucket = 'avatars'
-    super(bucket)
-  }
-}
-
-export class ProjectStorage implements IProjectStorage {
-  private readonly bucket = 'projects'
 
   async upload(params: {
     body: Readable
@@ -73,8 +25,8 @@ export class ProjectStorage implements IProjectStorage {
     })
 
     if (onProgress) {
-      upload.on('httpUploadProgress', (p) => {
-        onProgress({ loaded: p.loaded ?? 0, total: p.total })
+      upload.on('httpUploadProgress', (progress) => {
+        onProgress({ loaded: progress.loaded ?? 0, total: progress.total })
       })
     }
 
@@ -91,5 +43,17 @@ export class ProjectStorage implements IProjectStorage {
         Key: fileId,
       }),
     )
+  }
+}
+
+export class AvatarStorage extends Storage {
+  constructor() {
+    super('avatars')
+  }
+}
+
+export class ProjectStorage extends Storage {
+  constructor() {
+    super('projects')
   }
 }

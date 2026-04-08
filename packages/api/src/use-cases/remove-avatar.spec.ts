@@ -1,3 +1,4 @@
+import { Readable } from 'node:stream'
 import { RemoveAvatarUseCase } from './remove-avatar'
 import { Data } from '../../test/repositories/data'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
@@ -19,7 +20,7 @@ describe('Remove Avatar Use Case', () => {
 
   it('should be able to remove an avatar', async () => {
     const { fileId } = await storage.upload({
-      body: Buffer.from('fake'),
+      body: Readable.from(Buffer.from('fake')),
       contentType: 'image/jpeg',
     })
 
@@ -45,7 +46,7 @@ describe('Remove Avatar Use Case', () => {
     ).rejects.toBeInstanceOf(UserDoesNotExistsError)
   })
 
-  it('should not call storage delete when user has no avatar', async () => {
+  it('should not be able to remove an avatar when user has no avatar set', async () => {
     const user = await usersRepository.create({
       name: 'John',
       lastName: 'Doe',
