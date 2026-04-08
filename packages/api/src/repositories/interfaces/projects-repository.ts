@@ -3,6 +3,7 @@ import type {
   Project,
   ProjectCreateParams,
   ProjectWithoutFileId,
+  ProjectWithSharedWith,
   SharedWithMeProjectListItem,
 } from '../types/projects'
 
@@ -10,6 +11,10 @@ export interface IProjectsRepository {
   create(params: ProjectCreateParams): Promise<ProjectWithoutFileId>
 
   findById(params: { projectId: string }): Promise<Project | null>
+
+  findByIdWithSharedWith(params: {
+    projectId: string
+  }): Promise<ProjectWithSharedWith | null>
 
   findManyByUser(params: {
     userId: string

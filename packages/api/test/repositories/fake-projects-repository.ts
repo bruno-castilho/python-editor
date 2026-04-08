@@ -3,6 +3,7 @@ import type { IProjectsRepository } from '../../src/repositories/interfaces/proj
 import type {
   Project,
   ProjectCreateParams,
+  ProjectWithSharedWith,
   SharedWithMeProjectListItem,
 } from '../../src/repositories/types/projects'
 
@@ -30,6 +31,15 @@ export class FakeProjectsRepository implements IProjectsRepository {
 
   async findById(params: { projectId: string }): Promise<Project | null> {
     return this.items.find((project) => project.id === params.projectId) ?? null
+  }
+
+  async findByIdWithSharedWith(params: {
+    projectId: string
+  }): Promise<ProjectWithSharedWith | null> {
+    const project = this.items.find((p) => p.id === params.projectId) ?? null
+    if (!project) return null
+    const sharedUserIds = this.sharedWithRelations.get(project.id) ?? []
+    return { ...project, sharedWith: sharedUserIds.map((id) => ({ id })) }
   }
 
   async findManyByUser(params: {

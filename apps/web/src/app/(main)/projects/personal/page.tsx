@@ -24,6 +24,7 @@ import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { ShareProjectDialog } from '@/components/ShareProjectDialog'
+import Link from 'next/link'
 
 interface PersonalTableRowProps {
   project: {
@@ -78,7 +79,7 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
     <>
       <TableRow>
         <TableCell component="th" scope="row" align="left">
-          {project.id}
+          <Link href={`/editor/${project.id}`}>{project.id}</Link>
         </TableCell>
         <TableCell component="th" scope="row" align="left">
           {project.name}

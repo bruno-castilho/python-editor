@@ -3,6 +3,7 @@ import fastifyCors from '@fastify/cors'
 import fastifyMultipart from '@fastify/multipart'
 import { createContext } from '@python-editor/api/context'
 import { appRouter, type AppRouter } from '@python-editor/api/routers/index'
+import { makeDownloadProjectUseCase } from '@python-editor/api/use-cases/factories/make-download-project'
 import { makeUploadAvatar } from '@python-editor/api/use-cases/factories/make-upload-avatar'
 import { makeUploadProjectUseCase } from '@python-editor/api/use-cases/factories/make-upload-project'
 import { env } from '@python-editor/env/server'
@@ -11,6 +12,8 @@ import {
   type FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify'
 import Fastify from 'fastify'
+import { NotAllowedToDownloadProjectError } from '@python-editor/api/use-cases/errors/not-allowed-to-download-project-error'
+import { ProjectDoesNotExistError } from '@python-editor/api/use-cases/errors/project-does-not-exist-error'
 import { onlyUserMiddleware } from './middlewares/only-user-middleware'
 import { receiveAvatarFileAndParseMiddleware } from './middlewares/receive-avatar-file-middleware'
 import { receiveProjectFileMiddleware } from './middlewares/receive-project-file-middleware'
@@ -123,6 +126,33 @@ fastify.post(
       })
     } finally {
       reply.raw.end()
+    }
+  },
+)
+
+fastify.get(
+  '/download-project/:projectId',
+  { preHandler: [onlyUserMiddleware] },
+  async (request, reply) => {
+    const { userId } = request.session
+    const { projectId } = request.params as { projectId: string }
+
+    try {
+      const useCase = makeDownloadProjectUseCase()
+      const { data } = await useCase.execute({ dto: { projectId }, userId })
+      return reply
+        .header('Content-Type', 'application/zip')
+        .header(
+          'Content-Disposition',
+          `attachment; filename="${projectId}.zip"`,
+        )
+        .send(data)
+    } catch (error) {
+      if (error instanceof ProjectDoesNotExistError)
+        return reply.status(404).send({ message: error.message })
+      if (error instanceof NotAllowedToDownloadProjectError)
+        return reply.status(403).send({ message: error.message })
+      return reply.status(500).send({ message: 'Internal server error.' })
     }
   },
 )

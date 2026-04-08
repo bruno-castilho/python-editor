@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@mui/material'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 interface SharedWithMeTableRowProps {
   project: {
@@ -34,7 +35,7 @@ function SharedWithMeTableRow({ project }: SharedWithMeTableRowProps) {
   return (
     <TableRow>
       <TableCell component="th" scope="row" align="left">
-        {project.id}
+        <Link href={`/editor/${project.id}`}>{project.id}</Link>
       </TableCell>
       <TableCell component="th" scope="row" align="left">
         {project.name}

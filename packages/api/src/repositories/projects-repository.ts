@@ -28,6 +28,13 @@ export class ProjectsRepository implements IProjectsRepository {
     return prisma.project.findUnique({ where: { id: params.projectId } })
   }
 
+  async findByIdWithSharedWith(params: { projectId: string }) {
+    return prisma.project.findUnique({
+      where: { id: params.projectId },
+      include: { sharedWith: { select: { id: true } } },
+    })
+  }
+
   async findManyByUser(params: {
     userId: string
     page: number

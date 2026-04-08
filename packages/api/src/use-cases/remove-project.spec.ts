@@ -25,7 +25,10 @@ describe('Remove Project Use Case', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     })
-    projectStorage.store.set('file-id-1', { contentType: 'application/zip' })
+    projectStorage.store.set('file-id-1', {
+      contentType: 'application/zip',
+      body: Buffer.alloc(0),
+    })
 
     await sut.execute({
       dto: { projectId: 'project-id-1' },

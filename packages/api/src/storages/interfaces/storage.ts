@@ -8,4 +8,6 @@ export interface IStorage {
   }): Promise<{ fileId: string }>
 
   delete(params: { fileId: string }): Promise<void>
+
+  download(params: { fileId: string }): Promise<Buffer>
 }

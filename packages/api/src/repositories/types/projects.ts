@@ -4,6 +4,10 @@ export type Project = ProjectPrisma
 
 export type ProjectWithoutFileId = Omit<Project, 'fileId'>
 
+export type ProjectWithSharedWith = Project & {
+  sharedWith: { id: string }[]
+}
+
 export type ProjectCreateParams = Omit<
   Prisma.ProjectCreateInput,
   'id' | 'createdBy'

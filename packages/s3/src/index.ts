@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
@@ -15,5 +16,5 @@ export const s3 = new S3Client({
   forcePathStyle: !!env.STORAGE_ENDPOINT,
 })
 
-export { PutObjectCommand, DeleteObjectCommand }
+export { PutObjectCommand, DeleteObjectCommand, GetObjectCommand }
 export { Upload } from '@aws-sdk/lib-storage'

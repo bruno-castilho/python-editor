@@ -6,6 +6,7 @@ import { InvalidCredentialsError } from './use-cases/errors/invalid-credentials-
 import { InvalidCurrentPasswordError } from './use-cases/errors/invalid-current-password-error'
 import { InvalidEmailVerificationTokenError } from './use-cases/errors/invalid-email-verification-token-error'
 import { InvalidPasswordResetTokenError } from './use-cases/errors/invalid-password-reset-token-error'
+import { NotAllowedToDownloadProjectError } from './use-cases/errors/not-allowed-to-download-project-error'
 import { NotAllowedToRemoveProjectError } from './use-cases/errors/not-allowed-to-remove-project-error'
 import { NotAllowedToShareProjectError } from './use-cases/errors/not-allowed-to-share-project-error'
 import { ProjectDoesNotExistError } from './use-cases/errors/project-does-not-exist-error'
@@ -28,6 +29,7 @@ const ERROR_MAP: Array<[AnyErrorConstructor, TRPC_ERROR_CODE_KEY]> = [
   [ProjectDoesNotExistError, 'NOT_FOUND'],
   [NotAllowedToRemoveProjectError, 'FORBIDDEN'],
   [NotAllowedToShareProjectError, 'FORBIDDEN'],
+  [NotAllowedToDownloadProjectError, 'FORBIDDEN'],
 ]
 
 export function handleError(error: unknown): never {

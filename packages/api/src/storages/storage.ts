@@ -1,6 +1,11 @@
 import type { Readable } from 'node:stream'
 import { v7 as uuidv7 } from 'uuid'
-import { DeleteObjectCommand, Upload, s3 } from '@python-editor/s3'
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  Upload,
+  s3,
+} from '@python-editor/s3'
 import type { IStorage } from './interfaces/storage'
 
 export class Storage implements IStorage {
@@ -43,6 +48,19 @@ export class Storage implements IStorage {
         Key: fileId,
       }),
     )
+  }
+
+  async download(params: { fileId: string }): Promise<Buffer> {
+    const { fileId } = params
+
+    const response = await s3.send(
+      new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: fileId,
+      }),
+    )
+
+    return Buffer.from(await response.Body!.transformToByteArray())
   }
 }
 
