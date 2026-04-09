@@ -3,6 +3,7 @@ import { v7 as uuidv7 } from 'uuid'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
   Upload,
   s3,
 } from '@python-editor/s3'
@@ -37,6 +38,22 @@ export class Storage implements IStorage {
 
     await upload.done()
     return { fileId }
+  }
+
+  async replace(params: {
+    fileId: string
+    body: Buffer
+    contentType: string
+  }): Promise<void> {
+    const { fileId, body, contentType } = params
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: fileId,
+        Body: body,
+        ContentType: contentType,
+      }),
+    )
   }
 
   async delete(params: { fileId: string }): Promise<void> {

@@ -7,6 +7,12 @@ export interface IStorage {
     onProgress?: (progress: { loaded: number; total?: number }) => void
   }): Promise<{ fileId: string }>
 
+  replace(params: {
+    fileId: string
+    body: Buffer
+    contentType: string
+  }): Promise<void>
+
   delete(params: { fileId: string }): Promise<void>
 
   download(params: { fileId: string }): Promise<Buffer>

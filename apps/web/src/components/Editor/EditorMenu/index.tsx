@@ -20,7 +20,14 @@ import { NewFileDialog } from '../NewFileDialog'
 import { SaveProjectDialog } from '../SaveProjectDialog'
 import { useEditor } from '@/hooks/useEditor'
 
-export function EditorMenu() {
+interface EditorMenuProps {
+  project?: {
+    id: string
+    name: string
+  }
+}
+
+export function EditorMenu({ project }: EditorMenuProps) {
   const [openNewFileDialog, setOpenNewFileDialog] = useState<boolean>(false)
   const [openChatDialog, setOpenChatDialog] = useState<boolean>(false)
   const [openSaveProjectDialog, setOpenSaveProjectDialog] =
@@ -173,6 +180,7 @@ export function EditorMenu() {
       <SaveProjectDialog
         open={openSaveProjectDialog}
         onClose={handleCloseSaveProjectDialog}
+        project={project}
       />
     </>
   )

@@ -17,9 +17,13 @@ export type InitialFiles = [
 
 interface EditorProps {
   initialFiles: InitialFiles
+  project?: {
+    id: string
+    name: string
+  }
 }
 
-export function Editor({ initialFiles }: EditorProps) {
+export function Editor({ initialFiles, project }: EditorProps) {
   return (
     <EditorProvider initialFiles={initialFiles}>
       <Box component={Card} variant="outlined" width="100%">
@@ -34,7 +38,7 @@ export function Editor({ initialFiles }: EditorProps) {
         >
           <FileTabBar />
 
-          <EditorMenu />
+          <EditorMenu project={project} />
         </Box>
         <Divider />
         <CardContent>

@@ -113,6 +113,18 @@ export class ProjectsRepository implements IProjectsRepository {
     }
   }
 
+  async update(params: { projectId: string; updatedById: string }) {
+    const { projectId, updatedById } = params
+
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        updatedAt: new Date(),
+        updatedBy: { connect: { id: updatedById } },
+      },
+    })
+  }
+
   async delete(params: { projectId: string }) {
     await prisma.project.delete({ where: { id: params.projectId } })
   }

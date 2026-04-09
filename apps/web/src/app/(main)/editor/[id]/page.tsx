@@ -12,10 +12,13 @@ interface PageProps {
 export default function Page({ params }: PageProps) {
   const { id } = use(params)
 
-  const { data: initialFiles } = useQuery({
+  const { data: projectData } = useQuery({
     queryKey: ['project', id],
-    queryFn: async (): Promise<InitialFiles | null> => {
-      const arrayBuffer = await downloadProject(id)
+    queryFn: async (): Promise<{
+      files: InitialFiles
+      projectName: string
+    } | null> => {
+      const { arrayBuffer, projectName } = await downloadProject(id)
 
       const zip = await JSZip.loadAsync(arrayBuffer)
       const fileNames = Object.keys(zip.files).filter(
@@ -46,13 +49,21 @@ export default function Page({ params }: PageProps) {
         (file) => file.name !== 'main.py',
       )
 
-      return [{ name: 'main.py', content: mainFile.content }, ...otherFiles]
+      return {
+        files: [{ name: 'main.py', content: mainFile.content }, ...otherFiles],
+        projectName,
+      }
     },
     retry: false,
     throwOnError: true,
   })
 
-  if (!initialFiles) return <div>Loading project...</div>
+  if (!projectData) return <div>Loading project...</div>
 
-  return <Editor initialFiles={initialFiles} />
+  return (
+    <Editor
+      initialFiles={projectData.files}
+      project={{ id, name: projectData.projectName }}
+    />
+  )
 }

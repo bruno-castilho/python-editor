@@ -21,6 +21,7 @@ model User {
 
   personalProjects     Project[] @relation("PersonalProjects")
   sharedWithMeProjects Project[] @relation("SharedWithMeProjects")
+  updatedProjects      Project[] @relation("UpdatedProjects")
 
   @@map("users")
 }
@@ -35,6 +36,9 @@ model Project {
 
   createdById String
   createdBy   User @relation("PersonalProjects", fields: [createdById], references: [id])
+
+  updatedById String
+  updatedBy   User @relation("UpdatedProjects", fields: [updatedById], references: [id])
 
   sharedWith User[] @relation("SharedWithMeProjects")
 

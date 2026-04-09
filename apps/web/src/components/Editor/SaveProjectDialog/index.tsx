@@ -19,20 +19,32 @@ import JSZip from 'jszip'
 import { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { uploadProject } from '@/api/server/upload-project'
+import { updateProject } from '@/api/server/update-project'
 import { AlertContext } from '@/context/AlertContext'
 import type { PythonFile } from '@/hooks/usePyodide'
-import { saveProjectSchema, type SaveProjectDTO } from './schema'
 import { getAccessToken } from '@/utils/access-token-store'
 import { useEditor } from '@/hooks/useEditor'
+import {
+  saveProjectSchema,
+  type SaveProjectDTO,
+} from '@python-editor/schemas/save-project'
 
 interface SaveProjectDialogProps {
   open: boolean
   onClose: () => void
+  project?: {
+    id: string
+    name: string
+  }
 }
 
 type UploadStatus = 'idle' | 'uploading' | 'error'
 
-export function SaveProjectDialog({ open, onClose }: SaveProjectDialogProps) {
+export function SaveProjectDialog({
+  open,
+  onClose,
+  project,
+}: SaveProjectDialogProps) {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle')
   const [uploadProgress, setUploadProgress] = useState<number>(0)
 
@@ -50,6 +62,7 @@ export function SaveProjectDialog({ open, onClose }: SaveProjectDialogProps) {
   } = useForm<SaveProjectDTO>({
     resolver: zodResolver(saveProjectSchema),
     defaultValues: {
+      projectName: project?.name ?? '',
       saveLocation: 'local',
     },
   })
@@ -115,10 +128,24 @@ export function SaveProjectDialog({ open, onClose }: SaveProjectDialogProps) {
       alert.success('Project saved locally.')
     }
 
-    if (data.saveLocation === 'remote') {
+    if (data.saveLocation === 'remote' && !project) {
       setUploadProgress(0)
       setUploadStatus('uploading')
       await saveProjectRemotely(zipFilename, blob)
+    }
+
+    if (data.saveLocation === 'remote' && project) {
+      setUploadProgress(0)
+      setUploadStatus('uploading')
+      try {
+        await updateProject({ projectId: project.id, file: blob, filename: zipFilename })
+        alert.success('Project updated successfully.')
+      } catch (err) {
+        alert.error(err instanceof Error ? err.message : 'Failed to update project.')
+      } finally {
+        setUploadStatus('idle')
+        setUploadProgress(0)
+      }
     }
 
     reset()
@@ -155,6 +182,7 @@ export function SaveProjectDialog({ open, onClose }: SaveProjectDialogProps) {
           error={!!errors.projectName}
           helperText={errors.projectName?.message ?? ''}
           {...register('projectName')}
+          disabled={!!project}
         />
         <FormControl>
           <Controller

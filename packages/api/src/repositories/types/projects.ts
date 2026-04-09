@@ -8,6 +8,11 @@ export type ProjectWithSharedWith = Project & {
   sharedWith: { id: string }[]
 }
 
+export type ProjectUpdateParams = {
+  projectId: string
+  updatedById: string
+}
+
 export type ProjectCreateParams = Omit<
   Prisma.ProjectCreateInput,
   'id' | 'createdBy'

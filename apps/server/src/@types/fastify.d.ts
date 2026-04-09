@@ -13,5 +13,9 @@ declare module 'fastify' {
       filename: string
       contentType: string
     }
+    uploadedProjectFileBuffer: {
+      buffer: Buffer
+      contentType: string
+    }
   }
 }

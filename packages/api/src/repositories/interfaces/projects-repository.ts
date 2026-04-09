@@ -2,6 +2,7 @@ import type {
   PersonalProjectListItem,
   Project,
   ProjectCreateParams,
+  ProjectUpdateParams,
   ProjectWithoutFileId,
   ProjectWithSharedWith,
   SharedWithMeProjectListItem,
@@ -9,6 +10,8 @@ import type {
 
 export interface IProjectsRepository {
   create(params: ProjectCreateParams): Promise<ProjectWithoutFileId>
+
+  update(params: ProjectUpdateParams): Promise<void>
 
   findById(params: { projectId: string }): Promise<Project | null>
 
