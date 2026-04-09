@@ -37,7 +37,7 @@ export default function MainLayout({
       <Header />
       <Container
         component="main"
-        maxWidth="xl"
+        maxWidth={false}
         sx={{ mt: 2, minHeight: '100%' }}
       >
         {children}

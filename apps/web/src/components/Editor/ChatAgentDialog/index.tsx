@@ -19,7 +19,7 @@ export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xl"
+      maxWidth={false}
       fullWidth
       slotProps={{
         paper: {

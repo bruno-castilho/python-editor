@@ -15,7 +15,7 @@ export function Header() {
 
   return (
     <Box component={AppBar} position="static">
-      <Container maxWidth="xl">
+      <Container maxWidth={false}>
         <Toolbar disableGutters>
           <Box
             component="img"
