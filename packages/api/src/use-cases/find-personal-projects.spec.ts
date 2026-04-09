@@ -4,6 +4,10 @@ import { FakeProjectsRepository } from '../../test/repositories/fake-projects-re
 
 let projectsRepository: FakeProjectsRepository
 let sut: FindPersonalProjectsUseCase
+const ownerUserId = 'owner-user-id'
+const upddaterUserId = 'updater-user-id'
+const ownerEmail = 'owner@example.com'
+const updaterEmail = 'updater@example.com'
 
 describe('Find Personal Projects Use Case', () => {
   beforeEach(() => {
@@ -12,17 +16,16 @@ describe('Find Personal Projects Use Case', () => {
   })
 
   it('should be able to find personal projects with pagination', async () => {
-    const userId = 'user-id-1'
-    const userEmail = 'owner@example.com'
-
-    projectsRepository.userEmails.set(userId, userEmail)
+    projectsRepository.userEmails.set(ownerUserId, ownerEmail)
+    projectsRepository.userEmails.set(upddaterUserId, updaterEmail)
 
     projectsRepository.items.push(
       {
         id: 'project-id-1',
         name: 'Alpha',
         fileId: 'file-1',
-        createdById: userId,
+        createdById: ownerUserId,
+        updatedById: upddaterUserId,
         createdAt: new Date(),
         updatedAt: new Date('2024-01-01'),
       },
@@ -30,7 +33,8 @@ describe('Find Personal Projects Use Case', () => {
         id: 'project-id-2',
         name: 'Beta',
         fileId: 'file-2',
-        createdById: userId,
+        createdById: ownerUserId,
+        updatedById: upddaterUserId,
         createdAt: new Date(),
         updatedAt: new Date('2024-02-01'),
       },
@@ -38,7 +42,8 @@ describe('Find Personal Projects Use Case', () => {
         id: 'project-id-3',
         name: 'Gamma',
         fileId: 'file-3',
-        createdById: userId,
+        createdById: ownerUserId,
+        updatedById: upddaterUserId,
         createdAt: new Date(),
         updatedAt: new Date('2024-03-01'),
       },
@@ -46,12 +51,12 @@ describe('Find Personal Projects Use Case', () => {
 
     const { projects, totalCount } = await sut.execute({
       dto: { page: 0, perPage: 10, sortBy: 'name', orderBy: 'asc' },
-      userId,
+      userId: ownerUserId,
     })
 
     expect(totalCount).toBe(3)
     expect(projects).toHaveLength(3)
-    expect(projects[0]?.updatedBy.email).toBe(userEmail)
+    expect(projects[0]?.updatedBy.email).toBe(updaterEmail)
     expect(projects[0]?.sharedWith).toEqual([])
     expect(projects[0]).not.toHaveProperty('fileId')
     expect(projects[0]).not.toHaveProperty('createdBy')

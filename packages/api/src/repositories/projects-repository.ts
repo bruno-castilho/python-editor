@@ -5,7 +5,7 @@ import type { ProjectCreateParams } from './types/projects'
 
 export class ProjectsRepository implements IProjectsRepository {
   async create(params: ProjectCreateParams) {
-    const { createdById, ...data } = params
+    const { createdById, updatedById, ...data } = params
 
     const project = await prisma.project.create({
       data: {
@@ -14,6 +14,11 @@ export class ProjectsRepository implements IProjectsRepository {
         createdBy: {
           connect: {
             id: createdById,
+          },
+        },
+        updatedBy: {
+          connect: {
+            id: updatedById,
           },
         },
       },
@@ -51,7 +56,7 @@ export class ProjectsRepository implements IProjectsRepository {
           id: true,
           name: true,
           updatedAt: true,
-          createdBy: { select: { email: true } },
+          updatedBy: { select: { email: true } },
           sharedWith: {
             select: {
               id: true,
@@ -69,12 +74,7 @@ export class ProjectsRepository implements IProjectsRepository {
       prisma.project.count({ where: { createdById: userId } }),
     ])
 
-    const personalProjects = projects.map(({ createdBy, ...project }) => ({
-      ...project,
-      updatedBy: { email: createdBy.email },
-    }))
-
-    return { projects: personalProjects, totalCount }
+    return { projects, totalCount }
   }
 
   async findManySharedWithUser(params: {
@@ -94,6 +94,7 @@ export class ProjectsRepository implements IProjectsRepository {
           name: true,
           updatedAt: true,
           createdBy: { select: { email: true } },
+          updatedBy: { select: { email: true } },
         },
         orderBy: { [sortBy]: orderBy },
         skip: page * perPage,
@@ -105,10 +106,7 @@ export class ProjectsRepository implements IProjectsRepository {
     ])
 
     return {
-      projects: projects.map((project) => ({
-        ...project,
-        updatedBy: { email: project.createdBy.email },
-      })),
+      projects,
       totalCount,
     }
   }

@@ -5,6 +5,12 @@ import { FindSharedWithMeProjectsUseCase } from './find-shared-with-me-projects'
 let projectsRepository: FakeProjectsRepository
 let sut: FindSharedWithMeProjectsUseCase
 
+const ownerUserId = 'owner-user-id'
+const upddaterUserId = 'updater-user-id'
+const ownerEmail = 'owner@example.com'
+const updaterEmail = 'updater@example.com'
+const sharedWithUserId = 'shared-user-id'
+
 describe('Find Shared With Me Projects Use Case', () => {
   beforeEach(() => {
     projectsRepository = new FakeProjectsRepository()
@@ -12,11 +18,8 @@ describe('Find Shared With Me Projects Use Case', () => {
   })
 
   it('should be able to find projects shared with the user', async () => {
-    const ownerUserId = 'owner-user-id'
-    const ownerEmail = 'owner@example.com'
-    const sharedWithUserId = 'shared-user-id'
-
     projectsRepository.userEmails.set(ownerUserId, ownerEmail)
+    projectsRepository.userEmails.set(upddaterUserId, updaterEmail)
 
     projectsRepository.items.push(
       {
@@ -24,6 +27,7 @@ describe('Find Shared With Me Projects Use Case', () => {
         name: 'Alpha',
         fileId: 'file-1',
         createdById: ownerUserId,
+        updatedById: upddaterUserId,
         createdAt: new Date(),
         updatedAt: new Date('2024-01-01'),
       },
@@ -32,6 +36,7 @@ describe('Find Shared With Me Projects Use Case', () => {
         name: 'Beta',
         fileId: 'file-2',
         createdById: ownerUserId,
+        updatedById: upddaterUserId,
         createdAt: new Date(),
         updatedAt: new Date('2024-02-01'),
       },
@@ -52,7 +57,7 @@ describe('Find Shared With Me Projects Use Case', () => {
     expect(totalCount).toBe(2)
     expect(projects).toHaveLength(2)
     expect(projects[0]?.createdBy.email).toBe(ownerEmail)
-    expect(projects[0]?.updatedBy.email).toBe(ownerEmail)
+    expect(projects[0]?.updatedBy.email).toBe(updaterEmail)
     expect(projects[0]).not.toHaveProperty('fileId')
     expect(projects[0]).not.toHaveProperty('sharedWith')
   })
@@ -66,6 +71,7 @@ describe('Find Shared With Me Projects Use Case', () => {
       name: 'Alpha',
       fileId: 'file-1',
       createdById: ownerUserId,
+      updatedById: upddaterUserId,
       createdAt: new Date(),
       updatedAt: new Date('2024-01-01'),
     })

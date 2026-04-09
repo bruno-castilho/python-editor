@@ -31,4 +31,11 @@ export class FakeStorage implements IStorage {
     if (!entry) throw new Error(`FakeStorage: fileId ${fileId} not found`)
     return entry.body
   }
+
+  async replace(params: { fileId: string; body: Buffer; contentType: string }) {
+    this.store.set(params.fileId, {
+      contentType: params.contentType,
+      body: params.body,
+    })
+  }
 }

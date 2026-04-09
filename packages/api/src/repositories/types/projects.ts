@@ -15,9 +15,10 @@ export type ProjectUpdateParams = {
 
 export type ProjectCreateParams = Omit<
   Prisma.ProjectCreateInput,
-  'id' | 'createdBy'
+  'id' | 'createdBy' | 'updatedBy'
 > & {
   createdById: string
+  updatedById: string
 }
 
 export type PersonalProjectListItem = {

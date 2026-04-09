@@ -31,6 +31,7 @@ export class UploadProjectUseCase {
       name,
       fileId,
       createdById: userId,
+      updatedById: userId,
     })
 
     return { project }

@@ -3,6 +3,7 @@ import type { IProjectsRepository } from '../../src/repositories/interfaces/proj
 import type {
   Project,
   ProjectCreateParams,
+  ProjectUpdateParams,
   ProjectWithSharedWith,
   SharedWithMeProjectListItem,
 } from '../../src/repositories/types/projects'
@@ -22,6 +23,7 @@ export class FakeProjectsRepository implements IProjectsRepository {
       name: params.name,
       fileId: params.fileId,
       createdById: params.createdById,
+      updatedById: params.updatedById,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -83,7 +85,7 @@ export class FakeProjectsRepository implements IProjectsRepository {
         id: project.id,
         name: project.name,
         updatedAt: project.updatedAt,
-        updatedBy: { email: this.userEmails.get(project.createdById) ?? '' },
+        updatedBy: { email: this.userEmails.get(project.updatedById) ?? '' },
         sharedWith,
       }
     })
@@ -118,12 +120,13 @@ export class FakeProjectsRepository implements IProjectsRepository {
 
     const projects = paginated.map((project) => {
       const createdByEmail = this.userEmails.get(project.createdById) ?? ''
+      const updatedByEmail = this.userEmails.get(project.updatedById) ?? ''
       return {
         id: project.id,
         name: project.name,
         updatedAt: project.updatedAt,
         createdBy: { email: createdByEmail },
-        updatedBy: { email: createdByEmail },
+        updatedBy: { email: updatedByEmail },
       }
     })
 
@@ -135,6 +138,17 @@ export class FakeProjectsRepository implements IProjectsRepository {
       (project) => project.id === params.projectId,
     )
     if (index !== -1) this.items.splice(index, 1)
+  }
+
+  async update(params: ProjectUpdateParams) {
+    const item = this.items.find((item) => item.id === params.projectId)
+
+    if (!item) return
+
+    Object.assign(item, {
+      updatedAt: new Date(),
+      updatedById: params.updatedById,
+    })
   }
 
   async share(params: { projectId: string; userId: string }): Promise<void> {
