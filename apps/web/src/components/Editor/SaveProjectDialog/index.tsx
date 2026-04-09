@@ -25,6 +25,7 @@ import {
   saveProjectSchema,
   type SaveProjectDTO,
 } from '@python-editor/schemas/save-project'
+import { useRouter } from 'next/navigation'
 
 interface SaveProjectDialogProps {
   open: boolean
@@ -42,6 +43,7 @@ export function SaveProjectDialog({
 }: SaveProjectDialogProps) {
   const [isPending, setIsPending] = useState<boolean>(false)
 
+  const router = useRouter()
   const { getUpdatedFiles } = useEditor()
 
   const alert = useContext(AlertContext)
@@ -77,11 +79,12 @@ export function SaveProjectDialog({
     URL.revokeObjectURL(url)
   }
 
-  async function saveProjectRemotely(filename: string, blob: Blob) {
+  async function createProjectRemotely(filename: string, blob: Blob) {
     try {
       setIsPending(true)
-      await uploadProject({ file: blob, filename })
-      alert.success('Project saved successfully.')
+      const { message, project } = await uploadProject({ file: blob, filename })
+      router.push(`/editor/${project.id}`)
+      alert.success(message)
     } catch (err) {
       alert.error(
         err instanceof Error ? err.message : 'Failed to upload project.',
@@ -91,7 +94,7 @@ export function SaveProjectDialog({
     }
   }
 
-  async function saveProjectLocally(filename: string, blob: Blob) {
+  async function downloadProject(filename: string, blob: Blob) {
     triggerLocalDownload(blob, filename)
     alert.success('Project saved locally.')
   }
@@ -100,12 +103,12 @@ export function SaveProjectDialog({
     if (!project) return
     try {
       setIsPending(true)
-      await updateProject({
+      const { message } = await updateProject({
         projectId: project.id,
         file: blob,
         filename,
       })
-      alert.success('Project updated successfully.')
+      alert.success(message)
     } catch (err) {
       alert.error(
         err instanceof Error ? err.message : 'Failed to update project.',
@@ -123,11 +126,11 @@ export function SaveProjectDialog({
     const blob = await buildZipBlob(updatedFiles)
 
     if (data.saveLocation === 'local') {
-      await saveProjectLocally(zipFilename, blob)
+      await downloadProject(zipFilename, blob)
     }
 
     if (data.saveLocation === 'remote' && !project) {
-      await saveProjectRemotely(zipFilename, blob)
+      await createProjectRemotely(zipFilename, blob)
     }
 
     if (data.saveLocation === 'remote' && project) {
