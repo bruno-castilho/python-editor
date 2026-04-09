@@ -1,18 +1,14 @@
-import axios from 'axios'
-import { env } from '@python-editor/env/web'
 import { getAccessToken } from '@/utils/access-token-store'
+import { server } from '@/lib/axios'
 
 export async function downloadProject(
   projectId: string,
 ): Promise<{ arrayBuffer: ArrayBuffer; projectName: string }> {
-  const accessToken = getAccessToken()
-
-  const response = await axios.get<ArrayBuffer>(
-    `${env.NEXT_PUBLIC_SERVER_URL}/download-project/${projectId}`,
+  const response = await server.get<ArrayBuffer>(
+    `/download-project/${projectId}`,
     {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
       responseType: 'arraybuffer',
-      withCredentials: true,
     },
   )
 
