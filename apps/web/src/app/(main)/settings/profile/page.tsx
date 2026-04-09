@@ -82,7 +82,6 @@ export default function Page() {
   }
 
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
-  const [uploadAvatarProgress, setUploadAvatarProgress] = useState(0)
 
   async function handleUploadAvatar(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -97,44 +96,27 @@ export default function Page() {
       })
 
       setIsUploadingAvatar(true)
-      setUploadAvatarProgress(0)
 
-      await uploadAvatar({
-        file,
-        onProgress: ({ loaded, total }) => {
-          if (total !== undefined) {
-            setUploadAvatarProgress(Math.round((loaded / total) * 100))
-          }
-        },
-        onComplete: ({ avatarUrl, message }) => {
-          const queryKey = trpc.users.getProfile.queryKey()
-          queryClient.setQueryData(queryKey, (currentData) => {
-            if (!currentData?.user) return currentData
-            return {
-              user: {
-                ...currentData.user,
-                avatarUrl,
-              },
-            }
-          })
-          alert.success(message)
-          setIsUploadingAvatar(false)
-          setUploadAvatarProgress(0)
-        },
-        onError: (message) => {
-          alert.error(message)
-          setIsUploadingAvatar(false)
-          setUploadAvatarProgress(0)
-        },
+      const { avatarUrl, message } = await uploadAvatar({ file })
+
+      const queryKey = trpc.users.getProfile.queryKey()
+      queryClient.setQueryData(queryKey, (currentData) => {
+        if (!currentData?.user) return currentData
+        return { user: { ...currentData.user, avatarUrl } }
       })
+      alert.success(message)
     } catch (error) {
       if (error instanceof ZodError) {
-        const message = error.issues[0]?.message
-        alert.error(message ?? 'Invalid file')
+        const zodMessage = error.issues[0]?.message
+        alert.error(zodMessage ?? 'Invalid file')
         return
       }
 
-      alert.error('Something went wrong')
+      alert.error(
+        error instanceof Error ? error.message : 'Something went wrong',
+      )
+    } finally {
+      setIsUploadingAvatar(false)
     }
   }
 
@@ -229,13 +211,7 @@ export default function Page() {
                     justifyContent: 'center',
                   }}
                 >
-                  <CircularProgress
-                    variant={
-                      uploadAvatarProgress > 0 ? 'determinate' : 'indeterminate'
-                    }
-                    value={uploadAvatarProgress}
-                    size={128}
-                  />
+                  <CircularProgress size={128} />
                 </Box>
               )}
             </Box>

@@ -1,4 +1,3 @@
-import type { Readable } from 'node:stream'
 import { v7 as uuidv7 } from 'uuid'
 import {
   DeleteObjectCommand,
@@ -13,11 +12,10 @@ export class Storage implements IStorage {
   constructor(private bucket: string) {}
 
   async upload(params: {
-    body: Readable
+    body: Buffer
     contentType: string
-    onProgress?: (progress: { loaded: number; total?: number }) => void
   }): Promise<{ fileId: string }> {
-    const { body, contentType, onProgress } = params
+    const { body, contentType } = params
     const fileId = uuidv7()
 
     const upload = new Upload({
@@ -29,12 +27,6 @@ export class Storage implements IStorage {
         ContentType: contentType,
       },
     })
-
-    if (onProgress) {
-      upload.on('httpUploadProgress', (progress) => {
-        onProgress({ loaded: progress.loaded ?? 0, total: progress.total })
-      })
-    }
 
     await upload.done()
     return { fileId }

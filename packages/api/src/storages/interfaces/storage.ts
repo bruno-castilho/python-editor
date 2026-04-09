@@ -1,10 +1,7 @@
-import type { Readable } from 'stream'
-
 export interface IStorage {
   upload(params: {
-    body: Readable
+    body: Buffer
     contentType: string
-    onProgress?: (progress: { loaded: number; total?: number }) => void
   }): Promise<{ fileId: string }>
 
   replace(params: {

@@ -1,13 +1,11 @@
-import type { Readable } from 'node:stream'
 import type { IProjectsRepository } from '../repositories/interfaces/projects-repository'
 import type { IStorage } from '../storages/interfaces/storage'
 
 interface UploadProjectParams {
   userId: string
   filename: string
-  fileStream: Readable
+  fileBuffer: Buffer
   contentType: string
-  onProgress?: (progress: { loaded: number; total?: number }) => void
 }
 
 export class UploadProjectUseCase {
@@ -17,12 +15,11 @@ export class UploadProjectUseCase {
   ) {}
 
   async execute(params: UploadProjectParams) {
-    const { userId, filename, fileStream, contentType, onProgress } = params
+    const { userId, filename, fileBuffer, contentType } = params
 
     const { fileId } = await this.projectStorage.upload({
-      body: fileStream,
+      body: fileBuffer,
       contentType,
-      onProgress,
     })
 
     const name = filename.replace(/\.zip$/i, '')

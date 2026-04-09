@@ -19,7 +19,6 @@ import { ProjectDoesNotExistError } from '@python-editor/api/use-cases/errors/pr
 import { onlyUserMiddleware } from './middlewares/only-user-middleware'
 import { receiveAvatarFileAndParseMiddleware } from './middlewares/receive-avatar-file-middleware'
 import { receiveProjectFileMiddleware } from './middlewares/receive-project-file-middleware'
-import { receiveProjectFileBufferMiddleware } from './middlewares/receive-project-file-buffer-middleware'
 
 const baseCorsConfig = {
   origin: env.CORS_ORIGIN,
@@ -54,39 +53,18 @@ fastify.post(
   { preHandler: [onlyUserMiddleware, receiveAvatarFileAndParseMiddleware] },
   async (request, reply) => {
     const { userId } = request.session
-    const { stream, contentType } = request.uploadedAvatarFile
-
-    reply.header('Content-Type', 'text/event-stream')
-    reply.header('Cache-Control', 'no-cache')
-    reply.header('Connection', 'keep-alive')
-
-    reply.raw.writeHead(
-      200,
-      reply.getHeaders() as Record<string, string | string[]>,
-    )
-
-    const send = (event: string, data: object) => {
-      reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-    }
+    const { buffer, contentType } = request.uploadedAvatarFile
 
     try {
       const useCase = makeUploadAvatar()
       const { avatarUrl } = await useCase.execute({
         userId,
-        fileStream: stream,
+        fileBuffer: buffer,
         contentType,
-        onProgress: (progress: { loaded: number; total?: number }) =>
-          send('progress', progress),
       })
-      send('complete', { avatarUrl, message: 'Avatar uploaded successfully.' })
-    } catch (error) {
-      const isFileTooLarge =
-        error instanceof Error && error.message.includes('File too large.')
-      send('error', {
-        message: isFileTooLarge ? error.message : 'Internal server error.',
-      })
-    } finally {
-      reply.raw.end()
+      return reply.send({ avatarUrl, message: 'Avatar uploaded successfully.' })
+    } catch {
+      return reply.status(500).send({ message: 'Internal server error.' })
     }
   },
 )
@@ -96,40 +74,19 @@ fastify.post(
   { preHandler: [onlyUserMiddleware, receiveProjectFileMiddleware] },
   async (request, reply) => {
     const { userId } = request.session
-    const { stream, filename, contentType } = request.uploadedProjectFile
-
-    reply.header('Content-Type', 'text/event-stream')
-    reply.header('Cache-Control', 'no-cache')
-    reply.header('Connection', 'keep-alive')
-
-    reply.raw.writeHead(
-      200,
-      reply.getHeaders() as Record<string, string | string[]>,
-    )
-
-    const send = (event: string, data: object) => {
-      reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-    }
+    const { buffer, filename, contentType } = request.uploadedProjectFile
 
     try {
       const useCase = makeUploadProjectUseCase()
       const { project } = await useCase.execute({
         userId,
         filename,
-        fileStream: stream,
+        fileBuffer: buffer,
         contentType,
-        onProgress: (progress: { loaded: number; total?: number }) =>
-          send('progress', progress),
       })
-      send('complete', { project, message: 'Project uploaded successfully.' })
-    } catch (error) {
-      const isFileTooLarge =
-        error instanceof Error && error.message.includes('File too large.')
-      send('error', {
-        message: isFileTooLarge ? error.message : 'Internal server error.',
-      })
-    } finally {
-      reply.raw.end()
+      return reply.send({ project, message: 'Project uploaded successfully.' })
+    } catch {
+      return reply.status(500).send({ message: 'Internal server error.' })
     }
   },
 )
@@ -166,11 +123,11 @@ fastify.get(
 
 fastify.patch(
   '/update-project/:projectId',
-  { preHandler: [onlyUserMiddleware, receiveProjectFileBufferMiddleware] },
+  { preHandler: [onlyUserMiddleware, receiveProjectFileMiddleware] },
   async (request, reply) => {
     const { userId } = request.session
     const { projectId } = request.params as { projectId: string }
-    const { buffer, contentType } = request.uploadedProjectFileBuffer
+    const { buffer, contentType } = request.uploadedProjectFile
 
     try {
       const useCase = makeUpdateProjectUseCase()

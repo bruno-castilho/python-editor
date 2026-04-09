@@ -1,13 +1,11 @@
-import type { Readable } from 'node:stream'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 import type { IStorage } from '../storages/interfaces/storage'
 
 interface UploadAvatarParams {
   userId: string
-  fileStream: Readable
+  fileBuffer: Buffer
   contentType: string
-  onProgress?: (progress: { loaded: number; total?: number }) => void
 }
 
 export class UploadAvatarUseCase {
@@ -18,7 +16,7 @@ export class UploadAvatarUseCase {
   ) {}
 
   async execute(params: UploadAvatarParams) {
-    const { userId, fileStream, contentType, onProgress } = params
+    const { userId, fileBuffer, contentType } = params
 
     const user = await this.usersRepository.findById({ userId })
 
@@ -31,9 +29,8 @@ export class UploadAvatarUseCase {
     }
 
     const { fileId } = await this.avatarStorage.upload({
-      body: fileStream,
+      body: fileBuffer,
       contentType,
-      onProgress,
     })
 
     await this.usersRepository.updateAvatar({ userId, avatar: fileId })

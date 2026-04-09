@@ -1,7 +1,6 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -9,11 +8,9 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
-  LinearProgress,
   Radio,
   RadioGroup,
   TextField,
-  Typography,
 } from '@mui/material'
 import JSZip from 'jszip'
 import { useContext, useState } from 'react'
@@ -38,15 +35,12 @@ interface SaveProjectDialogProps {
   }
 }
 
-type UploadStatus = 'idle' | 'uploading' | 'error'
-
 export function SaveProjectDialog({
   open,
   onClose,
   project,
 }: SaveProjectDialogProps) {
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle')
-  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [isPending, setIsPending] = useState<boolean>(false)
 
   const { getUpdatedFiles } = useEditor()
 
@@ -57,7 +51,6 @@ export function SaveProjectDialog({
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<SaveProjectDTO>({
     resolver: zodResolver(saveProjectSchema),
@@ -84,36 +77,42 @@ export function SaveProjectDialog({
     URL.revokeObjectURL(url)
   }
 
-  async function saveProjectRemotely(
-    filename: string,
-    blob: Blob,
-  ): Promise<void> {
-    await uploadProject({
-      file: blob,
-      filename,
-      onProgress: ({ loaded, total }) => {
-        if (total !== undefined) {
-          setUploadProgress(Math.round((loaded / total) * 100))
-        }
-      },
-      onComplete: () => {
-        alert.success('Project saved successfully.')
-        setUploadStatus('idle')
-        setUploadProgress(0)
-      },
-      onError: (message) => {
-        alert.error(message)
-        setUploadStatus('idle')
-        setUploadProgress(0)
-      },
-    })
+  async function saveProjectRemotely(filename: string, blob: Blob) {
+    try {
+      setIsPending(true)
+      await uploadProject({ file: blob, filename })
+      alert.success('Project saved successfully.')
+    } catch (err) {
+      alert.error(
+        err instanceof Error ? err.message : 'Failed to upload project.',
+      )
+    } finally {
+      setIsPending(false)
+    }
   }
 
-  async function saveProjectLocally(
-    filename: string,
-    blob: Blob,
-  ): Promise<void> {
+  async function saveProjectLocally(filename: string, blob: Blob) {
     triggerLocalDownload(blob, filename)
+    alert.success('Project saved locally.')
+  }
+
+  async function updateProjectRemotely(filename: string, blob: Blob) {
+    if (!project) return
+    try {
+      setIsPending(true)
+      await updateProject({
+        projectId: project.id,
+        file: blob,
+        filename,
+      })
+      alert.success('Project updated successfully.')
+    } catch (err) {
+      alert.error(
+        err instanceof Error ? err.message : 'Failed to update project.',
+      )
+    } finally {
+      setIsPending(false)
+    }
   }
 
   async function handleFormSubmit(data: SaveProjectDTO): Promise<void> {
@@ -125,27 +124,14 @@ export function SaveProjectDialog({
 
     if (data.saveLocation === 'local') {
       await saveProjectLocally(zipFilename, blob)
-      alert.success('Project saved locally.')
     }
 
     if (data.saveLocation === 'remote' && !project) {
-      setUploadProgress(0)
-      setUploadStatus('uploading')
       await saveProjectRemotely(zipFilename, blob)
     }
 
     if (data.saveLocation === 'remote' && project) {
-      setUploadProgress(0)
-      setUploadStatus('uploading')
-      try {
-        await updateProject({ projectId: project.id, file: blob, filename: zipFilename })
-        alert.success('Project updated successfully.')
-      } catch (err) {
-        alert.error(err instanceof Error ? err.message : 'Failed to update project.')
-      } finally {
-        setUploadStatus('idle')
-        setUploadProgress(0)
-      }
+      await updateProjectRemotely(zipFilename, blob)
     }
 
     reset()
@@ -153,12 +139,11 @@ export function SaveProjectDialog({
   }
 
   function handleClose(): void {
-    if (uploadStatus === 'uploading') return
+    if (isPending) return
     reset()
     onClose()
   }
 
-  const isUploading = uploadStatus === 'uploading'
   const isAuthenticated = Boolean(getAccessToken())
 
   return (
@@ -205,26 +190,17 @@ export function SaveProjectDialog({
             )}
           />
         </FormControl>
-        {watch('saveLocation') === 'remote' && isUploading && (
-          <Box>
-            <LinearProgress
-              variant={uploadProgress > 0 ? 'determinate' : 'indeterminate'}
-              value={uploadProgress}
-            />
-            <Typography variant="caption">{uploadProgress}%</Typography>
-          </Box>
-        )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} size="small" disabled={isUploading}>
+        <Button onClick={handleClose} size="small" disabled={isPending}>
           Cancel
         </Button>
         <Button
           type="submit"
           variant="contained"
           size="small"
-          disabled={isSubmitting || isUploading}
-          loading={isUploading}
+          disabled={isSubmitting || isPending}
+          loading={isPending}
         >
           Save
         </Button>

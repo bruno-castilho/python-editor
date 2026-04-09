@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { FakeProjectsRepository } from '../../test/repositories/fake-projects-repository'
 import { FakeStorage } from '../../test/storage/fake-storage'
@@ -7,13 +6,6 @@ import { NotAllowedToDownloadProjectError } from './errors/not-allowed-to-downlo
 import { ProjectDoesNotExistError } from './errors/project-does-not-exist-error'
 
 const MOCK_ZIP_CONTENT = Buffer.from('PK\x03\x04')
-
-function makeReadable(buffer: Buffer): Readable {
-  const readable = new Readable()
-  readable.push(buffer)
-  readable.push(null)
-  return readable
-}
 
 let projectsRepository: FakeProjectsRepository
 let projectStorage: FakeStorage
@@ -28,7 +20,7 @@ describe('Download Project Use Case', () => {
 
   it('should be able to download a project as the owner', async () => {
     const { fileId } = await projectStorage.upload({
-      body: makeReadable(MOCK_ZIP_CONTENT),
+      body: MOCK_ZIP_CONTENT,
       contentType: 'application/zip',
     })
 
@@ -37,6 +29,7 @@ describe('Download Project Use Case', () => {
       name: 'my-project',
       fileId,
       createdById: 'owner-id',
+      updatedById: 'owner-id',
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -52,7 +45,7 @@ describe('Download Project Use Case', () => {
 
   it('should be able to download a project as a shared user', async () => {
     const { fileId } = await projectStorage.upload({
-      body: makeReadable(MOCK_ZIP_CONTENT),
+      body: MOCK_ZIP_CONTENT,
       contentType: 'application/zip',
     })
 
@@ -61,6 +54,7 @@ describe('Download Project Use Case', () => {
       name: 'my-project',
       fileId,
       createdById: 'owner-id',
+      updatedById: 'owner-id',
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -88,7 +82,7 @@ describe('Download Project Use Case', () => {
 
   it('should not be able to download a project without permission', async () => {
     const { fileId } = await projectStorage.upload({
-      body: makeReadable(MOCK_ZIP_CONTENT),
+      body: MOCK_ZIP_CONTENT,
       contentType: 'application/zip',
     })
 
@@ -97,6 +91,7 @@ describe('Download Project Use Case', () => {
       name: 'my-project',
       fileId,
       createdById: 'owner-id',
+      updatedById: 'owner-id',
       createdAt: new Date(),
       updatedAt: new Date(),
     })

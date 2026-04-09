@@ -1,4 +1,3 @@
-import { Transform } from 'node:stream'
 import {
   MAX_FILE_SIZE_BYTES,
   uploadAvatarSchema,
@@ -21,21 +20,14 @@ export async function receiveAvatarFileAndParseMiddleware(
       .pick({ contentType: true })
       .parse({ contentType: data.mimetype })
 
-    let totalBytes = 0
-    const sizeGuard = new Transform({
-      transform(chunk: Buffer, _encoding, callback) {
-        totalBytes += chunk.length
-        if (totalBytes > MAX_FILE_SIZE_BYTES) {
-          callback(new Error('File too large.'))
-        } else {
-          this.push(chunk)
-          callback()
-        }
-      },
-    })
+    const buffer = await data.toBuffer()
+
+    if (buffer.byteLength > MAX_FILE_SIZE_BYTES) {
+      return reply.status(413).send({ message: 'File too large.' })
+    }
 
     request.uploadedAvatarFile = {
-      stream: data.file.pipe(sizeGuard),
+      buffer,
       contentType: data.mimetype,
     }
   } catch (error) {

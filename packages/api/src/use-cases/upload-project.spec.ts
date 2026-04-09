@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream'
 import { describe, it, expect, beforeEach } from 'vitest'
 import { UploadProjectUseCase } from './upload-project'
 import { FakeProjectsRepository } from '../../test/repositories/fake-projects-repository'
@@ -8,7 +7,7 @@ let projectsRepository: FakeProjectsRepository
 let projectStorage: FakeStorage
 let sut: UploadProjectUseCase
 
-const makeFileStream = () => Readable.from(Buffer.from('fake-zip-content'))
+const makeFileBuffer = () => Buffer.from('fake-zip-content')
 
 describe('Upload Project Use Case', () => {
   beforeEach(() => {
@@ -21,7 +20,7 @@ describe('Upload Project Use Case', () => {
     const { project } = await sut.execute({
       userId: 'user-id-1',
       filename: 'my-project.zip',
-      fileStream: makeFileStream(),
+      fileBuffer: makeFileBuffer(),
       contentType: 'application/zip',
     })
 
