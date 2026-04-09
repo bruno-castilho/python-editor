@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import {
+  Link,
   Skeleton,
   Table,
   TableBody,
@@ -15,7 +16,7 @@ import {
   TableRow,
 } from '@mui/material'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import NextLink from 'next/link'
 
 interface SharedWithMeTableRowProps {
   project: {
@@ -35,7 +36,14 @@ function SharedWithMeTableRow({ project }: SharedWithMeTableRowProps) {
   return (
     <TableRow>
       <TableCell component="th" scope="row" align="left">
-        <Link href={`/editor/${project.id}`}>{project.id}</Link>
+        <NextLink
+          href={`/editor/${project.id}`}
+          style={{ textDecoration: 'none' }}
+        >
+          <Link color="primary" component="span">
+            {project.id}
+          </Link>
+        </NextLink>
       </TableCell>
       <TableCell component="th" scope="row" align="left">
         {project.name}

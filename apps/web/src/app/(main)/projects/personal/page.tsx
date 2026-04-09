@@ -12,6 +12,7 @@ import {
   Box,
   Button,
   IconButton,
+  Link,
   Skeleton,
   Table,
   TableBody,
@@ -24,7 +25,7 @@ import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { ShareProjectDialog } from '@/components/ShareProjectDialog'
-import Link from 'next/link'
+import NextLink from 'next/link'
 
 interface PersonalTableRowProps {
   project: {
@@ -79,7 +80,14 @@ function PersonalTableRow({ project }: PersonalTableRowProps) {
     <>
       <TableRow>
         <TableCell component="th" scope="row" align="left">
-          <Link href={`/editor/${project.id}`}>{project.id}</Link>
+          <NextLink
+            href={`/editor/${project.id}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <Link color="primary" component="span">
+              {project.id}
+            </Link>
+          </NextLink>
         </TableCell>
         <TableCell component="th" scope="row" align="left">
           {project.name}
