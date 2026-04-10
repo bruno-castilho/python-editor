@@ -1,16 +1,24 @@
 import { Markdown } from '@/components/Markdown'
+import { useEditor } from '@/hooks/useEditor'
 import { useChatSessions } from '@/hooks/useChatSessions'
 import { useOpenRouter } from '@/hooks/useOpenRouter'
+import type { PythonFile } from '@/hooks/usePyodide'
 import type { ChatSession } from '@/lib/chat-sessions'
+import logoPythonSvg from '@/assets/logo-python.svg'
 import { SessionsDialog } from './SessionsDialog'
-import { Add, Send } from '@mui/icons-material'
+import { Add, Close, Send } from '@mui/icons-material'
 import {
   Box,
   Button,
   CircularProgress,
   Divider,
   IconButton,
+  Menu,
   MenuItem,
+  Tab,
+  Tabs,
+  Tooltip,
+  MenuItem as SelectMenuItem,
   Select,
   Typography,
   type SelectChangeEvent,
@@ -25,13 +33,23 @@ import {
 
 interface ChatAgentProps {
   apiKey: string
+  open: boolean
 }
 
-export function ChatAgent({ apiKey }: ChatAgentProps) {
+export function ChatAgent({ apiKey, open }: ChatAgentProps) {
   const [selectedModel, setSelectedModel] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
   const [sessionsOpen, setSessionsOpen] = useState(false)
+  const [selectedContextFiles, setSelectedContextFiles] = useState<
+    PythonFile[]
+  >([])
+  const [files, setFiles] = useState<PythonFile[]>([])
+  const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<HTMLElement | null>(
+    null,
+  )
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  const { activeFile, getUpdatedFiles } = useEditor()
 
   const {
     messages,
@@ -59,16 +77,56 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
   )
   const sessionTitle = activeSession?.name ?? 'New Session'
 
+  const unselectedFiles = files.filter(
+    (file) =>
+      !selectedContextFiles.some((selected) => selected.name === file.name),
+  )
+
+  useEffect(() => {
+    if (!open) return
+    const updatedFiles = getUpdatedFiles() || []
+    setFiles(updatedFiles)
+
+    const activeFileData = updatedFiles.find((file) => file.name === activeFile)
+    if (activeFileData) {
+      setSelectedContextFiles([activeFileData])
+    }
+  }, [open])
+
   function handleModelChange(event: SelectChangeEvent) {
     setSelectedModel(event.target.value)
+  }
+
+  function handleOpenFileMenu(event: React.MouseEvent<HTMLElement>) {
+    setFileMenuAnchorEl(event.currentTarget)
+  }
+
+  function handleCloseFileMenu() {
+    setFileMenuAnchorEl(null)
+  }
+
+  function handleAddContextFile(file: PythonFile) {
+    setSelectedContextFiles((previous) => [...previous, file])
+    handleCloseFileMenu()
+  }
+
+  function handleRemoveContextFile(fileName: string) {
+    setSelectedContextFiles((previous) =>
+      previous.filter((file) => file.name !== fileName),
+    )
   }
 
   async function handleSend() {
     const content = inputValue.trim()
     if (!content) return
-    setInputValue('')
 
-    const result = await sendMessage(content, selectedModel)
+    const result = await sendMessage(
+      content,
+      selectedModel,
+      selectedContextFiles,
+    )
+
+    setInputValue('')
     if (!result.success) return
 
     if (activeSessionId === null) {
@@ -223,10 +281,105 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
           overflow: 'hidden',
         }}
       >
-        <Box sx={{ px: 1, py: 0.5 }}>
-          <IconButton size="small" disabled>
-            <Add fontSize="small" />
-          </IconButton>
+        <Box
+          sx={{
+            px: 1,
+            py: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            minWidth: 0,
+          }}
+        >
+          <Tooltip title="Add file context">
+            <span>
+              <IconButton
+                size="small"
+                onClick={handleOpenFileMenu}
+                disabled={unselectedFiles.length === 0}
+              >
+                <Add fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          {selectedContextFiles.length > 0 && (
+            <Tabs
+              value={false}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                minHeight: 28,
+                '& .MuiTabs-root': { minHeight: 28 },
+                '& .MuiTab-root': {
+                  minHeight: 28,
+                  py: 0.25,
+                  px: 1,
+                  textTransform: 'none',
+                  fontSize: '0.75rem',
+                },
+              }}
+            >
+              {selectedContextFiles.map((file) => (
+                <Tab
+                  key={file.name}
+                  value={file.name}
+                  label={
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    >
+                      <Box
+                        component="img"
+                        src={logoPythonSvg.src}
+                        alt="Python"
+                        sx={{ width: 12, height: 12 }}
+                      />
+                      <Box component="span">{file.name}</Box>
+                      <IconButton
+                        size="small"
+                        component="span"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          handleRemoveContextFile(file.name)
+                        }}
+                        sx={{
+                          p: 0.15,
+                          ml: 0.25,
+                          opacity: 0.6,
+                          '&:hover': { opacity: 1 },
+                        }}
+                      >
+                        <Close sx={{ fontSize: 12 }} />
+                      </IconButton>
+                    </Box>
+                  }
+                />
+              ))}
+            </Tabs>
+          )}
+
+          <Menu
+            anchorEl={fileMenuAnchorEl}
+            open={Boolean(fileMenuAnchorEl)}
+            onClose={handleCloseFileMenu}
+            slotProps={{ paper: { sx: { maxHeight: 240, overflowY: 'auto' } } }}
+          >
+            {unselectedFiles.map((file) => (
+              <MenuItem
+                key={file.name}
+                onClick={() => handleAddContextFile(file)}
+              >
+                <Box
+                  component="img"
+                  src={logoPythonSvg.src}
+                  alt="Python"
+                  sx={{ width: 16, height: 16, mr: 1 }}
+                />
+                {file.name}
+              </MenuItem>
+            ))}
+          </Menu>
         </Box>
 
         <Divider />
@@ -277,23 +430,23 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
             size="small"
             sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
           >
-            <MenuItem disabled value="">
+            <SelectMenuItem disabled value="">
               Select a model
-            </MenuItem>
+            </SelectMenuItem>
             {isPendingModels ? (
-              <MenuItem disabled value="">
+              <SelectMenuItem disabled value="">
                 <CircularProgress size={12} sx={{ mr: 1 }} />
                 Loading...
-              </MenuItem>
+              </SelectMenuItem>
             ) : (
               models?.map((model) => (
-                <MenuItem
+                <SelectMenuItem
                   key={model.id}
                   value={model.id}
                   sx={{ fontSize: '0.75rem' }}
                 >
                   {model.name}
-                </MenuItem>
+                </SelectMenuItem>
               ))
             )}
           </Select>

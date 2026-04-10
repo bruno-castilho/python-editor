@@ -2,6 +2,7 @@ import { makeOpenRouter } from '@/lib/open-router'
 import { RequestAbortedError } from '@openrouter/sdk/models/errors'
 import { useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
+import type { PythonFile } from './usePyodide'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -16,16 +17,8 @@ type SendMessageResult =
   | { success: false }
   | { success: true; messages: ChatMessage[] }
 
-const defaultSystemMessage: ChatMessage = {
-  role: 'system',
-  content:
-    'You are a helpful assistant python, when you are asked to write code, make sure it is valid Python code. You must always respond in the same language the user sends their messages.',
-}
-
 export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    defaultSystemMessage,
-  ])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isStreaming, setIsStreaming] = useState<boolean>(false)
   const [streamError, setStreamError] = useState<string | null>(null)
 
@@ -42,12 +35,28 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
   const openRouter = makeOpenRouter(apiKey)
 
   function resetMessages(initial?: ChatMessage[]): void {
-    setMessages(initial ?? [defaultSystemMessage])
+    setMessages(initial ?? [])
+  }
+
+  function buildContextFromFiles(files: PythonFile[]): string {
+    if (!files.length) return ''
+
+    return files
+      .map((file) => {
+        return [
+          `### File: ${file.name}`,
+          '```python',
+          file.content,
+          '```',
+        ].join('\n')
+      })
+      .join('\n\n')
   }
 
   async function sendMessage(
     content: string,
     model: string,
+    contextFiles: PythonFile[],
   ): Promise<SendMessageResult> {
     setStreamError(null)
 
@@ -85,11 +94,22 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
     }
 
     try {
+      const context = buildContextFromFiles(contextFiles)
+
       const stream = await openRouter.chat.send({
         chatGenerationParams: {
           model,
           stream: true,
-          messages: [...messages, userMessage],
+          messages: [
+            {
+              role: 'system',
+              content: context
+                ? `You are a python coding assistant. Use the following python files as context:\n\n${context}`
+                : 'You are a python coding assistant.',
+            },
+            ...messages,
+            userMessage,
+          ],
         },
       })
 

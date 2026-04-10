@@ -54,7 +54,7 @@ export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
         }}
       >
         {!apiKey && <ChatAgentAuth />}
-        {!!apiKey && <ChatAgent apiKey={apiKey} />}
+        {!!apiKey && <ChatAgent apiKey={apiKey} open={open} />}
       </DialogContent>
     </Dialog>
   )
