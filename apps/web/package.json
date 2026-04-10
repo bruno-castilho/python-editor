@@ -29,6 +29,8 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dexie": "^4.0.10",
+    "dexie-react-hooks": "^1.1.7",
     "dotenv": "^17.2.2",
     "jszip": "^3.10.1",
     "next": "^16.1.1",

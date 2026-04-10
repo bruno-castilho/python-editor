@@ -1,5 +1,8 @@
 import { Markdown } from '@/components/Markdown'
+import { useChatSessions } from '@/hooks/useChatSessions'
 import { useOpenRouter } from '@/hooks/useOpenRouter'
+import type { ChatSession } from '@/lib/chat-sessions'
+import { SessionsDialog } from './SessionsDialog'
 import { Add, Send } from '@mui/icons-material'
 import {
   Box,
@@ -27,29 +30,52 @@ interface ChatAgentProps {
 export function ChatAgent({ apiKey }: ChatAgentProps) {
   const [selectedModel, setSelectedModel] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
+  const [sessionsOpen, setSessionsOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   const {
     messages,
     sendMessage,
+    resetMessages,
     isPendingModels,
     models,
     isStreaming,
     streamError,
-  } = useOpenRouter({
-    apiKey,
-  })
+  } = useOpenRouter({ apiKey })
+
+  const {
+    sessions,
+    activeSessionId,
+    persistFirstExchange,
+    updateCurrentSession,
+    loadSession,
+    startNewSession,
+    renameSession,
+    deleteSession,
+  } = useChatSessions()
+
+  const activeSession = sessions.find(
+    (session) => session.id === activeSessionId,
+  )
+  const sessionTitle = activeSession?.name ?? 'New Session'
 
   function handleModelChange(event: SelectChangeEvent) {
     setSelectedModel(event.target.value)
   }
 
-  function handleSend() {
+  async function handleSend() {
     const content = inputValue.trim()
     if (!content) return
     setInputValue('')
 
-    sendMessage(content, selectedModel)
+    const result = await sendMessage(content, selectedModel)
+    if (!result.success) return
+
+    if (activeSessionId === null) {
+      await persistFirstExchange(result.messages, selectedModel)
+    } else {
+      await updateCurrentSession(result.messages, selectedModel)
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -57,6 +83,19 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
       event.preventDefault()
       handleSend()
     }
+  }
+
+  function handleNewSession() {
+    startNewSession()
+    resetMessages()
+    setSelectedModel('')
+  }
+
+  function handleLoadSession(session: ChatSession) {
+    const { messages: loadedMessages, model } = loadSession(session)
+    resetMessages(loadedMessages)
+    setSelectedModel(model)
+    setSessionsOpen(false)
   }
 
   useEffect(() => {
@@ -68,18 +107,23 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
         <Box>
           <Typography variant="body2" component="h2">
-            Untitled
+            {sessionTitle}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
-          <Button variant="outlined" size="small">
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setSessionsOpen(true)}
+          >
             Sessions
           </Button>
-          <Button variant="outlined" size="small">
-            New Sessions
+          <Button variant="outlined" size="small" onClick={handleNewSession}>
+            New Session
           </Button>
         </Box>
       </Box>
+
       <Box
         sx={{
           flex: 1,
@@ -100,9 +144,9 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
             Send a message to start the conversation.
           </Typography>
         )}
-        {messages.map((msg, index) => (
+        {messages.map((message, index) => (
           <Fragment key={index}>
-            {msg.role === 'assistant' && (
+            {message.role === 'assistant' && (
               <Box
                 sx={{
                   alignSelf: 'flex-start',
@@ -110,7 +154,7 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
                   py: 1,
                 }}
               >
-                <Markdown>{msg.content}</Markdown>
+                <Markdown>{message.content}</Markdown>
                 {index === messages.length - 1 && isStreaming && (
                   <Box
                     component="span"
@@ -131,7 +175,7 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
               </Box>
             )}
 
-            {msg.role === 'user' && (
+            {message.role === 'user' && (
               <Box
                 sx={{
                   alignSelf: 'flex-end',
@@ -144,7 +188,7 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
                 }}
               >
                 <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {msg.content}
+                  {message.content}
                 </Typography>
               </Box>
             )}
@@ -190,8 +234,8 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
         <Box
           component="textarea"
           value={inputValue}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setInputValue(e.target.value)
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setInputValue(event.target.value)
           }
           onKeyDown={handleKeyDown}
           disabled={isStreaming || !selectedModel || isPendingModels}
@@ -257,7 +301,9 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
           <IconButton
             color="primary"
             size="small"
-            onClick={handleSend}
+            onClick={() => {
+              handleSend()
+            }}
             disabled={isStreaming || !inputValue.trim() || !selectedModel}
           >
             {isStreaming ? (
@@ -268,6 +314,16 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
           </IconButton>
         </Box>
       </Box>
+
+      <SessionsDialog
+        open={sessionsOpen}
+        onClose={() => setSessionsOpen(false)}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onLoad={handleLoadSession}
+        onRename={renameSession}
+        onDelete={deleteSession}
+      />
     </>
   )
 }

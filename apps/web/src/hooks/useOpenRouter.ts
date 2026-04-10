@@ -12,6 +12,10 @@ interface UseOpenRouterParams {
   apiKey: string
 }
 
+type SendMessageResult =
+  | { success: false }
+  | { success: true; messages: ChatMessage[] }
+
 const defaultSystemMessage: ChatMessage = {
   role: 'system',
   content:
@@ -37,13 +41,26 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
   const frameRef = useRef<number | null>(null)
   const openRouter = makeOpenRouter(apiKey)
 
-  async function sendMessage(content: string, model: string) {
+  function resetMessages(initial?: ChatMessage[]): void {
+    setMessages(initial ?? [defaultSystemMessage])
+  }
+
+  async function sendMessage(
+    content: string,
+    model: string,
+  ): Promise<SendMessageResult> {
     setStreamError(null)
 
     const userMessage: ChatMessage = { role: 'user', content }
     const assistantMessage: ChatMessage = { role: 'assistant', content: '' }
 
-    setMessages((prev) => [...prev, userMessage, assistantMessage])
+    const finalMessages: ChatMessage[] = [
+      ...messages,
+      userMessage,
+      assistantMessage,
+    ]
+
+    setMessages(finalMessages)
     setIsStreaming(true)
 
     streamBufferRef.current = ''
@@ -52,9 +69,12 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
       setMessages((prev) => {
         const lastIndex = prev.length - 1
         const updated = [...prev]
+        const last = updated[lastIndex]
+
+        if (!last) return prev
 
         updated[lastIndex] = {
-          ...updated[lastIndex],
+          ...last,
           content: streamBufferRef.current,
         }
 
@@ -83,17 +103,31 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
           frameRef.current = requestAnimationFrame(flush)
         }
       }
+
+      const lastMessage = finalMessages[finalMessages.length - 1]
+      if (lastMessage) {
+        finalMessages[finalMessages.length - 1] = {
+          ...lastMessage,
+          content: streamBufferRef.current,
+        }
+      }
+
+      return { success: true, messages: finalMessages }
     } catch (error) {
       setMessages((prev) => prev.slice(0, -1))
+
       if (error instanceof RequestAbortedError) {
         setStreamError('Oops! Something went wrong. Please try again.')
+        return { success: false }
       }
 
       if (error instanceof Error) {
         setStreamError(error.message)
-        return
+        return { success: false }
       }
+
       setStreamError('Oops! Something went wrong. Please try again.')
+      return { success: false }
     } finally {
       setIsStreaming(false)
     }
@@ -106,5 +140,6 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
     isPendingModels,
     models,
     sendMessage,
+    resetMessages,
   }
 }
