@@ -1,16 +1,14 @@
 import { Markdown } from '@/components/Markdown'
 import { useOpenRouter } from '@/hooks/useOpenRouter'
-import { Send } from '@mui/icons-material'
+import { Add, Send } from '@mui/icons-material'
 import {
   Box,
+  Button,
   CircularProgress,
-  FormControl,
+  Divider,
   IconButton,
-  InputAdornment,
-  InputLabel,
   MenuItem,
   Select,
-  TextField,
   Typography,
   type SelectChangeEvent,
 } from '@mui/material'
@@ -54,7 +52,7 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
     sendMessage(content, selectedModel)
   }
 
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       handleSend()
@@ -67,32 +65,21 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-        <FormControl size="small" sx={{ flex: 1 }}>
-          <InputLabel>Model</InputLabel>
-
-          <Select
-            value={selectedModel}
-            label="Model"
-            onChange={handleModelChange}
-            disabled={isPendingModels}
-          >
-            {isPendingModels ? (
-              <MenuItem disabled>
-                <CircularProgress size={20} sx={{ mr: 1 }} />
-                Loading models...
-              </MenuItem>
-            ) : (
-              models?.map((m) => (
-                <MenuItem key={m.id} value={m.id}>
-                  {m.name}
-                </MenuItem>
-              ))
-            )}
-          </Select>
-        </FormControl>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+        <Box>
+          <Typography variant="body2" component="h2">
+            Untitled
+          </Typography>
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Button variant="outlined" size="small">
+            Sessions
+          </Button>
+          <Button variant="outlined" size="small">
+            New Sessions
+          </Button>
+        </Box>
       </Box>
-
       <Box
         sx={{
           flex: 1,
@@ -101,10 +88,6 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
           display: 'flex',
           flexDirection: 'column',
           gap: 1,
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 1.5,
         }}
       >
         {messages.length === 0 && (
@@ -187,36 +170,103 @@ export function ChatAgent({ apiKey }: ChatAgentProps) {
         )}
         <div ref={messagesEndRef} />
       </Box>
-      <Box>
-        <TextField
-          fullWidth
-          multiline
-          maxRows={4}
-          size="small"
-          placeholder="Type a message... (Enter to send)"
+
+      <Box
+        sx={{
+          border: 1,
+          borderColor: 'divider',
+          borderRadius: 2,
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ px: 1, py: 0.5 }}>
+          <IconButton size="small" disabled>
+            <Add fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Divider />
+
+        <Box
+          component="textarea"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setInputValue(e.target.value)
+          }
           onKeyDown={handleKeyDown}
-          disabled={isStreaming || !selectedModel}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    color="primary"
-                    onClick={handleSend}
-                    disabled={
-                      isStreaming || !inputValue.trim() || !selectedModel
-                    }
-                    edge="end"
-                  >
-                    {isStreaming ? <CircularProgress size={20} /> : <Send />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
+          disabled={isStreaming || !selectedModel || isPendingModels}
+          placeholder="Type a message... (Enter to send)"
+          rows={4}
+          sx={{
+            width: '100%',
+            resize: 'none',
+            border: 'none',
+            outline: 'none',
+            bgcolor: 'transparent',
+            color: 'text.primary',
+            fontFamily: 'inherit',
+            fontSize: '0.875rem',
+            px: 1.5,
+            py: 1,
+            boxSizing: 'border-box',
+            '&::placeholder': { color: 'text.secondary' },
+            '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
           }}
         />
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 1,
+            py: 0.5,
+          }}
+        >
+          <Select
+            value={selectedModel}
+            onChange={handleModelChange}
+            disabled={isPendingModels || isStreaming}
+            variant="standard"
+            disableUnderline
+            displayEmpty
+            size="small"
+            sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+          >
+            <MenuItem disabled value="">
+              Select a model
+            </MenuItem>
+            {isPendingModels ? (
+              <MenuItem disabled value="">
+                <CircularProgress size={12} sx={{ mr: 1 }} />
+                Loading...
+              </MenuItem>
+            ) : (
+              models?.map((model) => (
+                <MenuItem
+                  key={model.id}
+                  value={model.id}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  {model.name}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+
+          <IconButton
+            color="primary"
+            size="small"
+            onClick={handleSend}
+            disabled={isStreaming || !inputValue.trim() || !selectedModel}
+          >
+            {isStreaming ? (
+              <CircularProgress size={20} />
+            ) : (
+              <Send fontSize="small" />
+            )}
+          </IconButton>
+        </Box>
       </Box>
     </>
   )
