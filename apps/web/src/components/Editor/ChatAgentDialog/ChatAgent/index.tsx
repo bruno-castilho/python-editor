@@ -6,7 +6,7 @@ import type { PythonFile } from '@/hooks/usePyodide'
 import type { ChatSession } from '@/lib/chat-sessions'
 import logoPythonSvg from '@/assets/logo-python.svg'
 import { SessionsDialog } from './SessionsDialog'
-import { Add, Close, Send } from '@mui/icons-material'
+import { Add, Close, Send, Stop } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -54,6 +54,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
   const {
     messages,
     sendMessage,
+    stopStreaming,
     resetMessages,
     isPendingModels,
     models,
@@ -451,20 +452,20 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
             )}
           </Select>
 
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => {
-              handleSend()
-            }}
-            disabled={isStreaming || !inputValue.trim() || !selectedModel}
-          >
-            {isStreaming ? (
-              <CircularProgress size={20} />
-            ) : (
+          {isStreaming ? (
+            <IconButton color="error" size="small" onClick={stopStreaming}>
+              <Stop fontSize="small" />
+            </IconButton>
+          ) : (
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={handleSend}
+              disabled={!inputValue.trim() || !selectedModel}
+            >
               <Send fontSize="small" />
-            )}
-          </IconButton>
+            </IconButton>
+          )}
         </Box>
       </Box>
 

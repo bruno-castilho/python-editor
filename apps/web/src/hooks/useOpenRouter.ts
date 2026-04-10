@@ -32,6 +32,7 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
 
   const streamBufferRef = useRef('')
   const frameRef = useRef<number | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
   const openRouter = makeOpenRouter(apiKey)
 
   function resetMessages(initial?: ChatMessage[]): void {
@@ -93,25 +94,31 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
       frameRef.current = null
     }
 
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+
     try {
       const context = buildContextFromFiles(contextFiles)
 
-      const stream = await openRouter.chat.send({
-        chatGenerationParams: {
-          model,
-          stream: true,
-          messages: [
-            {
-              role: 'system',
-              content: context
-                ? `You are a python coding assistant. Use the following python files as context:\n\n${context}`
-                : 'You are a python coding assistant.',
-            },
-            ...messages,
-            userMessage,
-          ],
+      const stream = await openRouter.chat.send(
+        {
+          chatGenerationParams: {
+            model,
+            stream: true,
+            messages: [
+              {
+                role: 'system',
+                content: context
+                  ? `You are a python coding assistant. Use the following python files as context:\n\n${context}`
+                  : 'You are a python coding assistant.',
+              },
+              ...messages,
+              userMessage,
+            ],
+          },
         },
-      })
+        { signal: abortController.signal },
+      )
 
       for await (const chunk of stream) {
         const delta = chunk.choices?.[0]?.delta?.content
@@ -134,12 +141,13 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
 
       return { success: true, messages: finalMessages }
     } catch (error) {
-      setMessages((prev) => prev.slice(0, -1))
-
       if (error instanceof RequestAbortedError) {
-        setStreamError('Oops! Something went wrong. Please try again.')
+        // Cancelamento intencional: mantém conteúdo parcial
+        flush()
         return { success: false }
       }
+
+      setMessages((prev) => prev.slice(0, -1))
 
       if (error instanceof Error) {
         setStreamError(error.message)
@@ -149,8 +157,13 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
       setStreamError('Oops! Something went wrong. Please try again.')
       return { success: false }
     } finally {
+      abortControllerRef.current = null
       setIsStreaming(false)
     }
+  }
+
+  function stopStreaming(): void {
+    abortControllerRef.current?.abort()
   }
 
   return {
@@ -160,6 +173,7 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
     isPendingModels,
     models,
     sendMessage,
+    stopStreaming,
     resetMessages,
   }
 }
