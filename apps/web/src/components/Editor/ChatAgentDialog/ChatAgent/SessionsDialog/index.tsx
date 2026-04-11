@@ -109,7 +109,7 @@ export function SessionsDialog({
           placeholder="Search sessions…"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
-          sx={{ mb: 1.5 }}
+          sx={{ mb: 1.5, mt: 1.5 }}
           slotProps={{
             input: {
               sx: { fontSize: '0.875rem' },
