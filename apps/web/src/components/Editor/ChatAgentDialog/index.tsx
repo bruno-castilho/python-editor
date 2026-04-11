@@ -21,6 +21,7 @@ export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
       onClose={onClose}
       maxWidth={false}
       fullWidth
+      keepMounted
       slotProps={{
         paper: {
           sx: {
