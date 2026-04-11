@@ -6,10 +6,16 @@ import type { PythonFile } from '@/hooks/usePyodide'
 import type { ChatSession } from '@/lib/chat-sessions'
 import logoPythonSvg from '@/assets/logo-python.svg'
 import { SessionsDialog } from './SessionsDialog'
-import { Add, Close, Send, Stop } from '@mui/icons-material'
+import {
+  AccessTime,
+  Add,
+  Close,
+  MapsUgcSharp,
+  Send,
+  Stop,
+} from '@mui/icons-material'
 import {
   Box,
-  Button,
   CircularProgress,
   Divider,
   IconButton,
@@ -48,14 +54,13 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
     null,
   )
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
-
   const { activeFile, getUpdatedFiles } = useEditor()
 
   const {
     messages,
     sendMessage,
     stopStreaming,
-    resetMessages,
+    switchMessages,
     isPendingModels,
     models,
     isStreaming,
@@ -65,34 +70,12 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
   const {
     sessions,
     activeSessionId,
-    persistFirstExchange,
+    newSession,
     updateCurrentSession,
-    loadSession,
-    startNewSession,
+    switchActiveSession,
     renameSession,
     deleteSession,
   } = useChatSessions()
-
-  const activeSession = sessions.find(
-    (session) => session.id === activeSessionId,
-  )
-  const sessionTitle = activeSession?.name ?? 'New Session'
-
-  const unselectedFiles = files.filter(
-    (file) =>
-      !selectedContextFiles.some((selected) => selected.name === file.name),
-  )
-
-  useEffect(() => {
-    if (!open) return
-    const updatedFiles = getUpdatedFiles() || []
-    setFiles(updatedFiles)
-
-    const activeFileData = updatedFiles.find((file) => file.name === activeFile)
-    if (activeFileData) {
-      setSelectedContextFiles([activeFileData])
-    }
-  }, [open])
 
   function handleModelChange(event: SelectChangeEvent) {
     setSelectedModel(event.target.value)
@@ -121,20 +104,17 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
     const content = inputValue.trim()
     if (!content) return
 
-    const result = await sendMessage(
+    const completionCallback =
+      activeSessionId === null ? newSession : updateCurrentSession
+
+    sendMessage(
       content,
       selectedModel,
       selectedContextFiles,
+      completionCallback,
     )
 
     setInputValue('')
-    if (!result.success) return
-
-    if (activeSessionId === null) {
-      await persistFirstExchange(result.messages, selectedModel)
-    } else {
-      await updateCurrentSession(result.messages, selectedModel)
-    }
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -145,44 +125,73 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
   }
 
   function handleNewSession() {
-    startNewSession()
-    resetMessages()
+    switchActiveSession(null)
+    switchMessages([])
     setSelectedModel('')
   }
 
   function handleLoadSession(session: ChatSession) {
-    const { messages: loadedMessages, model } = loadSession(session)
-    resetMessages(loadedMessages)
-    setSelectedModel(model)
+    switchActiveSession(session.id)
+    switchMessages(session.messages)
+    setSelectedModel(session.model)
     setSessionsOpen(false)
   }
+
+  useEffect(() => {
+    if (!open) return
+    const updatedFiles = getUpdatedFiles() || []
+    setFiles(updatedFiles)
+
+    const activeFileData = updatedFiles.find((file) => file.name === activeFile)
+    if (activeFileData) {
+      setSelectedContextFiles([activeFileData])
+    }
+  }, [open])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  const activeSession = sessions.find(
+    (session) => session.id === activeSessionId,
+  )
+  const sessionTitle = activeSession?.name ?? 'Untitled'
+
+  const unselectedFiles = files.filter(
+    (file) =>
+      !selectedContextFiles.some((selected) => selected.name === file.name),
+  )
+
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 1,
+          ml: 3,
+          mr: 3,
+        }}
+      >
         <Box>
-          <Typography variant="body2" component="h2">
-            {sessionTitle}
+          <Typography variant="body1" component="h2">
+            <strong>{sessionTitle}</strong>
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setSessionsOpen(true)}
-          >
-            Sessions
-          </Button>
-          <Button variant="outlined" size="small" onClick={handleNewSession}>
-            New Session
-          </Button>
+          <Tooltip title="Session history">
+            <IconButton size="small" onClick={() => setSessionsOpen(true)}>
+              <AccessTime />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="New session">
+            <IconButton size="small" onClick={handleNewSession}>
+              <MapsUgcSharp />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
-
+      <Divider />
       <Box
         sx={{
           flex: 1,
@@ -191,6 +200,8 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
           display: 'flex',
           flexDirection: 'column',
           gap: 1,
+          pl: 3,
+          pr: 3,
         }}
       >
         {messages.length === 0 && (
@@ -280,6 +291,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
           borderColor: 'divider',
           borderRadius: 2,
           overflow: 'hidden',
+          m: 3,
         }}
       >
         <Box
@@ -453,12 +465,11 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
           </Select>
 
           {isStreaming ? (
-            <IconButton color="error" size="small" onClick={stopStreaming}>
+            <IconButton size="small" onClick={stopStreaming}>
               <Stop fontSize="small" />
             </IconButton>
           ) : (
             <IconButton
-              color="primary"
               size="small"
               onClick={handleSend}
               disabled={!inputValue.trim() || !selectedModel}

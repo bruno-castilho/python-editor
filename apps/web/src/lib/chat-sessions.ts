@@ -22,7 +22,3 @@ class ChatSessionsDb extends Dexie {
 }
 
 export const db = new ChatSessionsDb()
-
-export function generateSessionName(firstUserMessage: string): string {
-  return firstUserMessage.trim().slice(0, 50)
-}

@@ -19,6 +19,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { useState, type KeyboardEvent } from 'react'
 
 interface SessionsDialogProps {
@@ -93,7 +94,7 @@ export function SessionsDialog({
           pb: 1,
         }}
       >
-        <Typography variant="subtitle1" fontWeight="medium" component="span">
+        <Typography variant="body1" fontWeight="medium" component="span">
           Sessions
         </Typography>
         <IconButton size="small" onClick={handleClose} edge="end">
@@ -195,7 +196,7 @@ export function SessionsDialog({
                     >
                       <ListItemText
                         primary={session.name}
-                        secondary={session.updatedAt.toLocaleDateString()}
+                        secondary={formatDistanceToNowStrict(session.updatedAt)}
                         slotProps={{
                           primary: {
                             variant: 'body2',

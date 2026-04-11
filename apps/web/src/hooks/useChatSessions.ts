@@ -1,6 +1,5 @@
 'use client'
-
-import { db, generateSessionName, type ChatSession } from '@/lib/chat-sessions'
+import { db, type ChatSession } from '@/lib/chat-sessions'
 import type { ChatMessage } from '@/hooks/useOpenRouter'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
@@ -8,19 +7,12 @@ import { useState } from 'react'
 interface UseChatSessionsReturn {
   sessions: ChatSession[]
   activeSessionId: string | null
-  persistFirstExchange: (
-    messages: ChatMessage[],
-    model: string,
-  ) => Promise<void>
+  newSession: (messages: ChatMessage[], model: string) => Promise<void>
   updateCurrentSession: (
     messages: ChatMessage[],
     model: string,
   ) => Promise<void>
-  loadSession: (session: ChatSession) => {
-    messages: ChatMessage[]
-    model: string
-  }
-  startNewSession: () => void
+  switchActiveSession: (id: string | null) => void
   renameSession: (id: string, name: string) => Promise<void>
   deleteSession: (id: string) => Promise<void>
 }
@@ -34,33 +26,30 @@ export function useChatSessions(): UseChatSessionsReturn {
       [],
     ) ?? []
 
-  async function persistFirstExchange(
-    messages: ChatMessage[],
-    model: string,
-  ): Promise<void> {
+  async function newSession(messages: ChatMessage[], model: string) {
     const firstUserMessage = messages.find((message) => message.role === 'user')
     if (!firstUserMessage) return
 
     const id = crypto.randomUUID()
     const name = generateSessionName(firstUserMessage.content)
-    const now = new Date()
 
     await db.sessions.add({
       id,
       name,
       messages,
       model,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
 
     setActiveSessionId(id)
   }
 
-  async function updateCurrentSession(
-    messages: ChatMessage[],
-    model: string,
-  ): Promise<void> {
+  function generateSessionName(firstUserMessage: string) {
+    return firstUserMessage.trim().slice(0, 50)
+  }
+
+  async function updateCurrentSession(messages: ChatMessage[], model: string) {
     if (!activeSessionId) return
 
     await db.sessions.update(activeSessionId, {
@@ -70,20 +59,12 @@ export function useChatSessions(): UseChatSessionsReturn {
     })
   }
 
-  function loadSession(session: ChatSession): {
-    messages: ChatMessage[]
-    model: string
-  } {
-    setActiveSessionId(session.id)
-    return { messages: session.messages, model: session.model }
-  }
-
-  function startNewSession(): void {
-    setActiveSessionId(null)
+  function switchActiveSession(id: string | null) {
+    setActiveSessionId(id)
   }
 
   async function renameSession(id: string, name: string): Promise<void> {
-    await db.sessions.update(id, { name, updatedAt: new Date() })
+    await db.sessions.update(id, { name })
   }
 
   async function deleteSession(id: string): Promise<void> {
@@ -96,10 +77,9 @@ export function useChatSessions(): UseChatSessionsReturn {
   return {
     sessions,
     activeSessionId,
-    persistFirstExchange,
+    newSession,
     updateCurrentSession,
-    loadSession,
-    startNewSession,
+    switchActiveSession,
     renameSession,
     deleteSession,
   }

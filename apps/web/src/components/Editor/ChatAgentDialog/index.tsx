@@ -51,6 +51,7 @@ export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
           flexDirection: 'column',
           gap: 2,
           overflow: 'hidden',
+          p: 0,
         }}
       >
         {!apiKey && <ChatAgentAuth />}
