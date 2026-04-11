@@ -11,6 +11,7 @@ import {
   Add,
   Close,
   MapsUgcSharp,
+  RefreshOutlined,
   Send,
   Stop,
 } from '@mui/icons-material'
@@ -137,6 +138,15 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
     setSessionsOpen(false)
   }
 
+  function handleResendMessage() {
+    if (messages.length === 0) return
+
+    const message = messages[messages.length - 1]
+    if (message.role !== 'user') return
+
+    setInputValue(message.content)
+  }
+
   useEffect(() => {
     if (!open) return
     const updatedFiles = getUpdatedFiles() || []
@@ -250,16 +260,31 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
                 sx={{
                   alignSelf: 'flex-end',
                   maxWidth: '80%',
-                  px: 1.5,
-                  py: 1,
-                  borderRadius: 2,
-                  bgcolor: 'action.hover',
-                  color: 'text.primary',
+                  display: 'flex',
+                  gap: 1,
+                  alignItems: 'center',
                 }}
               >
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {message.content}
-                </Typography>
+                <Box
+                  sx={{
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: 2,
+                    bgcolor: 'action.hover',
+                    color: 'text.primary',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    {message.content}
+                  </Typography>
+                </Box>
+                {index === messages.length - 1 && (
+                  <Tooltip title="Resend message">
+                    <IconButton size="small" onClick={handleResendMessage}>
+                      <RefreshOutlined />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Box>
             )}
           </Fragment>

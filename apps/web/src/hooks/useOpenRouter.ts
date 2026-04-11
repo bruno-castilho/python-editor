@@ -62,7 +62,7 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
     const userMessage: ChatMessage = { role: 'user', content }
     const assistantMessage: ChatMessage = { role: 'assistant', content: '' }
 
-    const updatedMessages: ChatMessage[] = [
+    let updatedMessages: ChatMessage[] = [
       ...messages,
       userMessage,
       assistantMessage,
@@ -134,7 +134,8 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
         return
       }
 
-      setMessages((messages) => messages.slice(0, -1))
+      updatedMessages = updatedMessages.slice(0, -1)
+      setMessages(updatedMessages)
 
       if (error instanceof Error) {
         setStreamError(error.message)
@@ -144,7 +145,7 @@ export function useOpenRouter({ apiKey }: UseOpenRouterParams) {
       setStreamError('Oops! Something went wrong. Please try again.')
     } finally {
       const lastMessage = updatedMessages[updatedMessages.length - 1]
-      if (lastMessage) {
+      if (lastMessage.role === 'assistant') {
         updatedMessages[updatedMessages.length - 1] = {
           ...lastMessage,
           content: streamBufferRef.current,
