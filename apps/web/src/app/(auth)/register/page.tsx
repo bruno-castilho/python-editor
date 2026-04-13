@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type RegisterUserDTO,
@@ -23,25 +23,39 @@ import { AlertContext } from '@/context/AlertContext'
 export default function Page() {
   const router = useRouter()
   const alert = useContext(AlertContext)
-  const { mutateAsync } = useMutation(trpc.users.registerUser.mutationOptions())
 
   const {
-    register,
     handleSubmit,
     reset,
+    control,
     formState: { isSubmitting, errors },
   } = useForm<RegisterUserDTO>({
     resolver: zodResolver(registerUserSchema),
+    defaultValues: {
+      name: '',
+      lastName: '',
+      email: '',
+      password: '',
+      repeatPassword: '',
+    },
   })
 
+  const { mutate: registerUserMutate } = useMutation(
+    trpc.users.registerUser.mutationOptions({
+      onSuccess({ message }) {
+        reset()
+        alert.success(message)
+      },
+      onError(error) {
+        alert.error(
+          error instanceof Error ? error.message : 'Error creating account',
+        )
+      },
+    }),
+  )
+
   async function handleSubmitForm(data: RegisterUserDTO) {
-    try {
-      const { message } = await mutateAsync(data)
-      reset()
-      alert.success(message)
-    } catch (e) {
-      alert.error(e instanceof Error ? e.message : 'Error creating account')
-    }
+    registerUserMutate(data)
   }
 
   function handleDoSignIn() {
@@ -73,80 +87,101 @@ export default function Page() {
       >
         <FormControl>
           <FormLabel htmlFor="name">First name</FormLabel>
-          <TextField
-            size="small"
-            id="name"
-            type="name"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            error={!!errors.name}
-            helperText={errors.name?.message ?? ''}
-            {...register('name')}
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                id="name"
+                type="text"
+                autoFocus
+                fullWidth
+                variant="outlined"
+                error={!!errors.name}
+                helperText={errors.name?.message ?? ''}
+              />
+            )}
           />
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="lastName">Last name</FormLabel>
-          <TextField
-            size="small"
-            id="lastName"
-            type="lastName"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message ?? ''}
-            {...register('lastName')}
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                id="lastName"
+                type="text"
+                fullWidth
+                variant="outlined"
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message ?? ''}
+              />
+            )}
           />
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
-          <TextField
-            size="small"
-            id="email"
-            type="email"
-            placeholder="your@email.com"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            error={!!errors.email}
-            helperText={errors.email?.message ?? ''}
-            {...register('email')}
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                fullWidth
+                variant="outlined"
+                error={!!errors.email}
+                helperText={errors.email?.message ?? ''}
+              />
+            )}
           />
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="password">Password</FormLabel>
-          <TextField
-            size="small"
-            placeholder="••••••"
-            type="password"
-            id="password"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            error={!!errors.password}
-            helperText={errors.password?.message ?? ''}
-            {...register('password')}
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                placeholder="••••••"
+                type="password"
+                id="password"
+                fullWidth
+                variant="outlined"
+                error={!!errors.password}
+                helperText={errors.password?.message ?? ''}
+              />
+            )}
           />
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="repeatPassword">Repeat password</FormLabel>
-          <TextField
-            size="small"
-            placeholder="••••••"
-            type="password"
-            id="repeatPassword"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            error={!!errors.repeatPassword}
-            helperText={errors.repeatPassword?.message ?? ''}
-            {...register('repeatPassword')}
+          <Controller
+            name="repeatPassword"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                placeholder="••••••"
+                type="password"
+                id="repeatPassword"
+                fullWidth
+                variant="outlined"
+                error={!!errors.repeatPassword}
+                helperText={errors.repeatPassword?.message ?? ''}
+              />
+            )}
           />
         </FormControl>
         <Button
