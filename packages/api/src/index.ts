@@ -9,11 +9,11 @@ export const t = initTRPC.context<Context>().create()
 export const router = t.router
 
 const errorHandlerMiddleware = t.middleware(async ({ next }) => {
-  try {
-    return await next()
-  } catch (error) {
-    handleError(error)
+  const result = await next()
+  if (!result.ok) {
+    handleError(result.error.cause ?? result.error)
   }
+  return result
 })
 
 export const publicProcedure = t.procedure.use(errorHandlerMiddleware)
