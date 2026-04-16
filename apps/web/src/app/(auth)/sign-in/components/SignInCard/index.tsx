@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { type SignInDTO, signInSchema } from '@python-editor/schemas/sign-in'
 import Link from 'next/link'
-import { useContext, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { AlertContext } from '@/context/AlertContext'
 import { useMutation } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
@@ -28,7 +28,7 @@ export function SignInCard() {
 
   const router = useRouter()
   const alert = useContext(AlertContext)
-  const { mutateAsync } = useMutation(trpc.auth.signIn.mutationOptions())
+  const lastSubmittedEmail = useRef('')
 
   const {
     register,
@@ -39,16 +39,31 @@ export function SignInCard() {
     resolver: zodResolver(signInSchema),
   })
 
-  async function handleSubmitForm(data: SignInDTO) {
-    try {
-      const { message, accessToken } = await mutateAsync(data)
-      reset()
-      setAccessToken(accessToken)
-      alert.success(message)
-      router.push('/editor')
-    } catch (e) {
-      alert.error(e instanceof Error ? e.message : 'Login error')
-    }
+  const { mutate: signInMutate } = useMutation(
+    trpc.auth.signIn.mutationOptions({
+      onSuccess: ({ message, accessToken }) => {
+        setAccessToken(accessToken)
+        alert.success(message)
+        router.push('/editor')
+        reset()
+      },
+      onError: (error) => {
+        if (error.data?.code === 'FORBIDDEN') {
+          router.push(
+            `/unverified-email?email=${encodeURIComponent(lastSubmittedEmail.current)}`,
+          )
+
+          return
+        }
+
+        alert.error(error instanceof Error ? error.message : 'Login error')
+      },
+    }),
+  )
+
+  function handleSubmitForm(data: SignInDTO) {
+    lastSubmittedEmail.current = data.email
+    signInMutate(data)
   }
 
   function handleForgotPasswordDialog() {
@@ -57,14 +72,7 @@ export function SignInCard() {
 
   return (
     <>
-      <Box
-        variant="outlined"
-        component={Card}
-        maxWidth={450}
-        minWidth={300}
-        padding={4}
-        gap={2}
-      >
+      <Box variant="outlined" component={Card} width={450} padding={4} gap={2}>
         <Typography component="h1" variant="h4">
           Sign in
         </Typography>
