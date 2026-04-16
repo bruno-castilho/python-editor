@@ -8,7 +8,7 @@ import {
 } from '@mui/icons-material'
 
 import Image from 'next/image'
-import logo from '../../../../../assets/logo-python.svg'
+import logo from '../../../../../assets/logo.svg'
 
 export function InformationContent() {
   return (
@@ -21,7 +21,7 @@ export function InformationContent() {
     >
       <Box display="flex" flexDirection="column" gap={1}>
         <Box display="flex" justifyContent="center">
-          <Image src={logo} alt="ufsc logo" height={48} />
+          <Image src={logo} alt="ufsc logo" height={96} />
         </Box>
         <Box display="flex" justifyContent="center">
           <Typography variant="h6" component="h1">
