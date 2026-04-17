@@ -19,65 +19,40 @@ import { trpc } from '@/utils/trpc'
 import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { AppError } from '../error'
 
 export default function Page() {
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
+  if (!token)
+    throw new AppError('The reset token was not found in the URL.', 400)
+
   const router = useRouter()
   const alert = useContext(AlertContext)
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token') ?? ''
-
-  const { mutateAsync } = useMutation(
-    trpc.users.resetPassword.mutationOptions(),
-  )
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { isSubmitting, errors },
   } = useForm<ResetPasswordDTO>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { token },
   })
 
-  async function handleSubmitForm(data: ResetPasswordDTO) {
-    try {
-      const { message } = await mutateAsync(data)
-      reset()
-      alert.success(message)
-      router.push('/sign-in')
-    } catch (e) {
-      alert.error(e instanceof Error ? e.message : 'Error resetting password')
-    }
-  }
+  const { mutate: resetPasswordMutate } = useMutation(
+    trpc.users.resetPassword.mutationOptions({
+      onSuccess: ({ message }) => {
+        alert.success(message)
+        router.push('/sign-in')
+      },
+      onError: ({ message }) => {
+        alert.error(message)
+      },
+    }),
+  )
 
-  if (!token) {
-    return (
-      <Box
-        component="main"
-        minHeight="100vh"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        padding={2}
-      >
-        <Box
-          variant="outlined"
-          component={Card}
-          width={{ xs: 300, sm: 400 }}
-          padding={4}
-          gap={2}
-        >
-          <Typography component="h1" variant="h4" textAlign="center">
-            Invalid link
-          </Typography>
-          <Typography textAlign="center" color="text.secondary">
-            The reset token was not found in the URL.
-          </Typography>
-        </Box>
-      </Box>
-    )
+  async function handleSubmitForm(data: ResetPasswordDTO) {
+    resetPasswordMutate(data)
   }
 
   return (

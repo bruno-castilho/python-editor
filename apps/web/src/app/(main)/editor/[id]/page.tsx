@@ -4,6 +4,8 @@ import JSZip from 'jszip'
 import { useQuery } from '@tanstack/react-query'
 import { Editor, type InitialFiles } from '@/components/Editor'
 import { downloadProject } from '@/api/server/download-project'
+import { AppError } from '@/app/error'
+import axios from 'axios'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -12,7 +14,7 @@ interface PageProps {
 export default function Page({ params }: PageProps) {
   const { id } = use(params)
 
-  const { data: projectData } = useQuery({
+  const { data: projectData, error } = useQuery({
     queryKey: ['project', id],
     queryFn: async (): Promise<{
       files: InitialFiles
@@ -54,11 +56,18 @@ export default function Page({ params }: PageProps) {
         projectName,
       }
     },
-    retry: false,
-    throwOnError: true,
   })
 
   if (!projectData) return <div>Loading project...</div>
+
+  if (error) {
+    if (axios.isAxiosError(error)) {
+      const statusCode = error.response?.status ?? 500
+      throw new AppError(error.message, statusCode)
+    }
+
+    throw error
+  }
 
   return (
     <Editor

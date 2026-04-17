@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { AlertContext } from '@/context/AlertContext'
+import { AppError } from '@/app/error'
 
 const RESEND_COOLDOWN_SECONDS = 60
 
@@ -15,11 +16,14 @@ function formatCountdown(seconds: number) {
 }
 
 export default function Page() {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const alert = useContext(AlertContext)
-
   const email = searchParams.get('email')
+
+  if (!email) throw new AppError('No email address was provided', 400)
+
+  const router = useRouter()
+
+  const alert = useContext(AlertContext)
 
   const [countdownSeconds, setCountdownSeconds] = useState(0)
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -107,46 +111,32 @@ export default function Page() {
       alignItems="center"
       gap={3}
     >
-      {!email ? (
-        <>
-          <Typography component="h1" variant="h5" textAlign="center">
-            Missing email address
+      <>
+        <Typography component="h1" variant="h5" textAlign="center">
+          Verify your email
+        </Typography>
+        <Typography textAlign="center" color="text.secondary">
+          We sent a verification link to <strong>{email}</strong>. Please check
+          your inbox and click the link to activate your account.
+        </Typography>
+        {countdownSeconds > 0 && (
+          <Typography variant="body2" color="text.secondary">
+            Resend available in {formatCountdown(countdownSeconds)}
           </Typography>
-          <Typography textAlign="center" color="text.secondary">
-            No email address was provided. Please go back and sign in again.
-          </Typography>
-          <Button variant="outlined" fullWidth onClick={handleNavigateToSignIn}>
-            Back to sign in
-          </Button>
-        </>
-      ) : (
-        <>
-          <Typography component="h1" variant="h5" textAlign="center">
-            Verify your email
-          </Typography>
-          <Typography textAlign="center" color="text.secondary">
-            We sent a verification link to <strong>{email}</strong>. Please
-            check your inbox and click the link to activate your account.
-          </Typography>
-          {countdownSeconds > 0 && (
-            <Typography variant="body2" color="text.secondary">
-              Resend available in {formatCountdown(countdownSeconds)}
-            </Typography>
-          )}
-          <Button
-            variant="contained"
-            fullWidth
-            disabled={isResendDisabled}
-            onClick={handleResendEmail}
-            color="secondary"
-          >
-            Resend verification email
-          </Button>
-          <Button variant="text" fullWidth onClick={handleNavigateToSignIn}>
-            Back to sign in
-          </Button>
-        </>
-      )}
+        )}
+        <Button
+          variant="contained"
+          fullWidth
+          disabled={isResendDisabled}
+          onClick={handleResendEmail}
+          color="secondary"
+        >
+          Resend verification email
+        </Button>
+        <Button variant="text" fullWidth onClick={handleNavigateToSignIn}>
+          Back to sign in
+        </Button>
+      </>
     </Box>
   )
 }

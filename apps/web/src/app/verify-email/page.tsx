@@ -2,39 +2,33 @@
 import { Box, Button, Card, CircularProgress, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { trpc } from '@/utils/trpc'
-
-type Status = 'loading' | 'success' | 'error'
+import { AppError } from '../error'
 
 export default function Page() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const [status, setStatus] = useState<Status>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
+  if (!token)
+    throw new AppError('Verification token not found in the URL.', 400)
 
-  const { mutateAsync: verifyEmail } = useMutation(
-    trpc.users.verifyEmail.mutationOptions(),
-  )
+  const router = useRouter()
+
+  const {
+    mutate: verifyEmailMutate,
+    isPending: isPendingVerifyEmail,
+    error,
+  } = useMutation(trpc.users.verifyEmail.mutationOptions())
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error')
-      setErrorMessage('Verification token not found in the URL.')
-      return
-    }
-
-    verifyEmail({ token })
-      .then(() => setStatus('success'))
-      .catch((e) => {
-        setStatus('error')
-        setErrorMessage(
-          e instanceof Error ? e.message : 'Error verifying email.',
-        )
-      })
+    verifyEmailMutate({ token })
   }, [token])
+
+  if (error) {
+    const statusCode = error?.data?.httpStatus ?? 500
+    throw new AppError(error.message, statusCode)
+  }
 
   return (
     <Box
@@ -56,14 +50,14 @@ export default function Page() {
         alignItems="center"
         gap={3}
       >
-        {status === 'loading' && (
+        {isPendingVerifyEmail && (
           <>
             <CircularProgress />
             <Typography>Verifying your email...</Typography>
           </>
         )}
 
-        {status === 'success' && (
+        {!isPendingVerifyEmail && (
           <>
             <Typography component="h1" variant="h5" textAlign="center">
               Email verified successfully!
@@ -77,24 +71,6 @@ export default function Page() {
               onClick={() => router.push('/sign-in')}
             >
               Sign in
-            </Button>
-          </>
-        )}
-
-        {status === 'error' && (
-          <>
-            <Typography component="h1" variant="h5" textAlign="center">
-              Invalid or expired link
-            </Typography>
-            <Typography textAlign="center" color="text.secondary">
-              {errorMessage}
-            </Typography>
-            <Button
-              variant="outlined"
-              fullWidth
-              onClick={() => router.push('/sign-in')}
-            >
-              Back to sign in
             </Button>
           </>
         )}
