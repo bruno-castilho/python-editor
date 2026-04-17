@@ -1,8 +1,9 @@
 'use client'
 import { Header } from '@/components/Header'
+import { Loading } from './components/Loading'
 import { setAccessToken } from '@/utils/access-token-store'
 import { trpc } from '@/utils/trpc'
-import { Box, CircularProgress, Container } from '@mui/material'
+import { Container } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
@@ -25,11 +26,7 @@ export default function MainLayout({
   }, [])
 
   if (statussessionRefresh === 'idle' || statussessionRefresh === 'pending') {
-    return (
-      <Box>
-        <CircularProgress />
-      </Box>
-    )
+    return <Loading />
   }
 
   return (
