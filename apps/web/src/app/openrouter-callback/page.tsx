@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthOpenRouter } from '@/hooks/useAuthOpenRouter'
 import { AppError } from '../error'
-import { Loading } from './components/Loading'
+import { Loading } from '@/components/Loading'
 
 export default function OpenRouterCallbackPage() {
   const searchParams = useSearchParams()
@@ -38,5 +38,17 @@ export default function OpenRouterCallbackPage() {
 
   if (error) throw error
 
-  return <Loading />
+  return (
+    <Loading
+      messagesTitle="Authenticating with OpenRouter..."
+      loadingMessages={[
+        'Connecting to OpenRouter...',
+        'Exchanging authorization code...',
+        'Validating credentials...',
+        'Retrieving API key...',
+        'Securing your session...',
+        'Finalizing authentication...',
+      ]}
+    />
+  )
 }

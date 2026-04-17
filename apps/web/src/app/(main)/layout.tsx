@@ -1,6 +1,6 @@
 'use client'
 import { Header } from '@/components/Header'
-import { Loading } from './components/Loading'
+import { Loading } from '@/components/Loading'
 import { setAccessToken } from '@/utils/access-token-store'
 import { trpc } from '@/utils/trpc'
 import { Container } from '@mui/material'
@@ -26,7 +26,21 @@ export default function MainLayout({
   }, [])
 
   if (statussessionRefresh === 'idle' || statussessionRefresh === 'pending') {
-    return <Loading />
+    return (
+      <Loading
+        messagesTitle="Initializing environment..."
+        loadingMessages={[
+          'Importing os, sys, random...',
+          'Running __init__.py...',
+          'Compiling bytecode...',
+          'Connecting to the runtime...',
+          'Resolving dependencies...',
+          'Spawning worker threads...',
+          'Warming up the interpreter...',
+          'Loading standard library...',
+        ]}
+      />
+    )
   }
 
   return (

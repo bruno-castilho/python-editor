@@ -4,22 +4,12 @@ import { useEffect, useState } from 'react'
 
 import { PythonLoader } from '@/components/PythonLoader'
 
-const LOADING_MESSAGES = [
-  'Importing os, sys, random...',
-  'Running __init__.py...',
-  'Compiling bytecode...',
-  'Connecting to the runtime...',
-  'Resolving dependencies...',
-  'Spawning worker threads...',
-  'Warming up the interpreter...',
-  'Loading standard library...',
-]
-
 interface LoadingProps {
-  size?: number
+  messagesTitle: string
+  loadingMessages: string[]
 }
 
-export function Loading({ size = 96 }: LoadingProps) {
+export function Loading({ messagesTitle, loadingMessages }: LoadingProps) {
   const [messageIndex, setMessageIndex] = useState(0)
   const [visible, setVisible] = useState(true)
 
@@ -27,7 +17,9 @@ export function Loading({ size = 96 }: LoadingProps) {
     const interval = setInterval(() => {
       setVisible(false)
       setTimeout(() => {
-        setMessageIndex((previousIndex) => (previousIndex + 1) % LOADING_MESSAGES.length)
+        setMessageIndex(
+          (previousIndex) => (previousIndex + 1) % loadingMessages.length,
+        )
         setVisible(true)
       }, 300)
     }, 2000)
@@ -35,7 +27,7 @@ export function Loading({ size = 96 }: LoadingProps) {
     return () => clearInterval(interval)
   }, [])
 
-  const currentMessage = LOADING_MESSAGES[messageIndex] ?? LOADING_MESSAGES[0]
+  const currentMessage = loadingMessages[messageIndex] ?? loadingMessages[0]
 
   return (
     <Box
@@ -48,13 +40,24 @@ export function Loading({ size = 96 }: LoadingProps) {
         gap: 3,
       }}
     >
-      <PythonLoader size={size} />
-      <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <PythonLoader />
+      <Box
+        sx={{
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+        }}
+      >
         <Typography
           variant="h6"
-          sx={{ color: 'primary.main', fontFamily: 'monospace', letterSpacing: 1 }}
+          sx={{
+            color: 'primary.main',
+            fontFamily: 'monospace',
+            letterSpacing: 1,
+          }}
         >
-          Initializing environment...
+          {messagesTitle}
         </Typography>
         <Typography
           variant="body2"
@@ -66,7 +69,8 @@ export function Loading({ size = 96 }: LoadingProps) {
             minHeight: '1.5em',
           }}
         >
-          {'> '}{currentMessage}
+          {'> '}
+          {currentMessage}
         </Typography>
       </Box>
     </Box>

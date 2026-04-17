@@ -1,8 +1,8 @@
 'use client'
 import Box from '@mui/material/Box'
-
 import codeSvg from '@/assets/code.svg'
 import pythonSvg from '@/assets/python.svg'
+import Image from 'next/image'
 
 interface PythonLoaderProps {
   size?: number
@@ -12,9 +12,10 @@ export function PythonLoader({ size = 96 }: PythonLoaderProps) {
   return (
     <Box position="relative" width={size} height={size}>
       <Box
-        component="img"
-        src={pythonSvg.src}
+        component={Image}
+        src={pythonSvg}
         alt="python"
+        priority
         width={size}
         height={size}
         sx={{
@@ -26,9 +27,10 @@ export function PythonLoader({ size = 96 }: PythonLoaderProps) {
         }}
       />
       <Box
-        component="img"
-        src={codeSvg.src}
+        component={Image}
+        src={codeSvg}
         alt="code"
+        priority
         sx={{
           width: size / 1.42,
           height: size / 1.42,
