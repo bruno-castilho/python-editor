@@ -16,6 +16,14 @@ const darkPaper = '#161B22'
 const lightBackground = '#F5F8FC'
 const lightPaper = '#FFFFFF'
 
+export const scrollbarTrackLight = '#E8EFF7'
+export const scrollbarThumbLight = '#93C0E0'
+export const scrollbarThumbLightHover = '#5A9FCC'
+
+export const scrollbarTrackDark = '#0F1923'
+export const scrollbarThumbDark = '#1E3D5C'
+export const scrollbarThumbDarkHover = '#2A5580'
+
 const textDark = '#E6EDF3'
 const textLight = '#1F2328'
 

@@ -33,23 +33,6 @@ export function Terminal() {
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.default',
-        '&::-webkit-scrollbar': {
-          width: 10,
-        },
-        '&::-webkit-scrollbar-track': {
-          background: 'transparent',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: 'rgba(121, 121, 121, 0.4)',
-          borderRadius: 1,
-          border: '2px solid transparent',
-          backgroundClip: 'content-box',
-        },
-        '&::-webkit-scrollbar-thumb:hover': {
-          background: 'rgba(121, 121, 121, 0.7)',
-          backgroundClip: 'content-box',
-          border: '2px solid transparent',
-        },
       }}
       onClick={() => inputRef.current?.focus()}
     >
