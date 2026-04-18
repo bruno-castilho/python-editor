@@ -1,14 +1,6 @@
 'use client'
 import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material'
-import {
-  defaultTheme,
-  scrollbarTrackLight,
-  scrollbarThumbLight,
-  scrollbarThumbLightHover,
-  scrollbarTrackDark,
-  scrollbarThumbDark,
-  scrollbarThumbDarkHover,
-} from '../../utils/theme'
+import { defaultTheme } from '../../utils/theme'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 export default function MaterialProvider({
@@ -22,32 +14,20 @@ export default function MaterialProvider({
         <CssBaseline />
         <GlobalStyles
           styles={(theme) => ({
-            '*': {
-              scrollbarWidth: 'thin',
-              scrollbarColor:
-                theme.palette.mode === 'dark'
-                  ? `${scrollbarThumbDark} ${scrollbarTrackDark}`
-                  : `${scrollbarThumbLight} ${scrollbarTrackLight}`,
+            '*::-webkit-scrollbar': {
+              width: 14,
+              height: 14,
             },
-            '*::-webkit-scrollbar': { width: '6px', height: '6px' },
+
             '*::-webkit-scrollbar-track': {
-              background:
-                theme.palette.mode === 'dark'
-                  ? scrollbarTrackDark
-                  : scrollbarTrackLight,
+              backgroundColor: 'transparent',
+              boxShadow: `1px 0 0 0 ${theme.palette.divider} inset`,
             },
+
             '*::-webkit-scrollbar-thumb': {
-              background:
-                theme.palette.mode === 'dark'
-                  ? scrollbarThumbDark
-                  : scrollbarThumbLight,
-              borderRadius: '3px',
-            },
-            '*::-webkit-scrollbar-thumb:hover': {
-              background:
-                theme.palette.mode === 'dark'
-                  ? scrollbarThumbDarkHover
-                  : scrollbarThumbLightHover,
+              backgroundColor: 'transparent',
+              borderRadius: 0,
+              transition: 'background-color 0.8s ease-out',
             },
           })}
         />

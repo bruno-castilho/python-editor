@@ -14,7 +14,7 @@ export function Header() {
   const accessToken = getAccessToken()
 
   return (
-    <Box component={AppBar} position="static">
+    <Box component={AppBar} position="fixed">
       <Container maxWidth={false}>
         <Toolbar disableGutters>
           <Box

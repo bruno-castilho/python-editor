@@ -1,5 +1,6 @@
 'use client'
 import { useEditor } from '@/hooks/useEditor'
+import { scrollbarThumbDark, scrollbarThumbLight } from '@/utils/theme'
 import { Box, InputBase } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 
@@ -24,7 +25,7 @@ export function Terminal() {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         fontFamily: '"Fira Code", monospace',
         fontSize: 14,
         height: '100%',
@@ -33,7 +34,16 @@ export function Terminal() {
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.default',
-      }}
+
+        '&:hover': {
+          '::-webkit-scrollbar-thumb': {
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? `${scrollbarThumbDark}`
+                : `${scrollbarThumbLight}`,
+          },
+        },
+      })}
       onClick={() => inputRef.current?.focus()}
     >
       {terminalEntries.map((terminalEntry, i) => {

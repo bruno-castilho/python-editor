@@ -26,7 +26,14 @@ interface EditorProps {
 export function Editor({ initialFiles, project }: EditorProps) {
   return (
     <EditorProvider initialFiles={initialFiles}>
-      <Box component={Card} variant="outlined" width="100%">
+      <Box
+        component={Card}
+        variant="outlined"
+        display="flex"
+        flexDirection="column"
+        width="100%"
+        height="900px"
+      >
         <Box
           sx={{
             display: 'flex',
@@ -41,11 +48,11 @@ export function Editor({ initialFiles, project }: EditorProps) {
           <EditorMenu project={project} />
         </Box>
         <Divider />
-        <CardContent>
+        <CardContent sx={{ flex: 1 }}>
           <VSEditor defaultValue={initialFiles[0].content} />
         </CardContent>
         <Divider />
-        <CardContent sx={{ height: '30vh' }}>
+        <CardContent sx={{ height: '30%' }}>
           <Terminal />
         </CardContent>
       </Box>

@@ -2,6 +2,7 @@
 import { Header } from '@/components/Header'
 import { Loading } from '@/components/Loading'
 import { setAccessToken } from '@/utils/access-token-store'
+import { scrollbarThumbDark, scrollbarThumbLight } from '@/utils/theme'
 import { trpc } from '@/utils/trpc'
 import { Box, Container } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
@@ -57,7 +58,24 @@ export default function MainLayout({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
       <Header />
-      <Container component="main" maxWidth={false} sx={{ flex: 1 }}>
+      <Container
+        component="main"
+        maxWidth={false}
+        sx={(theme) => ({
+          mt: '74px',
+          overflow: 'auto',
+          flex: 1,
+          minHeight: 0,
+          '&:hover': {
+            '::-webkit-scrollbar-thumb': {
+              backgroundColor:
+                theme.palette.mode === 'dark'
+                  ? `${scrollbarThumbDark}`
+                  : `${scrollbarThumbLight}`,
+            },
+          },
+        })}
+      >
         {children}
       </Container>
     </Box>

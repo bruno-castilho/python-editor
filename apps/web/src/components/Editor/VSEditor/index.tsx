@@ -313,7 +313,7 @@ export function VSEditor({ defaultValue }: VSEditorProps) {
 
   return (
     <MonacoEditor
-      height="55vh"
+      height="100%"
       defaultLanguage="python"
       defaultValue={defaultValue}
       theme={isDarkMode ? 'python-dark' : 'python-light'}

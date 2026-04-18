@@ -212,6 +212,11 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
           gap: 1,
           pl: 3,
           pr: 3,
+          '&:hover': {
+            '::-webkit-scrollbar-thumb': {
+              backgroundColor: 'action.hover',
+            },
+          },
         }}
       >
         {messages.length === 0 && (
