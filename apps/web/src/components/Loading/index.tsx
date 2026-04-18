@@ -1,7 +1,6 @@
 'use client'
 import { Box, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-
 import { PythonLoader } from '@/components/PythonLoader'
 
 interface LoadingProps {
@@ -35,8 +34,6 @@ export function Loading({ messagesTitle, loadingMessages }: LoadingProps) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
         gap: 3,
       }}
     >

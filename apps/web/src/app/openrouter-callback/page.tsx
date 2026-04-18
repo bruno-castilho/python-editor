@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthOpenRouter } from '@/hooks/useAuthOpenRouter'
 import { AppError } from '../error'
 import { Loading } from '@/components/Loading'
+import { Box } from '@mui/material'
 
 export default function OpenRouterCallbackPage() {
   const searchParams = useSearchParams()
@@ -39,16 +40,27 @@ export default function OpenRouterCallbackPage() {
   if (error) throw error
 
   return (
-    <Loading
-      messagesTitle="Authenticating with OpenRouter..."
-      loadingMessages={[
-        'Connecting to OpenRouter...',
-        'Exchanging authorization code...',
-        'Validating credentials...',
-        'Retrieving API key...',
-        'Securing your session...',
-        'Finalizing authentication...',
-      ]}
-    />
+    <Box sx={{ height: '100dvh' }}>
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Loading
+          messagesTitle="Authenticating with OpenRouter..."
+          loadingMessages={[
+            'Connecting to OpenRouter...',
+            'Exchanging authorization code...',
+            'Validating credentials...',
+            'Retrieving API key...',
+            'Securing your session...',
+            'Finalizing authentication...',
+          ]}
+        />
+      </Box>
+    </Box>
   )
 }

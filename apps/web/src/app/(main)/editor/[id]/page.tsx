@@ -6,6 +6,8 @@ import { Editor, type InitialFiles } from '@/components/Editor'
 import { downloadProject } from '@/api/server/download-project'
 import { AppError } from '@/app/error'
 import axios from 'axios'
+import { Loading } from '@/components/Loading'
+import { Box } from '@mui/material'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -14,7 +16,11 @@ interface PageProps {
 export default function Page({ params }: PageProps) {
   const { id } = use(params)
 
-  const { data: projectData, error } = useQuery({
+  const {
+    data: projectData,
+    error,
+    isLoading,
+  } = useQuery({
     queryKey: ['project', id],
     queryFn: async (): Promise<{
       files: InitialFiles
@@ -58,7 +64,29 @@ export default function Page({ params }: PageProps) {
     },
   })
 
-  if (!projectData) return <div>Loading project...</div>
+  if (isLoading)
+    return (
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Loading
+          messagesTitle="Loading your project..."
+          loadingMessages={[
+            'Fetching project files...',
+            'Downloading source code...',
+            'Extracting files from archive...',
+            'Validating Python files...',
+            'Preparing the editor...',
+            'Almost ready...',
+          ]}
+        />
+      </Box>
+    )
 
   if (error) {
     if (axios.isAxiosError(error)) {
@@ -69,10 +97,14 @@ export default function Page({ params }: PageProps) {
     throw error
   }
 
+  if (!projectData) throw new Error()
+
   return (
-    <Editor
-      initialFiles={projectData.files}
-      project={{ id, name: projectData.projectName }}
-    />
+    <Box mt={2}>
+      <Editor
+        initialFiles={projectData.files}
+        project={{ id, name: projectData.projectName }}
+      />
+    </Box>
   )
 }

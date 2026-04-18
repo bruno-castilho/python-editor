@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <OnlyUserPage>
-      <Box component={Card} variant="outlined">
+      <Box component={Card} variant="outlined" mt={2}>
         <Tabs value={currentTab}>
           <Tab
             label="Personal"

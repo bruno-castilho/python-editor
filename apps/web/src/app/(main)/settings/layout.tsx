@@ -44,6 +44,7 @@ export default function SettingsLayout({
         display="flex"
         flexDirection={{ xs: 'column', md: 'row' }}
         alignItems={{ xs: 'stretch', md: 'flex-start' }}
+        mt={2}
       >
         <Box component="nav" sx={{ minWidth: { md: 200 } }}>
           <List disablePadding>
