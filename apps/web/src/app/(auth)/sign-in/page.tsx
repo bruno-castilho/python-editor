@@ -7,6 +7,7 @@ export default function Page() {
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
+      alignItems="center"
       divider={
         <>
           <Divider orientation="vertical" flexItem />

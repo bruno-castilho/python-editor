@@ -12,13 +12,7 @@ import logo from '../../../../../assets/logo.svg'
 
 export function InformationContent() {
   return (
-    <Stack
-      flexDirection="column"
-      alignSelf="center"
-      gap={4}
-      maxWidth={450}
-      minWidth={300}
-    >
+    <Stack flexDirection="column" gap={4} maxWidth={450} minWidth={300}>
       <Box display="flex" flexDirection="column" gap={1}>
         <Box display="flex" justifyContent="center">
           <Image src={logo} alt="ufsc logo" height={96} />
@@ -37,7 +31,9 @@ export function InformationContent() {
             About the Project
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Add description
+            A collaborative, browser-based Python development environment where
+            students and developers can write, manage, and share multi-file
+            Python projects — with no local setup required.
           </Typography>
         </Box>
       </Stack>
@@ -48,9 +44,23 @@ export function InformationContent() {
           <Typography gutterBottom fontWeight="medium">
             Objectives
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Add objectives
-          </Typography>
+          <Box component="ul" sx={{ margin: 0, paddingLeft: 2 }}>
+            {[
+              'Provide an accessible in-browser Python editor with multi-file project support',
+              'Allow users to save, load, and manage their Python projects',
+              'Enable team collaboration through project sharing between users',
+              'Offer an integrated AI assistant to support code writing and debugging',
+            ].map((objective) => (
+              <Typography
+                key={objective}
+                component="li"
+                variant="body2"
+                color="text.secondary"
+              >
+                {objective}
+              </Typography>
+            ))}
+          </Box>
         </Box>
       </Stack>
 
@@ -60,8 +70,20 @@ export function InformationContent() {
           <Typography gutterBottom fontWeight="medium">
             Repository
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Project GitHub
+          <Typography
+            variant="body2"
+            color="primary"
+            component="a"
+            href="https://github.com/bruno-castilho/python-editor"
+            target="_blank"
+            rel="noopener noreferrer"
+            fontWeight="medium"
+            sx={{
+              textDecoration: 'none',
+              '&:hover': { textDecoration: 'underline' },
+            }}
+          >
+            GitHub Project
           </Typography>
         </Box>
       </Stack>

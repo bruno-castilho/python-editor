@@ -71,7 +71,7 @@ export function SignInCard() {
   }
 
   return (
-    <>
+    <Box>
       <Box variant="outlined" component={Card} width={450} padding={4} gap={2}>
         <Typography component="h1" variant="h4">
           Sign in
@@ -158,6 +158,6 @@ export function SignInCard() {
         open={openForgotPasswordDialog}
         onClose={handleForgotPasswordDialog}
       />
-    </>
+    </Box>
   )
 }
