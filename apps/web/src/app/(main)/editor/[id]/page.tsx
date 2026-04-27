@@ -100,11 +100,9 @@ export default function Page({ params }: PageProps) {
   if (!projectData) throw new Error()
 
   return (
-    <Box mt={2}>
-      <Editor
-        initialFiles={projectData.files}
-        project={{ id, name: projectData.projectName }}
-      />
-    </Box>
+    <Editor
+      initialFiles={projectData.files}
+      project={{ id, name: projectData.projectName }}
+    />
   )
 }
