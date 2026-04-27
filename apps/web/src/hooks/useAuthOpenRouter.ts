@@ -48,7 +48,7 @@ export function useAuthOpenRouter() {
   async function startOpenRouterAuth() {
     const { codeVerifier, codeChallenge } = await generatePKCE()
 
-    sessionStorage.setItem('openrouter_pkce_verifier', codeVerifier)
+    localStorage.setItem('openrouter_pkce_verifier', codeVerifier)
 
     const callback = encodeURIComponent(
       window.location.origin + '/openrouter-callback',
@@ -62,7 +62,7 @@ export function useAuthOpenRouter() {
   }
 
   async function exchangeOpenRouterCode(code: string) {
-    const verifier = sessionStorage.getItem('openrouter_pkce_verifier')
+    const verifier = localStorage.getItem('openrouter_pkce_verifier')
 
     if (!verifier) {
       throw new Error('PKCE verifier not found')
@@ -78,11 +78,11 @@ export function useAuthOpenRouter() {
   }
 
   function saveOpenRouterKey(key: string) {
-    sessionStorage.setItem('openrouter_api_key', key)
+    localStorage.setItem('openrouter_api_key', key)
   }
 
   function getOpenRouterKey() {
-    return sessionStorage.getItem('openrouter_api_key')
+    return localStorage.getItem('openrouter_api_key')
   }
 
   return {

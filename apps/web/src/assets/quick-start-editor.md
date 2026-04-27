@@ -93,7 +93,7 @@ You need a free OpenRouter account to use the AI agent. Sign up at [openrouter.a
 
 1. Click the **Chat AI** button in the editor toolbar.
 2. Click **Connect with OpenRouter** — you will be redirected to OpenRouter's authorisation page.
-3. Approve the connection. Your API key is stored only in your browser session and is never sent to our servers.
+3. Approve the connection. Your API key is stored only in your browser and is never sent to our servers.
 
 ### 💬 Using the agent
 
