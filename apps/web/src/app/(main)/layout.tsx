@@ -66,14 +66,20 @@ export default function MainLayout({
           overflow: 'auto',
           flex: 1,
           minHeight: 0,
+
           '&:hover': {
             '::-webkit-scrollbar-thumb': {
-              backgroundColor:
-                theme.palette.mode === 'dark'
-                  ? `${scrollbarThumbDark}`
-                  : `${scrollbarThumbLight}`,
+              backgroundColor: scrollbarThumbLight,
             },
           },
+
+          ...theme.applyStyles('dark', {
+            '&:hover': {
+              '::-webkit-scrollbar-thumb': {
+                backgroundColor: scrollbarThumbDark,
+              },
+            },
+          }),
         })}
       >
         {children}

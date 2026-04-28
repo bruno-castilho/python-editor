@@ -1,6 +1,6 @@
 'use client'
 import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material'
-import { defaultTheme } from '../../utils/theme'
+import { theme } from '../../utils/theme'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 export default function MaterialProvider({
@@ -10,7 +10,7 @@ export default function MaterialProvider({
 }) {
   return (
     <AppRouterCacheProvider>
-      <ThemeProvider theme={defaultTheme}>
+      <ThemeProvider theme={theme} defaultMode="system">
         <CssBaseline />
         <GlobalStyles
           styles={(theme) => ({

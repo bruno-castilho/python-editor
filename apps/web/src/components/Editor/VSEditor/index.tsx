@@ -2,7 +2,7 @@
 import MonacoEditor, { type Monaco } from '@monaco-editor/react'
 import { editor } from 'monaco-editor'
 import { VSEditorSkeleton } from './skeleton'
-import { useMediaQuery, useTheme } from '@mui/material'
+import { useColorScheme, useMediaQuery } from '@mui/material'
 import { useEditor } from '@/hooks/useEditor'
 
 const defineMonacoThemes = (monacoInstance: Monaco) => {
@@ -293,7 +293,7 @@ interface VSEditorProps {
 }
 
 export function VSEditor({ defaultValue }: VSEditorProps) {
-  const theme = useTheme()
+  const { mode } = useColorScheme()
   const isMobile = useMediaQuery('(max-width:600px)')
   const isTablet = useMediaQuery('(max-width:1024px)')
 
@@ -309,7 +309,7 @@ export function VSEditor({ defaultValue }: VSEditorProps) {
     editorRef.current = editor
   }
 
-  const isDarkMode = theme.palette.mode === 'dark'
+  const isDarkMode = mode === 'dark'
 
   return (
     <MonacoEditor

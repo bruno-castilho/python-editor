@@ -1,6 +1,6 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { useTheme } from '@mui/material/styles'
+import { useColorScheme } from '@mui/material/styles'
 import {
   codeTagProps,
   getCustomStyle,
@@ -35,8 +35,8 @@ const light = {
 type CodeProps = ComponentPropsWithoutRef<'code'> & ExtraProps
 
 export function Code({ className, children, ...props }: CodeProps) {
-  const theme = useTheme()
-  const isDark = theme.palette.mode === 'dark'
+  const { mode } = useColorScheme()
+  const isDark = mode === 'dark'
   const customStyle = isDark ? dark : light
   const syntaxTheme = isDark ? pythonDarkTheme : pythonLightTheme
 

@@ -2,7 +2,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Code } from './Code'
-import { Divider, Link, useTheme } from '@mui/material'
+import { Divider, Link } from '@mui/material'
 import type { ComponentPropsWithoutRef } from 'react'
 
 interface MarkdownProps {
@@ -10,18 +10,18 @@ interface MarkdownProps {
 }
 
 function MarkdownLink({ href, children }: ComponentPropsWithoutRef<'a'>) {
-  const theme = useTheme()
-  const color =
-    theme.palette.mode === 'dark'
-      ? theme.palette.secondary.main
-      : theme.palette.primary.main
-
   return (
     <Link
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      sx={{ color, textDecoration: 'none' }}
+      sx={(theme) => ({
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        ...theme.applyStyles('dark', {
+          color: theme.palette.secondary.main,
+        }),
+      })}
     >
       {children}
     </Link>

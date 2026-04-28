@@ -4,6 +4,7 @@ import MaterialProvider from '@/providers/MaterialProvider'
 import TanstackProvider from '@/providers/TanstackProvider'
 import { AlertContextProvider } from '@/context/AlertContext'
 import { Alert } from '@/components/Alert'
+import { InitColorSchemeScript } from '@mui/material'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <InitColorSchemeScript attribute="data" />
         <MaterialProvider>
           <AlertContextProvider>
             <TanstackProvider>{children}</TanstackProvider>

@@ -37,12 +37,17 @@ export function Terminal() {
 
         '&:hover': {
           '::-webkit-scrollbar-thumb': {
-            backgroundColor:
-              theme.palette.mode === 'dark'
-                ? `${scrollbarThumbDark}`
-                : `${scrollbarThumbLight}`,
+            backgroundColor: scrollbarThumbLight,
           },
         },
+
+        ...theme.applyStyles('dark', {
+          '&:hover': {
+            '::-webkit-scrollbar-thumb': {
+              backgroundColor: scrollbarThumbDark,
+            },
+          },
+        }),
       })}
       onClick={() => inputRef.current?.focus()}
     >

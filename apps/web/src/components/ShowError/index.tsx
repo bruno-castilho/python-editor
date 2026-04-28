@@ -50,10 +50,11 @@ export function ShowError({ code, message, statusCode }: ShowError) {
         startIcon={<ArrowBackRounded />}
         sx={(theme) => ({
           px: 4,
-          color:
-            theme.palette.mode === 'light'
-              ? theme.palette.primary.main
-              : theme.palette.secondary.main,
+          color: theme.palette.primary.main,
+
+          ...theme.applyStyles('dark', {
+            color: theme.palette.secondary.main,
+          }),
         })}
       >
         Back to home
