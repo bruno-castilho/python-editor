@@ -1,5 +1,6 @@
 'use client'
 import {
+  Avatar,
   Box,
   Button,
   Card,
@@ -19,6 +20,7 @@ import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc'
 import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
+import { PersonAdd } from '@mui/icons-material'
 
 export default function Page() {
   const router = useRouter()
@@ -40,19 +42,20 @@ export default function Page() {
     },
   })
 
-  const { mutate: registerUserMutate } = useMutation(
-    trpc.users.registerUser.mutationOptions({
-      onSuccess({ message }) {
-        reset()
-        alert.success(message)
-      },
-      onError(error) {
-        alert.error(
-          error instanceof Error ? error.message : 'Error creating account',
-        )
-      },
-    }),
-  )
+  const { mutate: registerUserMutate, isPending: isPendingRegisterUser } =
+    useMutation(
+      trpc.users.registerUser.mutationOptions({
+        onSuccess({ message }) {
+          reset()
+          alert.success(message)
+        },
+        onError(error) {
+          alert.error(
+            error instanceof Error ? error.message : 'Error creating account',
+          )
+        },
+      }),
+    )
 
   async function handleSubmitForm(data: RegisterUserDTO) {
     registerUserMutate(data)
@@ -66,17 +69,35 @@ export default function Page() {
     <Box
       variant="outlined"
       component={Card}
-      width={{
-        xs: 300,
-        sm: 400,
-        md: 500,
+      sx={{
+        width: {
+          xs: 350,
+          sm: 450,
+        },
+        p: 4,
+        gap: 2,
       }}
-      padding={4}
-      gap={2}
     >
-      <Typography component="h1" variant="h4">
-        Create account
-      </Typography>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        gap={2}
+        mb={2}
+      >
+        <Avatar
+          sx={(theme) => ({
+            bgcolor: theme.palette.secondary.main,
+          })}
+        >
+          <PersonAdd />
+        </Avatar>
+
+        <Typography component="h1" variant="h5">
+          Sign Up
+        </Typography>
+      </Box>
+
       <Box
         component="form"
         onSubmit={handleSubmit(handleSubmitForm)}
@@ -189,7 +210,8 @@ export default function Page() {
           size="small"
           fullWidth
           variant="contained"
-          disabled={isSubmitting}
+          loading={isSubmitting || isPendingRegisterUser}
+          loadingPosition="start"
         >
           CREATE
         </Button>

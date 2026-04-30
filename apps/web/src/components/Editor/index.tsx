@@ -32,7 +32,7 @@ export function Editor({ initialFiles, project }: EditorProps) {
         display="flex"
         flexDirection="column"
         width="100%"
-        height="900px"
+        height="90dvh"
       >
         <Box
           sx={{

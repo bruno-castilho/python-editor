@@ -36,7 +36,7 @@ export default function Page() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<UpdateUserDTO>({
     resolver: zodResolver(updateUserSchema),
     values: {
@@ -51,34 +51,32 @@ export default function Page() {
   const alert = useContext(AlertContext)
   const queryClient = useQueryClient()
 
-  const {
-    mutateAsync: updateProfileMutateAsync,
-    isPending: isPendingUpdateProfile,
-  } = useMutation(
-    trpc.users.updateProfile.mutationOptions({
-      onSuccess(responseData, formData) {
-        const queryKey = trpc.users.getProfile.queryKey()
-        queryClient.setQueryData(queryKey, (currentData) => {
-          if (!currentData?.user) return currentData
-          return {
-            user: {
-              ...currentData.user,
-              name: formData.name,
-              lastName: formData.lastName,
-            },
-          }
-        })
+  const { mutate: updateProfileMutate, isPending: isPendingUpdateProfile } =
+    useMutation(
+      trpc.users.updateProfile.mutationOptions({
+        onSuccess(responseData, formData) {
+          const queryKey = trpc.users.getProfile.queryKey()
+          queryClient.setQueryData(queryKey, (currentData) => {
+            if (!currentData?.user) return currentData
+            return {
+              user: {
+                ...currentData.user,
+                name: formData.name,
+                lastName: formData.lastName,
+              },
+            }
+          })
 
-        alert.success(responseData.message)
-      },
-      onError(error) {
-        alert.error(error.message)
-      },
-    }),
-  )
+          alert.success(responseData.message)
+        },
+        onError(error) {
+          alert.error(error.message)
+        },
+      }),
+    )
 
-  async function handleSubmitProfileForm(formData: UpdateUserDTO) {
-    await updateProfileMutateAsync(formData)
+  function handleSubmitProfileForm(formData: UpdateUserDTO) {
+    updateProfileMutate(formData)
   }
 
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -120,33 +118,31 @@ export default function Page() {
     }
   }
 
-  const {
-    mutateAsync: removeAvatarMutateAsync,
-    isPending: isPendingRemoveAvatar,
-  } = useMutation(
-    trpc.users.removeAvatar.mutationOptions({
-      onSuccess(responseData) {
-        const queryKey = trpc.users.getProfile.queryKey()
-        queryClient.setQueryData(queryKey, (currentData) => {
-          if (!currentData?.user) return currentData
-          return {
-            user: {
-              ...currentData.user,
-              avatarUrl: null,
-            },
-          }
-        })
+  const { mutate: removeAvatarMutate, isPending: isPendingRemoveAvatar } =
+    useMutation(
+      trpc.users.removeAvatar.mutationOptions({
+        onSuccess(responseData) {
+          const queryKey = trpc.users.getProfile.queryKey()
+          queryClient.setQueryData(queryKey, (currentData) => {
+            if (!currentData?.user) return currentData
+            return {
+              user: {
+                ...currentData.user,
+                avatarUrl: null,
+              },
+            }
+          })
 
-        alert.success(responseData.message)
-      },
-      onError(error) {
-        alert.error(error.message)
-      },
-    }),
-  )
+          alert.success(responseData.message)
+        },
+        onError(error) {
+          alert.error(error.message)
+        },
+      }),
+    )
 
-  async function handleRemoveAvatar() {
-    await removeAvatarMutateAsync()
+  function handleRemoveAvatar() {
+    removeAvatarMutate()
   }
 
   return (
@@ -322,7 +318,9 @@ export default function Page() {
             type="submit"
             size="small"
             variant="contained"
-            disabled={isPendingGetProfile || isPendingUpdateProfile}
+            disabled={isPendingGetProfile}
+            loading={isSubmitting || isPendingUpdateProfile}
+            loadingPosition="start"
             sx={{ alignSelf: 'flex-start' }}
           >
             Save

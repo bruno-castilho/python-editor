@@ -444,8 +444,6 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
             outline: 'none',
             bgcolor: 'transparent',
             color: 'text.primary',
-            fontFamily: 'inherit',
-            fontSize: '0.875rem',
             px: 1.5,
             py: 1,
             boxSizing: 'border-box',
@@ -470,8 +468,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
             variant="standard"
             disableUnderline
             displayEmpty
-            size="small"
-            sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+            sx={{ color: 'text.secondary' }}
           >
             <SelectMenuItem disabled value="">
               Select a model
@@ -483,11 +480,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
               </SelectMenuItem>
             ) : (
               models?.map((model) => (
-                <SelectMenuItem
-                  key={model.id}
-                  value={model.id}
-                  sx={{ fontSize: '0.75rem' }}
-                >
+                <SelectMenuItem key={model.id} value={model.id}>
                   {model.name}
                 </SelectMenuItem>
               ))
@@ -500,7 +493,6 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
             </IconButton>
           ) : (
             <IconButton
-              size="small"
               onClick={handleSend}
               disabled={!inputValue.trim() || !selectedModel}
             >

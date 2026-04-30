@@ -13,11 +13,12 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Edit } from '@mui/icons-material'
+import { Edit, Folder } from '@mui/icons-material'
+import type { Route } from 'next'
 
 interface Page {
   name: string
-  route: string
+  route: Route
   icon: ReactNode
 }
 
@@ -30,7 +31,7 @@ const pages: Page[] = [
   {
     name: 'Projects',
     route: '/projects/personal',
-    icon: <Edit fontSize="small" color="primary" />,
+    icon: <Folder fontSize="small" color="primary" />,
   },
 ]
 
@@ -78,7 +79,7 @@ export function PageMenu() {
           onClose={handleCloseNavMenu}
         >
           {pages.map((page) => (
-            <MenuItem key={page.name}>
+            <MenuItem component={Link} href={page.route} key={page.name}>
               <ListItemIcon>{page.icon}</ListItemIcon>
               <Typography textAlign="center">{page.name}</Typography>
             </MenuItem>

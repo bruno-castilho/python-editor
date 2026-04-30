@@ -9,6 +9,7 @@ import {
   Typography,
   Link as LinkMUI,
   Card,
+  Avatar,
 } from '@mui/material'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -21,6 +22,7 @@ import { trpc } from '@/utils/trpc'
 import { useRouter } from 'next/navigation'
 import { ForgotPasswordDialog } from '@/components/ForgotPasswordDialog'
 import { setAccessToken } from '@/utils/access-token-store'
+import { Login } from '@mui/icons-material'
 
 export function SignInCard() {
   const [openForgotPasswordDialog, setOpenForgotPasswordDialog] =
@@ -39,7 +41,7 @@ export function SignInCard() {
     resolver: zodResolver(signInSchema),
   })
 
-  const { mutate: signInMutate } = useMutation(
+  const { mutate: signInMutate, isPending: isPendingSignIn } = useMutation(
     trpc.auth.signIn.mutationOptions({
       onSuccess: ({ message, accessToken }) => {
         setAccessToken(accessToken)
@@ -72,10 +74,37 @@ export function SignInCard() {
 
   return (
     <Box>
-      <Box variant="outlined" component={Card} width={450} padding={4} gap={2}>
-        <Typography component="h1" variant="h4">
-          Sign in
-        </Typography>
+      <Box
+        variant="outlined"
+        component={Card}
+        sx={{
+          width: {
+            xs: 350,
+            sm: 450,
+          },
+          p: 4,
+          gap: 2,
+        }}
+      >
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap={2}
+          mb={2}
+        >
+          <Avatar
+            sx={(theme) => ({
+              bgcolor: theme.palette.secondary.main,
+            })}
+          >
+            <Login />
+          </Avatar>
+
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+        </Box>
         <Box
           component="form"
           onSubmit={handleSubmit(handleSubmitForm)}
@@ -122,7 +151,8 @@ export function SignInCard() {
             size="small"
             fullWidth
             variant="contained"
-            disabled={isSubmitting}
+            loading={isSubmitting || isPendingSignIn}
+            loadingPosition="start"
             color="secondary"
           >
             Sign in
@@ -146,7 +176,7 @@ export function SignInCard() {
               variant="body2"
               textAlign="center"
               component={Link}
-              href="/register"
+              href="/sign-up"
               color="primary"
             >
               Sign up

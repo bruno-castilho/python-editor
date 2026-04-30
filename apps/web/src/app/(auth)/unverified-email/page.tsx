@@ -1,11 +1,12 @@
 'use client'
-import { Box, Button, Card, Typography } from '@mui/material'
+import { Avatar, Box, Button, Card, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { AlertContext } from '@/context/AlertContext'
 import { AppError } from '@/app/error'
+import { MarkEmailRead } from '@mui/icons-material'
 
 const RESEND_COOLDOWN_SECONDS = 60
 
@@ -104,17 +105,39 @@ export default function Page() {
     <Box
       variant="outlined"
       component={Card}
-      width={{ xs: 300, sm: 400 }}
-      padding={4}
       display="flex"
       flexDirection="column"
       alignItems="center"
-      gap={3}
+      sx={{
+        width: {
+          xs: 350,
+          sm: 450,
+        },
+        p: 4,
+        gap: 2,
+      }}
     >
       <>
-        <Typography component="h1" variant="h5" textAlign="center">
-          Verify your email
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap={2}
+          mb={2}
+        >
+          <Avatar
+            sx={(theme) => ({
+              bgcolor: theme.palette.secondary.main,
+            })}
+          >
+            <MarkEmailRead />
+          </Avatar>
+
+          <Typography component="h1" variant="h5">
+            Verify your email
+          </Typography>
+        </Box>
+
         <Typography textAlign="center" color="text.secondary">
           We sent a verification link to <strong>{email}</strong>. Please check
           your inbox and click the link to activate your account.

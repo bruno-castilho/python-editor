@@ -27,7 +27,7 @@ export function Terminal() {
     <Box
       sx={(theme) => ({
         fontFamily: '"Fira Code", monospace',
-        fontSize: 14,
+        fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
         height: '100%',
         overflow: 'auto',
         p: 1,

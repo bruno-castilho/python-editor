@@ -62,7 +62,7 @@ export default function MainLayout({
         component="main"
         maxWidth={false}
         sx={(theme) => ({
-          mt: '74px',
+          mt: '64px',
           overflow: 'auto',
           flex: 1,
           minHeight: 0,

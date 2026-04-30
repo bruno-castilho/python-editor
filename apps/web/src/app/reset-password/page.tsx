@@ -1,5 +1,6 @@
 'use client'
 import {
+  Avatar,
   Box,
   Button,
   Card,
@@ -20,6 +21,7 @@ import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AppError } from '../error'
+import { LockReset } from '@mui/icons-material'
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -39,17 +41,18 @@ export default function Page() {
     defaultValues: { token },
   })
 
-  const { mutate: resetPasswordMutate } = useMutation(
-    trpc.users.resetPassword.mutationOptions({
-      onSuccess: ({ message }) => {
-        alert.success(message)
-        router.push('/sign-in')
-      },
-      onError: ({ message }) => {
-        alert.error(message)
-      },
-    }),
-  )
+  const { mutate: resetPasswordMutate, isPending: isPendingResetPassword } =
+    useMutation(
+      trpc.users.resetPassword.mutationOptions({
+        onSuccess: ({ message }) => {
+          alert.success(message)
+          router.push('/sign-in')
+        },
+        onError: ({ message }) => {
+          alert.error(message)
+        },
+      }),
+    )
 
   async function handleSubmitForm(data: ResetPasswordDTO) {
     resetPasswordMutate(data)
@@ -63,18 +66,39 @@ export default function Page() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      padding={2}
     >
       <Box
         variant="outlined"
         component={Card}
-        width={{ xs: 300, sm: 400 }}
-        padding={4}
-        gap={2}
+        sx={{
+          width: {
+            xs: 350,
+            sm: 450,
+          },
+          p: 4,
+          gap: 2,
+        }}
       >
-        <Typography component="h1" variant="h4">
-          Reset password
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap={2}
+          mb={2}
+        >
+          <Avatar
+            sx={(theme) => ({
+              bgcolor: theme.palette.secondary.main,
+            })}
+          >
+            <LockReset />
+          </Avatar>
+
+          <Typography component="h1" variant="h5">
+            Reset password
+          </Typography>
+        </Box>
+
         <Box
           component="form"
           onSubmit={handleSubmit(handleSubmitForm)}
@@ -119,7 +143,8 @@ export default function Page() {
             size="small"
             fullWidth
             variant="contained"
-            disabled={isSubmitting}
+            loading={isSubmitting || isPendingResetPassword}
+            loadingPosition="start"
           >
             Reset password
           </Button>

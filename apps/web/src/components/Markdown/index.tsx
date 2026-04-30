@@ -2,7 +2,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Code } from './Code'
-import { Divider, Link } from '@mui/material'
+import { Box, Divider, Link } from '@mui/material'
 import type { ComponentPropsWithoutRef } from 'react'
 
 interface MarkdownProps {
@@ -30,15 +30,17 @@ function MarkdownLink({ href, children }: ComponentPropsWithoutRef<'a'>) {
 
 export function Markdown({ children }: MarkdownProps) {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        code: Code,
-        hr: () => <Divider sx={{ my: 3 }} />,
-        a: MarkdownLink,
-      }}
-    >
-      {children}
-    </ReactMarkdown>
+    <Box sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' } }}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code: Code,
+          hr: () => <Divider sx={{ my: 3 }} />,
+          a: MarkdownLink,
+        }}
+      >
+        {children}
+      </ReactMarkdown>
+    </Box>
   )
 }

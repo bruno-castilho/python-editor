@@ -1,10 +1,18 @@
 'use client'
-import { Box, Button, Card, CircularProgress, Typography } from '@mui/material'
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Typography,
+} from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { trpc } from '@/utils/trpc'
 import { AppError } from '../error'
+import { Verified } from '@mui/icons-material'
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -38,17 +46,21 @@ export default function Page() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      padding={2}
     >
       <Box
         variant="outlined"
         component={Card}
-        width={{ xs: 300, sm: 400 }}
-        padding={4}
         display="flex"
         flexDirection="column"
         alignItems="center"
-        gap={3}
+        sx={{
+          width: {
+            xs: 350,
+            sm: 450,
+          },
+          p: 4,
+          gap: 2,
+        }}
       >
         {isPendingVerifyEmail && (
           <>
@@ -59,9 +71,26 @@ export default function Page() {
 
         {!isPendingVerifyEmail && (
           <>
-            <Typography component="h1" variant="h5" textAlign="center">
-              Email verified successfully!
-            </Typography>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap={2}
+              mb={2}
+            >
+              <Avatar
+                sx={(theme) => ({
+                  bgcolor: theme.palette.secondary.main,
+                })}
+              >
+                <Verified />
+              </Avatar>
+
+              <Typography component="h1" variant="h5">
+                Verified successfully!
+              </Typography>
+            </Box>
+
             <Typography textAlign="center" color="text.secondary">
               Your account is active. You can now sign in.
             </Typography>

@@ -112,39 +112,45 @@ export default function Page() {
   )
 
   return (
-    <TableContainer>
-      <Table sx={{ width: '100%' }} size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell align="left" sx={{ minWidth: 260 }}>
-              ID
-            </TableCell>
-            <TableCell align="left">
-              <TableSortLabel label="name" defaultLabel="name">
-                Name
-              </TableSortLabel>
-            </TableCell>
-            <TableCell align="left">Created by</TableCell>
-            <TableCell align="left">Updated by</TableCell>
+    <>
+      <TableContainer>
+        <Table sx={{ width: '100%' }} size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left" sx={{ minWidth: 200 }}>
+                ID
+              </TableCell>
+              <TableCell align="left" sx={{ minWidth: 200 }}>
+                <TableSortLabel label="name" defaultLabel="name">
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="left" sx={{ minWidth: 200 }}>
+                Created by
+              </TableCell>
+              <TableCell align="left" sx={{ minWidth: 200 }}>
+                Updated by
+              </TableCell>
 
-            <TableCell align="left" sx={{ minWidth: 200 }}>
-              <TableSortLabel label="updatedAt" defaultLabel="updatedAt">
-                Updated at
-              </TableSortLabel>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {isPending
-            ? Array.from({ length: perPage }).map((_, index) => (
-                <SharedWithMeTableRowSkeleton key={index} />
-              ))
-            : (data?.projects ?? []).map((project) => (
-                <SharedWithMeTableRow key={project.id} project={project} />
-              ))}
-        </TableBody>
-      </Table>
+              <TableCell align="left" sx={{ minWidth: 200 }}>
+                <TableSortLabel label="updatedAt" defaultLabel="updatedAt">
+                  Updated at
+                </TableSortLabel>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isPending
+              ? Array.from({ length: perPage }).map((_, index) => (
+                  <SharedWithMeTableRowSkeleton key={index} />
+                ))
+              : (data?.projects ?? []).map((project) => (
+                  <SharedWithMeTableRow key={project.id} project={project} />
+                ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <TablePagination disabled={isPending} totalCount={data?.totalCount} />
-    </TableContainer>
+    </>
   )
 }

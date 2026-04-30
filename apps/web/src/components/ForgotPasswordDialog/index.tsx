@@ -29,7 +29,7 @@ export function ForgotPasswordDialog({
 }: ForgotPasswordDialogProps) {
   const alert = useContext(AlertContext)
   const { mutateAsync } = useMutation(
-    trpc.user.forgotPassword.mutationOptions(),
+    trpc.users.forgotPassword.mutationOptions(),
   )
 
   const {
