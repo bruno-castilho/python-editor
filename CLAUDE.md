@@ -5,12 +5,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Development (all apps)
-npm run dev
+# Development
+npm run dev            # all apps
+npm run dev:web        # web only
+npm run dev:server     # server only
+npm run dev:native     # native app only
+
+# Build
+npm run build
 
 # Testing
 npm test               # run all tests once
 npm run test:watch     # watch mode
+npm run test:cov       # with coverage
+npm run test:debug     # with Node inspector (--inspect-brk)
+npm run test:e2e       # e2e suite (vitest.config.e2e.ts)
+npm run test:e2e:watch # e2e watch mode
 
 # Linting & type checking
 npm run lint

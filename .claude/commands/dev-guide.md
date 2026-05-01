@@ -284,6 +284,123 @@ describe('ExampleFeatureUseCase', () => {
 
 ---
 
+## E2E Testing Pattern
+
+E2E tests cover full request cycles through the real Fastify server, real database (isolated schema), and real infrastructure (Redis, Mailhog). Write one e2e test per router — one `it()` per procedure, happy path only.
+
+### File location and naming
+- Co-locate with the router: `packages/api/src/routers/{domain}.e2e-spec.ts`
+- Matched by `vitest.config.e2e.ts` via `**/*.e2e-spec.ts`
+- Run all e2e tests: `npm run test:e2e`
+
+### Server setup (per `describe` block)
+
+```typescript
+import Fastify, { type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyTRPCPlugin, type FastifyTRPCPluginOptions } from '@trpc/server/adapters/fastify'
+import { createTRPCClient, httpBatchLink } from '@trpc/client'
+import type { AddressInfo } from 'node:net'
+import { appRouter, type AppRouter } from './index'
+import { createContext } from '../context'
+
+let app: FastifyInstance
+let client: ReturnType<typeof createTRPCClient<AppRouter>>
+let baseUrl: string
+
+describe('Domain Router', () => {
+  beforeEach(async () => {
+    app = Fastify({ logger: false })
+    app.register(fastifyCookie)
+    app.register(fastifyTRPCPlugin, {
+      prefix: '/trpc',
+      trpcOptions: { router: appRouter, createContext } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
+    })
+
+    await app.listen({ port: 0 })
+    const { port } = app.server.address() as AddressInfo
+    baseUrl = `http://localhost:${port}`
+
+    client = createTRPCClient<AppRouter>({
+      links: [httpBatchLink({ url: `${baseUrl}/trpc` })],
+    })
+  })
+
+  afterEach(async () => {
+    await app.close()
+  })
+})
+```
+
+**Rules:**
+- Use `beforeEach`/`afterEach` — never `beforeAll`/`afterAll` for the server
+- Register only `fastifyCookie` + `fastifyTRPCPlugin` — no multipart, no other routes
+- Always `port: 0` so the OS picks a free port
+
+### Database seeding
+
+```typescript
+import { makePrismaUser } from '../../test/factories/make-user'
+
+const { email } = await makePrismaUser({})                              // defaults
+const { email } = await makePrismaUser({ emailVerified: true })         // overrides
+```
+
+The global `setup-e2e.ts` creates a unique PostgreSQL schema per run and flushes Redis — no manual cleanup needed per test.
+
+### Authenticated requests
+
+```typescript
+import { PasswordHashGenerator } from '../cryptography/hash-generator'
+import { signInUser } from '../../test/utils/sign-in-user'
+import { createAuthClient } from '../../test/utils/create-auth-client'
+
+const password = '@Password1'
+const hashedPassword = await new PasswordHashGenerator().hash(password)
+const { email } = await makePrismaUser({ hashedPassword, emailVerified: true })
+
+const accessToken = await signInUser(client, email, password)
+const authClient = createAuthClient(baseUrl, accessToken)
+
+const result = await authClient.domain.protectedProcedure.query()
+```
+
+### Email token extraction (Mailhog)
+
+Copy `getEmailToken` + `decodeBody` from `packages/api/src/routers/users.e2e-spec.ts` into any test file that involves email flows.
+
+```typescript
+const token = await getEmailToken(recipientEmail)
+```
+
+The function calls the Mailhog API, walks all MIME parts, decodes quoted-printable and base64, and extracts the token via regex.
+
+### Assertions
+
+```typescript
+expect(result.message).toBe('Expected message.')   // mutations
+expect(result.user.email).toBe(email)              // queries returning data
+```
+
+### E2E anti-patterns
+
+| Anti-pattern | Why |
+|---|---|
+| Using fake repositories or fake mailer | E2E tests must hit real infrastructure |
+| `beforeAll`/`afterAll` for the Fastify server | Leads to state leakage between tests |
+| Testing error/exception paths | That belongs in use-case unit tests |
+| More than one `it()` per procedure | One happy-path test per endpoint is enough |
+| Asserting on internal state (e.g., DB rows) | Assert only on the tRPC response |
+
+### Reference files
+
+- **Canonical example**: `packages/api/src/routers/users.e2e-spec.ts`
+- **Global setup**: `setup-e2e.ts` + `vitest.config.e2e.ts`
+- **Test utilities**: `packages/api/test/utils/sign-in-user.ts`, `packages/api/test/utils/create-auth-client.ts`
+- **Factory**: `packages/api/test/factories/make-user.ts`
+
+---
+
 ## Security & Authentication
 
 - **Access token**: HS256 JWT, 1h expiry, passed as `Authorization: Bearer <token>`
