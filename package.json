@@ -20,7 +20,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "test:e2e:watch": "vitest --config ./vitest.config.e2e.ts"
   },
   "dependencies": {
     "@python-editor/env": "*",
@@ -34,8 +38,13 @@
     "@python-editor/eslint": "*",
     "@python-editor/test": "*",
     "@types/node": "^22.13.14",
+    "@types/supertest": "^7.2.0",
+    "supertest": "^7.2.2",
     "turbo": "^2.6.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "unplugin-swc": "^1.5.9",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
   },
   "packageManager": "npm@11.6.2"
 }

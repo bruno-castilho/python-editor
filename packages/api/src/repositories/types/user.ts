@@ -4,4 +4,6 @@ export type User = UserPrisma
 
 export type UserWithoutPassword = Omit<User, 'hashedPassword'>
 
-export type UserCreateParams = Omit<Prisma.UserCreateInput, 'id'>
+export type UserCreateParams = Omit<Prisma.UserCreateInput, 'id'> & {
+  id?: Prisma.UserCreateInput['id']
+}

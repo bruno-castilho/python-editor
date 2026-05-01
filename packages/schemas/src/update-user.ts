@@ -2,21 +2,9 @@ import z from 'zod'
 
 export const updateUserSchema = z
   .object({
-    name: z
-      .string()
-      .trim()
-      .min(1, { message: 'Enter a first name' })
-      .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, {
-        message: 'Name must contain only letters',
-      }),
+    name: z.string().trim().min(1, { message: 'Enter a first name' }),
 
-    lastName: z
-      .string()
-      .trim()
-      .min(1, { message: 'Enter a last name' })
-      .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, {
-        message: 'Last name must contain only letters',
-      }),
+    lastName: z.string().trim().min(1, { message: 'Enter a last name' }),
 
     newPassword: z
       .string()

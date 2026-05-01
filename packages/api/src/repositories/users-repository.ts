@@ -5,17 +5,26 @@ import prisma from '@python-editor/db'
 
 export class UsersRepository implements IUsersRepository {
   async create(params: UserCreateParams) {
-    const { name, lastName, email, hashedPassword, createdAt } = params
+    const {
+      name,
+      lastName,
+      email,
+      hashedPassword,
+      createdAt,
+      id,
+      emailVerified,
+    } = params
 
     return await prisma.user.create({
       omit: { hashedPassword: true },
       data: {
-        id: uuidv7(),
+        id: id || uuidv7(),
         name,
         lastName,
         email,
         hashedPassword,
         createdAt,
+        emailVerified,
       },
     })
   }

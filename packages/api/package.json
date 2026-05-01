@@ -32,7 +32,6 @@
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
     "@python-editor/config": "*",
-    "@python-editor/test": "*",
     "@types/jsonwebtoken": "^9.0.10",
     "typescript": "^5"
   }
