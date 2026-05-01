@@ -5,11 +5,11 @@ import type { ProjectCreateParams } from './types/projects'
 
 export class ProjectsRepository implements IProjectsRepository {
   async create(params: ProjectCreateParams) {
-    const { createdById, updatedById, ...data } = params
+    const { createdById, updatedById, id, ...data } = params
 
     const project = await prisma.project.create({
       data: {
-        id: uuidv7(),
+        id: id || uuidv7(),
         ...data,
         createdBy: {
           connect: {

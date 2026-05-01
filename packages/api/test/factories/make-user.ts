@@ -2,7 +2,7 @@ import { v7 as uuidv7 } from 'uuid'
 import { UsersRepository } from '../../src/repositories/users-repository'
 import { faker } from '@faker-js/faker'
 
-export async function makeUser(params: {
+export function makeUser(params: {
   name?: string
   lastName?: string
   email?: string
@@ -37,7 +37,7 @@ export async function makePrismaUser(params: {
 }) {
   const usersRepository = new UsersRepository()
 
-  const user = await makeUser(params)
+  const user = makeUser(params)
 
   await usersRepository.create({
     email: user.email,
