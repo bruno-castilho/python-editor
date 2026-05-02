@@ -8,4 +8,6 @@ const prisma = new PrismaClient({ adapter })
 
 export * from '../prisma/generated/client'
 export * from '@prisma/adapter-pg'
-export default prisma
+export default {
+  prisma,
+}

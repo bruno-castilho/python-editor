@@ -1,10 +1,11 @@
+import db from '@python-editor/db'
 import { EmailVerificationTokenHashGenerator } from '../../cryptography/hash-generator'
 import { EmailVerificationTokenKeyValueStore } from '../../key-value-stores/email-verification-token-key-value-store'
 import { UsersRepository } from '../../repositories/users-repository'
 import { VerifyEmailUseCase } from '../verify-email'
 
 export function makeVerifyEmailUseCase() {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
   const emailVerificationTokenHashGenerator =
     new EmailVerificationTokenHashGenerator()
   const emailVerificationTokenKeyValueStore =

@@ -1,13 +1,15 @@
 import { v7 as uuidv7 } from 'uuid'
 import type { IProjectsRepository } from './interfaces/projects-repository'
-import prisma from '@python-editor/db'
+import { PrismaClient } from '@python-editor/db'
 import type { ProjectCreateParams } from './types/projects'
 
 export class ProjectsRepository implements IProjectsRepository {
+  constructor(private prisma: PrismaClient) {}
+
   async create(params: ProjectCreateParams) {
     const { createdById, updatedById, id, ...data } = params
 
-    const project = await prisma.project.create({
+    const project = await this.prisma.project.create({
       data: {
         id: id || uuidv7(),
         ...data,
@@ -30,11 +32,11 @@ export class ProjectsRepository implements IProjectsRepository {
   }
 
   async findById(params: { projectId: string }) {
-    return prisma.project.findUnique({ where: { id: params.projectId } })
+    return this.prisma.project.findUnique({ where: { id: params.projectId } })
   }
 
   async findByIdWithSharedWith(params: { projectId: string }) {
-    return prisma.project.findUnique({
+    return this.prisma.project.findUnique({
       where: { id: params.projectId },
       include: { sharedWith: { select: { id: true } } },
     })
@@ -50,7 +52,7 @@ export class ProjectsRepository implements IProjectsRepository {
     const { userId, page, perPage, sortBy, orderBy } = params
 
     const [projects, totalCount] = await Promise.all([
-      prisma.project.findMany({
+      this.prisma.project.findMany({
         where: { createdById: userId },
         select: {
           id: true,
@@ -71,7 +73,7 @@ export class ProjectsRepository implements IProjectsRepository {
         skip: page * perPage,
         take: perPage,
       }),
-      prisma.project.count({ where: { createdById: userId } }),
+      this.prisma.project.count({ where: { createdById: userId } }),
     ])
 
     return { projects, totalCount }
@@ -87,7 +89,7 @@ export class ProjectsRepository implements IProjectsRepository {
     const { userId, page, perPage, sortBy, orderBy } = params
 
     const [projects, totalCount] = await Promise.all([
-      prisma.project.findMany({
+      this.prisma.project.findMany({
         where: { sharedWith: { some: { id: userId } } },
         select: {
           id: true,
@@ -100,7 +102,7 @@ export class ProjectsRepository implements IProjectsRepository {
         skip: page * perPage,
         take: perPage,
       }),
-      prisma.project.count({
+      this.prisma.project.count({
         where: { sharedWith: { some: { id: userId } } },
       }),
     ])
@@ -114,7 +116,7 @@ export class ProjectsRepository implements IProjectsRepository {
   async update(params: { projectId: string; updatedById: string }) {
     const { projectId, updatedById } = params
 
-    await prisma.project.update({
+    await this.prisma.project.update({
       where: { id: projectId },
       data: {
         updatedAt: new Date(),
@@ -124,18 +126,18 @@ export class ProjectsRepository implements IProjectsRepository {
   }
 
   async delete(params: { projectId: string }) {
-    await prisma.project.delete({ where: { id: params.projectId } })
+    await this.prisma.project.delete({ where: { id: params.projectId } })
   }
 
   async share(params: { projectId: string; userId: string }) {
-    await prisma.project.update({
+    await this.prisma.project.update({
       where: { id: params.projectId },
       data: { sharedWith: { connect: { id: params.userId } } },
     })
   }
 
   async unshare(params: { projectId: string; userId: string }) {
-    await prisma.project.update({
+    await this.prisma.project.update({
       where: { id: params.projectId },
       data: { sharedWith: { disconnect: { id: params.userId } } },
     })

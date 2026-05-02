@@ -4,9 +4,10 @@ import { SendPasswordReset } from '../../emails/send-password-reset'
 import { ForgotPasswordUseCase } from '../forgot-password'
 import { PasswordResetTokenGenerator } from '../../cryptography/token-generator'
 import { PasswordResetTokenHashGenerator } from '../../cryptography/hash-generator'
+import db from '@python-editor/db'
 
 export function makeForgotPasswordUseCase() {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
   const passwordResetTokenGenerator = new PasswordResetTokenGenerator()
   const passwordResetTokenHashGenerator = new PasswordResetTokenHashGenerator()
 

@@ -1,5 +1,5 @@
+import db from '@python-editor/db'
 import { ResendEmailVerificationUseCase } from '../resend-email-verification'
-
 import { UsersRepository } from '../../repositories/users-repository'
 import { EmailVerificationTokenKeyValueStore } from '../../key-value-stores/email-verification-token-key-value-store'
 import { SendEmailVerification } from '../../emails/send-email-verification'
@@ -7,7 +7,7 @@ import { EmailVerificationTokenGenerator } from '../../cryptography/token-genera
 import { EmailVerificationTokenHashGenerator } from '../../cryptography/hash-generator'
 
 export function makeResendEmailVerificationUseCase() {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
   const emailVerificationTokenGenerator = new EmailVerificationTokenGenerator()
   const emailVerificationTokenHashGenerator =
     new EmailVerificationTokenHashGenerator()

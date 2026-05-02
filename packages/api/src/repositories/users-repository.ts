@@ -1,9 +1,11 @@
 import { v7 as uuidv7 } from 'uuid'
 import type { IUsersRepository } from './interfaces/users-repository'
 import type { UserCreateParams } from './types/user'
-import prisma from '@python-editor/db'
+import type { PrismaClient } from '@python-editor/db'
 
 export class UsersRepository implements IUsersRepository {
+  constructor(private prisma: PrismaClient) {}
+
   async create(params: UserCreateParams) {
     const {
       name,
@@ -15,7 +17,7 @@ export class UsersRepository implements IUsersRepository {
       emailVerified,
     } = params
 
-    return await prisma.user.create({
+    return await this.prisma.user.create({
       omit: { hashedPassword: true },
       data: {
         id: id || uuidv7(),
@@ -31,7 +33,7 @@ export class UsersRepository implements IUsersRepository {
 
   async findByEmail(params: { email: string }) {
     const { email } = params
-    return prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       omit: {
         hashedPassword: true,
       },
@@ -43,7 +45,7 @@ export class UsersRepository implements IUsersRepository {
 
   async findByEmailWithPassword(params: { email: string }) {
     const { email } = params
-    return await prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: {
         email,
       },
@@ -52,7 +54,7 @@ export class UsersRepository implements IUsersRepository {
 
   async findById(params: { userId: string }) {
     const { userId } = params
-    return prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       omit: { hashedPassword: true },
       where: { id: userId },
     })
@@ -60,7 +62,7 @@ export class UsersRepository implements IUsersRepository {
 
   async markEmailAsVerified(params: { userId: string }): Promise<void> {
     const { userId } = params
-    await prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: { emailVerified: true },
     })
@@ -71,7 +73,7 @@ export class UsersRepository implements IUsersRepository {
     hashedPassword: string
   }): Promise<void> {
     const { userId, hashedPassword } = params
-    await prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: { hashedPassword },
     })
@@ -79,7 +81,7 @@ export class UsersRepository implements IUsersRepository {
 
   async findByIdWithPassword(params: { userId: string }) {
     const { userId } = params
-    return await prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { id: userId },
     })
   }
@@ -92,7 +94,7 @@ export class UsersRepository implements IUsersRepository {
     hashedPassword?: string
   }): Promise<void> {
     const { userId, name, lastName, hashedPassword } = params
-    await prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: { name, lastName, ...(hashedPassword && { hashedPassword }) },
     })
@@ -103,7 +105,7 @@ export class UsersRepository implements IUsersRepository {
     avatar: string | null
   }): Promise<void> {
     const { userId, avatar } = params
-    await prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: { avatar },
     })

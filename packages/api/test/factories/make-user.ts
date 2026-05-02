@@ -1,6 +1,7 @@
 import { v7 as uuidv7 } from 'uuid'
 import { UsersRepository } from '../../src/repositories/users-repository'
 import { faker } from '@faker-js/faker'
+import db from '@python-editor/db'
 
 export function makeUser(params: {
   name?: string
@@ -35,7 +36,7 @@ export async function makePrismaUser(params: {
   hashedPassword?: string
   id?: string
 }) {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
 
   const user = makeUser(params)
 

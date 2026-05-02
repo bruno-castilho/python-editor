@@ -1,3 +1,4 @@
+import db from '@python-editor/db'
 import {
   PasswordHashGenerator,
   PasswordResetTokenHashGenerator,
@@ -7,7 +8,7 @@ import { UsersRepository } from '../../repositories/users-repository'
 import { ResetPasswordUseCase } from '../reset-password'
 
 export function makeResetPasswordUseCase() {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
   const passwordHashGenerator = new PasswordHashGenerator()
   const passwordResetTokenHashGenerator = new PasswordResetTokenHashGenerator()
   const passwordResetTokenKeyValueStore = new PasswordResetTokenKeyValueStore()

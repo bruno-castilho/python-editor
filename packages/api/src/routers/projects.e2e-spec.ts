@@ -14,6 +14,7 @@ import { PasswordHashGenerator } from '../cryptography/hash-generator'
 import { signInUser } from '../../test/utils/sign-in-user'
 import { createAuthClient } from '../../test/utils/create-auth-client'
 import { ProjectsRepository } from '../repositories/projects-repository'
+import db from '@python-editor/db'
 
 let app: FastifyInstance
 let client: ReturnType<typeof createTRPCClient<AppRouter>>
@@ -119,7 +120,7 @@ describe('Projects Router', () => {
       updatedById: ownerId,
     })
 
-    const projectsRepository = new ProjectsRepository()
+    const projectsRepository = new ProjectsRepository(db.prisma)
     await projectsRepository.share({ projectId: project.id, userId: viewerId })
 
     const viewerAccessToken = await signInUser(client, viewerEmail, password)
@@ -153,7 +154,7 @@ describe('Projects Router', () => {
       makePrismaProject({ createdById: ownerId, updatedById: ownerId }),
     ])
 
-    const projectsRepository = new ProjectsRepository()
+    const projectsRepository = new ProjectsRepository(db.prisma)
     await Promise.all(
       projects.map((project) =>
         projectsRepository.share({ projectId: project.id, userId: viewerId }),
@@ -253,7 +254,7 @@ describe('Projects Router', () => {
       updatedById: ownerId,
     })
 
-    const projectsRepository = new ProjectsRepository()
+    const projectsRepository = new ProjectsRepository(db.prisma)
     await projectsRepository.share({ projectId: project.id, userId: targetId })
 
     const accessToken = await signInUser(client, ownerEmail, password)

@@ -1,6 +1,7 @@
 import { v7 as uuidv7 } from 'uuid'
 import { ProjectsRepository } from '../../src/repositories/projects-repository'
 import { faker } from '@faker-js/faker'
+import db from '@python-editor/db'
 
 export function makeProject(params: {
   id?: string
@@ -32,7 +33,7 @@ export async function makePrismaProject(params: {
   createdById?: string
   updatedById?: string
 }) {
-  const projectsRepository = new ProjectsRepository()
+  const projectsRepository = new ProjectsRepository(db.prisma)
 
   const project = makeProject(params)
 

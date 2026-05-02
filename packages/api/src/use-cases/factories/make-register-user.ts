@@ -1,3 +1,4 @@
+import db from '@python-editor/db'
 import {
   EmailVerificationTokenHashGenerator,
   PasswordHashGenerator,
@@ -9,7 +10,7 @@ import { UsersRepository } from '../../repositories/users-repository'
 import { RegisterUserUseCase } from '../register-user'
 
 export function makeRegisterUserUseCase() {
-  const usersRepository = new UsersRepository()
+  const usersRepository = new UsersRepository(db.prisma)
   const passwordHashGenerator = new PasswordHashGenerator()
   const emailVerificationTokenGenerator = new EmailVerificationTokenGenerator()
   const emailVerificationTokenGeneratorHasher =
