@@ -234,4 +234,40 @@ describe('Users Router', () => {
 
     expect(result.message).toBe('Avatar removed successfully!')
   })
+
+  it('getUserSessions', async () => {
+    const hashedPassword = await passwordHashGenerator.hash('@Password1')
+    const { email } = await makePrismaUser({
+      hashedPassword,
+      emailVerified: true,
+    })
+
+    const accessToken = await signInUser(client, email, '@Password1')
+    const authClient = createAuthClient(baseUrl, accessToken)
+
+    const result = await authClient.users.getUserSessions.query()
+
+    expect(result.sessions.length).toBeGreaterThan(0)
+  })
+
+  it('revokeUserSession', async () => {
+    const hashedPassword = await passwordHashGenerator.hash('@Password1')
+    const { email } = await makePrismaUser({
+      hashedPassword,
+      emailVerified: true,
+    })
+
+    const accessToken = await signInUser(client, email, '@Password1')
+    const authClient = createAuthClient(baseUrl, accessToken)
+
+    const { sessions } = await authClient.users.getUserSessions.query()
+
+    const [firstSession] = sessions
+
+    const result = await authClient.users.revokeUserSession.mutate({
+      sessionId: firstSession!.sessionId,
+    })
+
+    expect(result.message).toBe('Session revoked successfully.')
+  })
 })

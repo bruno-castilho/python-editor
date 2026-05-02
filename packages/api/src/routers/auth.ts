@@ -1,13 +1,10 @@
-import { authenticatedProcedure, publicProcedure, router } from '../index'
+import { publicProcedure, router } from '../index'
 import { signInSchema } from '@python-editor/schemas/sign-in'
 import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
 import { makeSessionRefreshUseCase } from '../use-cases/factories/make-session-refresh'
-import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
-import { makeRevokeUserSessionUseCase } from '../use-cases/factories/make-revoke-user-session'
 import { makeSignOutUseCase } from '../use-cases/factories/make-sign-out'
 import { TRPCError } from '@trpc/server'
 import { parseSessionInfo } from '../utils/parse-session-info'
-import { z } from 'zod'
 
 export const authRouter = router({
   signIn: publicProcedure
@@ -61,22 +58,6 @@ export const authRouter = router({
 
     return { accessToken }
   }),
-
-  getUserSessions: authenticatedProcedure.query(async ({ ctx }) => {
-    const useCase = makeGetUserSessionsUseCase()
-    return await useCase.execute({ userId: ctx.session.userId })
-  }),
-
-  revokeUserSession: authenticatedProcedure
-    .input(z.object({ sessionId: z.uuid() }))
-    .mutation(async ({ ctx, input }) => {
-      const useCase = makeRevokeUserSessionUseCase()
-      await useCase.execute({
-        sessionId: input.sessionId,
-        userId: ctx.session.userId,
-      })
-      return { message: 'Session revoked successfully.' }
-    }),
 
   signOut: publicProcedure.mutation(async ({ ctx }) => {
     const refreshToken = ctx.req.cookies.refresh_token

@@ -26,17 +26,19 @@ export default function Page() {
 
   const currentSessionId = getCurrentSessionId()
 
-  const { data, isPending } = useQuery(trpc.auth.getUserSessions.queryOptions())
+  const { data, isPending } = useQuery(
+    trpc.users.getUserSessions.queryOptions(),
+  )
 
   const {
     mutateAsync: revokeUserSessionMutateAsync,
     variables: mutatingVars,
     isPending: isRemoving,
   } = useMutation(
-    trpc.auth.revokeUserSession.mutationOptions({
+    trpc.users.revokeUserSession.mutationOptions({
       onSuccess(responseData) {
         queryClient.invalidateQueries({
-          queryKey: trpc.auth.getUserSessions.queryKey(),
+          queryKey: trpc.users.getUserSessions.queryKey(),
         })
         alert.success(responseData.message)
       },

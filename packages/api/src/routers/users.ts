@@ -1,5 +1,6 @@
 import { authenticatedProcedure, publicProcedure, router } from '../index'
 import { registerUserSchema } from '@python-editor/schemas/register-user'
+import { revokeUserSessionSchema } from '@python-editor/schemas/revoke-user-session'
 import { verifyEmailSchema } from '@python-editor/schemas/verify-email'
 import { resendemailverificationSchema } from '@python-editor/schemas/resend-email-verification'
 import { forgotPasswordSchema } from '@python-editor/schemas/forgot-password'
@@ -14,6 +15,8 @@ import { makeGetProfileUseCase } from '../use-cases/factories/make-get-profile'
 import { makeUpdateProfileUseCase } from '../use-cases/factories/make-update-profile'
 import { makeRemoveAvatar } from '../use-cases/factories/make-remove-avatar'
 import { env } from '@python-editor/env/server'
+import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
+import { makeRevokeUserSessionUseCase } from '../use-cases/factories/make-revoke-user-session'
 
 export const usersRouter = router({
   registerUser: publicProcedure
@@ -99,6 +102,23 @@ export const usersRouter = router({
     await removeAvatarUseCase.execute({ userId: ctx.session.userId })
     return { message: 'Avatar removed successfully!' }
   }),
+
+  getUserSessions: authenticatedProcedure.query(async ({ ctx }) => {
+    const useCase = makeGetUserSessionsUseCase()
+    return await useCase.execute({ userId: ctx.session.userId })
+  }),
+
+  revokeUserSession: authenticatedProcedure
+    .input(revokeUserSessionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { sessionId } = input
+      const useCase = makeRevokeUserSessionUseCase()
+      await useCase.execute({
+        dto: { sessionId },
+        userId: ctx.session.userId,
+      })
+      return { message: 'Session revoked successfully.' }
+    }),
 })
 
 export type UserRouter = typeof usersRouter

@@ -28,7 +28,7 @@ describe('Revoke User Session Use Case', () => {
       ...sessionInfo,
     })
 
-    await sut.execute({ sessionId, userId: USER_ID })
+    await sut.execute({ dto: { sessionId }, userId: USER_ID })
 
     expect(userSessionsKeyValueStore.store.has(sessionId)).toBe(false)
   })
@@ -36,7 +36,7 @@ describe('Revoke User Session Use Case', () => {
   it('should throw SessionDoesNotExistsError when session does not exist', async () => {
     await expect(() =>
       sut.execute({
-        sessionId: '00000000-0000-0000-0000-000000000000',
+        dto: { sessionId: '00000000-0000-0000-0000-000000000000' },
         userId: USER_ID,
       }),
     ).rejects.toBeInstanceOf(SessionDoesNotExistsError)
@@ -49,7 +49,7 @@ describe('Revoke User Session Use Case', () => {
     })
 
     await expect(() =>
-      sut.execute({ sessionId, userId: USER_ID }),
+      sut.execute({ dto: { sessionId }, userId: USER_ID }),
     ).rejects.toBeInstanceOf(SessionDoesNotExistsError)
   })
 })

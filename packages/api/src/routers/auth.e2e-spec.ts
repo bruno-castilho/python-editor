@@ -11,7 +11,6 @@ import { createContext } from '../context'
 import { makePrismaUser } from '../../test/factories/make-user'
 import { PasswordHashGenerator } from '../cryptography/hash-generator'
 import { signInUser } from '../../test/utils/sign-in-user'
-import { createAuthClient } from '../../test/utils/create-auth-client'
 import fetchCookie from 'fetch-cookie'
 import { CookieJar } from 'tough-cookie'
 
@@ -85,41 +84,6 @@ describe('Auth Router', () => {
     const result = await client.auth.sessionRefresh.mutate()
 
     expect(result.accessToken).toBeTruthy()
-  })
-
-  it('getUserSessions', async () => {
-    const hashedPassword = await passwordHashGenerator.hash('@Password1')
-    const { email } = await makePrismaUser({
-      hashedPassword,
-      emailVerified: true,
-    })
-
-    const accessToken = await signInUser(client, email, '@Password1')
-    const authClient = createAuthClient(baseUrl, accessToken)
-
-    const result = await authClient.auth.getUserSessions.query()
-
-    expect(result.sessions.length).toBeGreaterThan(0)
-  })
-
-  it('revokeUserSession', async () => {
-    const hashedPassword = await passwordHashGenerator.hash('@Password1')
-    const { email } = await makePrismaUser({
-      hashedPassword,
-      emailVerified: true,
-    })
-
-    const accessToken = await signInUser(client, email, '@Password1')
-    const authClient = createAuthClient(baseUrl, accessToken)
-
-    const { sessions } = await authClient.auth.getUserSessions.query()
-    const [firstSession] = sessions
-
-    const result = await authClient.auth.revokeUserSession.mutate({
-      sessionId: firstSession!.sessionId,
-    })
-
-    expect(result.message).toBe('Session revoked successfully.')
   })
 
   it('signOut', async () => {
