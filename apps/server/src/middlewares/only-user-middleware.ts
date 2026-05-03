@@ -27,5 +27,6 @@ function onlyUserMiddlewareErrorHandler(error: unknown, reply: FastifyReply) {
   if (error instanceof jwt.TokenExpiredError) {
     return reply.status(401).send({ message: 'Token expired.' })
   }
+
   return reply.status(500).send({ message: 'Internal server error.' })
 }
