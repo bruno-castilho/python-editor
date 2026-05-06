@@ -11,6 +11,6 @@
     "@eslint/js": "^9.0.0",
     "typescript-eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
-    "@rocketseat/eslint-config": "^2.2.2"
+    "@rocketseat/eslint-config": "^3.0.12"
   }
 }
