@@ -35,9 +35,29 @@
     "db:generate": {
       "cache": false
     },
+    "test": {
+      "cache": false,
+      "persistent": false
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:cov": {
+      "cache": false,
+      "persistent": false
+    },
+    "test:debug": {
+      "cache": false,
+      "persistent": false
+    },
     "test:e2e": {
       "cache": false,
       "persistent": false
+    },
+    "test:e2e:watch": {
+      "cache": false,
+      "persistent": true
     },
     "test:e2e:ui": {
       "cache": false,
@@ -47,6 +67,7 @@
       "cache": false,
       "persistent": false
     }
+
 
   }
 }

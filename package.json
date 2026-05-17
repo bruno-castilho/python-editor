@@ -19,15 +19,15 @@
     "db:migrate": "turbo -F @python-editor/db db:migrate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
-    "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "test:e2e:watch": "vitest --config ./vitest.config.e2e.ts",
-    "test:web:e2e": "turbo -F web test:e2e",
-    "test:e2e:ui": "turbo -F web test:e2e:ui",
-    "test:e2e:report": "turbo -F web test:e2e:report"
+    "test": "turbo -F @python-editor/api test",
+    "test:watch": "turbo -F @python-editor/api test:watch",
+    "test:cov": "turbo -F @python-editor/api test:cov",
+    "test:debug": "turbo -F @python-editor/api test:debug",
+    "test:e2e:server": "turbo -F server test:e2e",
+    "test:e2e:watch:server": "turbo -F server test:e2e:watch",
+    "test:e2e:web": "turbo -F web test:e2e",
+    "test:e2e:ui:web": "turbo -F web test:e2e:ui",
+    "test:e2e:report:web": "turbo -F web test:e2e:report"
   },
   "dependencies": {
     "@python-editor/env": "*",
@@ -45,9 +45,7 @@
     "supertest": "^7.2.2",
     "turbo": "^2.6.3",
     "typescript": "^5",
-    "unplugin-swc": "^1.5.9",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.5"
+    "unplugin-swc": "^1.5.9"
   },
   "packageManager": "npm@11.6.2"
 }
