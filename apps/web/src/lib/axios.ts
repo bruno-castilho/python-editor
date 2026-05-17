@@ -1,7 +1,8 @@
+import { env } from '@python-editor/env/web'
 import axios from 'axios'
 
 export const server = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: env.NEXT_PUBLIC_SERVER_URL,
   withCredentials: true,
 })
 

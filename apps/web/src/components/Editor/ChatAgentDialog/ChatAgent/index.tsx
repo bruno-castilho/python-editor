@@ -190,12 +190,20 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
           <Tooltip title="Session history">
-            <IconButton size="small" onClick={() => setSessionsOpen(true)}>
+            <IconButton
+              size="small"
+              onClick={() => setSessionsOpen(true)}
+              aria-label="Session history"
+            >
               <AccessTime />
             </IconButton>
           </Tooltip>
           <Tooltip title="New session">
-            <IconButton size="small" onClick={handleNewSession}>
+            <IconButton
+              size="small"
+              onClick={handleNewSession}
+              aria-label="New session"
+            >
               <MapsUgcSharp />
             </IconButton>
           </Tooltip>
@@ -203,6 +211,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
       </Box>
       <Divider />
       <Box
+        data-testid="chat-messages"
         sx={{
           flex: 1,
           minHeight: 0,
@@ -339,6 +348,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
                 size="small"
                 onClick={handleOpenFileMenu}
                 disabled={unselectedFiles.length === 0}
+                aria-label="Add file context"
               >
                 <Add fontSize="small" />
               </IconButton>
