@@ -15,7 +15,7 @@ export class ResendEmailVerificationUseCase {
   constructor(
     private usersRepository: IUsersRepository,
     private emailVerificationTokenGenerator: ITokenGenerator,
-    private emailVerificationTokenGeneratorHashGenerator: IHashGenerator,
+    private emailVerificationTokenHashGenerator: IHashGenerator,
     private emailVerificationTokenKeyValueStore: IEmailVerificationTokenKeyValueStore,
     private sendEmailVerification: ISendEmailVerification,
   ) {}
@@ -46,7 +46,7 @@ export class ResendEmailVerificationUseCase {
   }) {
     const { userId, token } = params
     const hashedToken =
-      await this.emailVerificationTokenGeneratorHashGenerator.hash(token)
+      await this.emailVerificationTokenHashGenerator.hash(token)
     return await this.emailVerificationTokenKeyValueStore.save({
       hashedToken,
       userId,

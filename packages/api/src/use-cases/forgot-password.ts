@@ -13,7 +13,7 @@ export class ForgotPasswordUseCase {
   constructor(
     private usersRepository: IUsersRepository,
     private passwordResetTokenGenerator: ITokenGenerator,
-    private passwordResetTokenGeneratorHashGenerator: IHashGenerator,
+    private passwordResetTokenHashGenerator: IHashGenerator,
     private passwordResetTokenKeyValueStore: IPasswordResetTokenKeyValueStore,
     private sendPasswordReset: ISendPasswordReset,
   ) {}
@@ -42,8 +42,7 @@ export class ForgotPasswordUseCase {
     token: string
   }) {
     const { userId, token } = params
-    const hashedToken =
-      await this.passwordResetTokenGeneratorHashGenerator.hash(token)
+    const hashedToken = await this.passwordResetTokenHashGenerator.hash(token)
     await this.passwordResetTokenKeyValueStore.save({
       hashedToken,
       userId,
