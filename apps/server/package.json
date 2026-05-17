@@ -7,12 +7,14 @@
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.mjs"
+    "start": "node dist/index.mjs",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "test:e2e:watch": "vitest --config ./vitest.config.e2e.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
-    "@fastify/multipart": "^9",
     "@fastify/cors": "^11.0.1",
+    "@fastify/multipart": "^9",
     "@hono/trpc-server": "^0.4.0",
     "@python-editor/api": "*",
     "@python-editor/db": "*",
@@ -25,10 +27,15 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.3.0",
     "@python-editor/config": "*",
     "@types/node": "^22.13.14",
+    "fetch-cookie": "^3.2.0",
+    "tough-cookie": "^6.0.1",
     "tsdown": "^0.16.5",
     "tsx": "^4.19.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
   }
 }

@@ -1,0 +1,12 @@
+import { ProjectsRepository } from '@python-editor/api/repositories/projects-repository'
+import db from '@python-editor/db'
+
+export async function shareProject(params: {
+  projectId: string
+  userId: string
+}) {
+  const { projectId, userId } = params
+  const projectsRepository = new ProjectsRepository(db.prisma)
+
+  await projectsRepository.share({ projectId, userId })
+}

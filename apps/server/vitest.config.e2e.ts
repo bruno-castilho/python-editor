@@ -4,10 +4,10 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   test: {
-    include: ['**/*.e2e-spec.ts'],
+    include: ['test/*.e2e-spec.ts'],
     globals: true,
     root: './',
-    setupFiles: ['./setup-e2e.ts'],
+    environment: './vitest-environment-custom.ts',
   },
   plugins: [
     tsConfigPaths(),

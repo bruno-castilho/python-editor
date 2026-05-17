@@ -1,15 +1,7 @@
 import request from 'supertest'
-import { v7 as uuidv7 } from 'uuid'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
-import { AccessTokenSign } from '@python-editor/api/cryptography/jwt-sign'
-import { makePrismaUser } from '@python-editor/api/test/factories/make-user'
 import { app } from '@/app'
-
-const EMPTY_ZIP = Buffer.from(
-  '504B05060000000000000000000000000000000000000000',
-  'hex',
-)
+import { makeUser } from './factories/make-user'
+import { makeSession } from './factories/make-session'
 
 describe('Download Project (e2e)', () => {
   beforeEach(async () => {
@@ -21,18 +13,20 @@ describe('Download Project (e2e)', () => {
   })
 
   it('[GET] /download-project/:projectId', async () => {
-    const userId = uuidv7()
-    const sessionId = uuidv7()
+    const authenticatedUser = await makeUser({})
+    const { accessToken } = await makeSession({
+      userId: authenticatedUser.id,
+    })
 
-    await makePrismaUser({ id: userId })
-
-    const accessTokenSign = new AccessTokenSign()
-    const accessToken = accessTokenSign.sign({ userId, sessionId })
+    const zip = Buffer.from(
+      '504B05060000000000000000000000000000000000000000',
+      'hex',
+    )
 
     const uploadResponse = await request(app.server)
       .post('/upload-project')
       .set('Authorization', `Bearer ${accessToken}`)
-      .attach('file', EMPTY_ZIP, {
+      .attach('file', zip, {
         filename: 'my-project.zip',
         contentType: 'application/zip',
       })

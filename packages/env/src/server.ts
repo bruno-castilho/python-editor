@@ -6,6 +6,7 @@ import { z } from 'zod'
 dotenv.config({ path: '.env.development' })
 export const env = createEnv({
   server: {
+    PORT: z.coerce.number().default(3000),
     DATABASE_URL: z.string().min(1),
     CORS_ORIGIN: z.url(),
     NODE_ENV: z
@@ -26,6 +27,7 @@ export const env = createEnv({
     STORAGE_BUCKET: z.string().min(1),
     STORAGE_PUBLIC_URL: z.url(),
   },
+
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 })
