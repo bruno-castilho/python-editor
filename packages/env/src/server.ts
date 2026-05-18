@@ -24,7 +24,8 @@ export const env = createEnv({
     STORAGE_REGION: z.string().min(1),
     STORAGE_ACCESS_KEY_ID: z.string().min(1),
     STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
-    STORAGE_BUCKET: z.string().min(1),
+    STORAGE_AVATARS_BUCKET: z.string().min(1),
+    STORAGE_PROJECTS_BUCKET: z.string().min(1),
     STORAGE_PUBLIC_URL: z.url(),
   },
 

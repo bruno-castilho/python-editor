@@ -59,7 +59,8 @@ jobs:
       STORAGE_REGION: us-east-1
       STORAGE_ACCESS_KEY_ID: admin
       STORAGE_SECRET_ACCESS_KEY: password
-      STORAGE_BUCKET: avatars
+      STORAGE_AVATARS_BUCKET: avatars
+      STORAGE_PROJECTS_BUCKET: projects
       STORAGE_PUBLIC_URL: http://localhost:9000/avatars
 
     steps:
@@ -85,13 +86,14 @@ jobs:
             -e MINIO_ROOT_PASSWORD=password \
             minio/minio server /data --console-address ":9001"
 
-      - name: Wait for MinIO and create bucket
+      - name: Wait for MinIO and create buckets
         run: |
           until curl -sf http://localhost:9000/minio/health/live; do sleep 1; done
           curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
           chmod +x /usr/local/bin/mc
           mc alias set local http://localhost:9000 admin password
           mc mb local/avatars
+          mc mb local/projects
 
       - name: Create server environment file for CI
         working-directory: apps/server
@@ -113,7 +115,8 @@ jobs:
           STORAGE_REGION=us-east-1
           STORAGE_ACCESS_KEY_ID=admin
           STORAGE_SECRET_ACCESS_KEY=password
-          STORAGE_BUCKET=avatars
+          STORAGE_AVATARS_BUCKET=avatars
+          STORAGE_PROJECTS_BUCKET=projects
           STORAGE_PUBLIC_URL=http://localhost:9000/avatars
           EOF
 

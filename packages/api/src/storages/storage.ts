@@ -6,6 +6,7 @@ import {
   Upload,
   s3,
 } from '@python-editor/s3'
+import { env } from '@python-editor/env/server'
 import type { IStorage } from './interfaces/storage'
 
 export class Storage implements IStorage {
@@ -75,12 +76,12 @@ export class Storage implements IStorage {
 
 export class AvatarStorage extends Storage {
   constructor() {
-    super('avatars')
+    super(env.STORAGE_AVATARS_BUCKET)
   }
 }
 
 export class ProjectStorage extends Storage {
   constructor() {
-    super('projects')
+    super(env.STORAGE_PROJECTS_BUCKET)
   }
 }
