@@ -93,6 +93,30 @@ jobs:
           mc alias set local http://localhost:9000 admin password
           mc mb local/avatars
 
+      - name: Create server environment file for CI
+        working-directory: apps/server
+        run: |
+          cat > .env << 'EOF'
+          DATABASE_URL=postgresql://postgres:password@localhost:5432/python-editor?schema=public
+          REDIS_URL=redis://localhost:6379
+          NODE_ENV=test
+          PORT=3000
+          CORS_ORIGIN=http://localhost:3001
+          ACCESS_TOKEN_SECRET=test-access-secret
+          REFRESH_TOKEN_SECRET=test-refresh-secret
+          SMTP_HOST=localhost
+          SMTP_PORT=1025
+          SMTP_USER=
+          SMTP_PASSWORD=
+          SMTP_FROM=noreply@test.com
+          STORAGE_ENDPOINT=http://localhost:9000
+          STORAGE_REGION=us-east-1
+          STORAGE_ACCESS_KEY_ID=admin
+          STORAGE_SECRET_ACCESS_KEY=password
+          STORAGE_BUCKET=avatars
+          STORAGE_PUBLIC_URL=http://localhost:9000/avatars
+          EOF
+
       - name: Generate Prisma client
         run: npm run db:generate
 
