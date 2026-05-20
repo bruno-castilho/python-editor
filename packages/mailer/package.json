@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@python-editor/env": "*",
-    "nodemailer": "^7.0.3"
+    "nodemailer": "^8.0.7"
   },
   "devDependencies": {
     "@python-editor/config": "*",

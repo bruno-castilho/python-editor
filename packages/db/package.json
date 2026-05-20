@@ -17,13 +17,14 @@
     "@prisma/client": "^7.2.0",
     "@python-editor/env": "*",
     "dotenv": "^17.2.2",
+    "next": "9.3.3",
     "pg": "^8.17.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@python-editor/config": "*",
     "@types/pg": "^8.16.0",
-    "prisma": "^7.2.0",
+    "prisma": "^6.19.3",
     "typescript": "^5"
   }
 }
