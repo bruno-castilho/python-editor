@@ -1,41 +1,26 @@
-'use client'
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  Typography,
-} from '@mui/material'
-import { useMutation } from '@tanstack/react-query'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
-import { trpc } from '@/utils/trpc'
-import { AppError } from '../error'
+import { Avatar, Box, Button, Card, Typography } from '@mui/material'
 import { Verified } from '@mui/icons-material'
+import { TRPCClientError } from '@trpc/client'
+import NextLink from 'next/link'
+import { AppError } from '@/errors/app-error'
+import { trpcServer } from '@/utils/trpc-server'
 
-export default function Page() {
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token')
-
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>
+}) {
+  const { token } = await searchParams
   if (!token)
     throw new AppError('Verification token not found in the URL.', 400)
 
-  const router = useRouter()
-
-  const {
-    mutate: verifyEmailMutate,
-    isPending: isPendingVerifyEmail,
-    error,
-  } = useMutation(trpc.users.verifyEmail.mutationOptions())
-
-  useEffect(() => {
-    verifyEmailMutate({ token })
-  }, [token])
-
-  if (error) {
-    const statusCode = error?.data?.httpStatus ?? 500
-    throw new AppError(error.message, statusCode)
+  try {
+    await trpcServer.users.verifyEmail.mutate({ token })
+  } catch (error) {
+    if (error instanceof TRPCClientError) {
+      throw new AppError(error.message, error.data?.httpStatus ?? 500)
+    }
+    throw error
   }
 
   return (
@@ -62,47 +47,37 @@ export default function Page() {
           gap: 2,
         }}
       >
-        {isPendingVerifyEmail && (
-          <>
-            <CircularProgress />
-            <Typography>Verifying your email...</Typography>
-          </>
-        )}
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap={2}
+          mb={2}
+        >
+          <Avatar
+            sx={(theme) => ({
+              bgcolor: theme.palette.secondary.main,
+            })}
+          >
+            <Verified />
+          </Avatar>
 
-        {!isPendingVerifyEmail && (
-          <>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              gap={2}
-              mb={2}
-            >
-              <Avatar
-                sx={(theme) => ({
-                  bgcolor: theme.palette.secondary.main,
-                })}
-              >
-                <Verified />
-              </Avatar>
+          <Typography component="h1" variant="h5">
+            Verified successfully!
+          </Typography>
+        </Box>
 
-              <Typography component="h1" variant="h5">
-                Verified successfully!
-              </Typography>
-            </Box>
-
-            <Typography textAlign="center" color="text.secondary">
-              Your account is active. You can now sign in.
-            </Typography>
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={() => router.push('/sign-in')}
-            >
-              Sign in
-            </Button>
-          </>
-        )}
+        <Typography textAlign="center" color="text.secondary">
+          Your account is active. You can now sign in.
+        </Typography>
+        <Button
+          variant="contained"
+          fullWidth
+          component={NextLink}
+          href="/sign-in"
+        >
+          Sign in
+        </Button>
       </Box>
     </Box>
   )
