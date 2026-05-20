@@ -39,7 +39,6 @@
   "devDependencies": {
     "@python-editor/config": "*",
     "@python-editor/eslint": "*",
-    "@python-editor/test": "*",
     "@types/node": "^22.13.14",
     "@types/supertest": "^7.2.0",
     "supertest": "^7.2.2",
