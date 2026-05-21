@@ -41,9 +41,9 @@ export default async function Page({
           mb={2}
         >
           <Avatar
-            sx={(theme) => ({
-              bgcolor: theme.palette.secondary.main,
-            })}
+            sx={{
+              bgcolor: 'secondary.main',
+            }}
           >
             <LockReset />
           </Avatar>

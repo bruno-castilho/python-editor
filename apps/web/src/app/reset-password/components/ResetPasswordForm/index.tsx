@@ -63,7 +63,6 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           type="password"
           placeholder="••••••"
           autoFocus
-          required
           fullWidth
           variant="outlined"
           error={!!errors.password}
@@ -78,7 +77,6 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           id="repeatPassword"
           type="password"
           placeholder="••••••"
-          required
           fullWidth
           variant="outlined"
           error={!!errors.repeatPassword}
