@@ -1,3 +1,5 @@
+import z from 'zod'
+
 const statusCodeMap: Record<number, string> = {
   400: 'Bad Request',
   401: 'Unauthorized',
@@ -9,12 +11,17 @@ function getCode(status: number): string {
 }
 
 export class AppError extends Error {
-  statusCode: number
-  code: string
-
   constructor(message: string, statusCode: number) {
-    super(message)
-    this.statusCode = statusCode
-    this.code = getCode(statusCode)
+    super(JSON.stringify({ message, statusCode, code: getCode(statusCode) }))
+  }
+
+  public static verifyMessage(object: undefined) {
+    return z
+      .object({
+        message: z.string(),
+        statusCode: z.number(),
+        code: z.string(),
+      })
+      .parse(object)
   }
 }

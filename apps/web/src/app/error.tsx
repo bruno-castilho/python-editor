@@ -7,11 +7,14 @@ export default function Page({ error }: { error: Error | AppError }) {
   let statusCode: number = 500
   let message: string = 'An internal error occurred. Please try again later.'
 
-  if (error instanceof AppError) {
-    code = error.code
-    statusCode = error.statusCode
-    message = error.message
-  }
+  try {
+    const object = JSON.parse(error.message)
+    const errorMessageObject = AppError.verifyMessage(object)
+
+    code = errorMessageObject.code
+    statusCode = errorMessageObject.statusCode
+    message = errorMessageObject.message
+  } catch {}
 
   return <ShowError code={code} statusCode={statusCode} message={message} />
 }
