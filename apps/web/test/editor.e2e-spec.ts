@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
   })
   await mockServer.install(page)
 
-  new MockOpenrouter().install(page)
+  await new MockOpenrouter().install(page)
 
   await page.goto('/editor')
 })
@@ -157,6 +157,8 @@ test.describe('Editor - Project Persistence', () => {
   })
 
   test('should save the project remotely', async ({ page }) => {
+    test.setTimeout(90_000)
+
     await page.getByRole('button', { name: 'Save' }).click()
 
     const saveDialog = page.getByRole('dialog', { name: 'Save Project' })

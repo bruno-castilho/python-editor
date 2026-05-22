@@ -13,6 +13,7 @@ test.beforeEach(async ({ page }) => {
   await mockServer.install(page)
 
   await page.goto('/reset-password?token=fasfsad3dfa3')
+  await page.waitForLoadState('networkidle')
 
   await page.locator('form').evaluate((form: HTMLFormElement) => {
     form.noValidate = true

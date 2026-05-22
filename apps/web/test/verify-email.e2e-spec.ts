@@ -26,6 +26,7 @@ test.describe('Verify Email - success flow', () => {
     page,
   }) => {
     await page.goto(`/verify-email?token=fake-token`)
+    await page.waitForLoadState('networkidle')
 
     await expect(page.getByText('Verified successfully!')).toBeVisible()
     await expect(

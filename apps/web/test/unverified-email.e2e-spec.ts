@@ -27,6 +27,7 @@ test.describe('Unverified Email - page content', () => {
     const email = `test-${randomUUID()}@example.com`
 
     await page.goto(`/unverified-email?email=${encodeURIComponent(email)}`)
+    await page.waitForLoadState('networkidle')
 
     await page.getByRole('button', { name: 'Back to sign in' }).click()
 
