@@ -1,20 +1,16 @@
-import { hash } from 'bcryptjs'
+import { hash as argon2Hash } from 'argon2'
 import { createHash } from 'node:crypto'
 import type { IHashGenerator } from './interfaces/hash-generator'
 
-abstract class BcryptHashGenerator implements IHashGenerator {
-  constructor(private rounds: number) {}
-
+abstract class Argon2HashGenerator implements IHashGenerator {
   public async hash(text: string) {
-    return await hash(text, this.rounds)
+    return await argon2Hash(text)
   }
 }
 
-export class PasswordHashGenerator extends BcryptHashGenerator {
-  private static ROUNDS = 6
-
+export class PasswordHashGenerator extends Argon2HashGenerator {
   constructor() {
-    super(PasswordHashGenerator.ROUNDS)
+    super()
   }
 }
 
