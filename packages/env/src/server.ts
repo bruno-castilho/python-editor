@@ -17,6 +17,9 @@ export const env = createEnv({
     REDIS_URL: z.string().min(1),
     SMTP_HOST: z.string().min(1),
     SMTP_PORT: z.coerce.number().int().positive(),
+    SMTP_SECURE: z
+      .enum(['true', 'false'])
+      .transform((value) => value === 'true'),
     SMTP_USER: z.string().min(1).default(''),
     SMTP_PASSWORD: z.string().min(1).default(''),
     SMTP_FROM: z.string().min(1),
