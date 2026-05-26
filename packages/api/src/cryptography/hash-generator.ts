@@ -1,10 +1,10 @@
-import { hash as argon2Hash } from 'argon2'
+import { hash } from '@node-rs/argon2'
 import { createHash } from 'node:crypto'
 import type { IHashGenerator } from './interfaces/hash-generator'
 
 abstract class Argon2HashGenerator implements IHashGenerator {
   public async hash(text: string) {
-    return await argon2Hash(text)
+    return await hash(text)
   }
 }
 
