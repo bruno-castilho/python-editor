@@ -1,4 +1,4 @@
-name: Deploy Web Image
+name: Deploy Server Image
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-push:
-    name: Build and Push Web Docker Image
+    name: Build and Push Server Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -22,10 +22,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          file: docker/web/Dockerfile
+          file: docker/server/Dockerfile
           push: true
-          build-args: |
-            NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}
           tags: |
-            brunoscastilho/python-editor-web:latest
-            brunoscastilho/python-editor-web:${{ github.sha }}
+            brunoscastilho/python-editor-server:latest
+            brunoscastilho/python-editor-server:${{ github.sha }}
