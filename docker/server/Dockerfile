@@ -13,19 +13,17 @@ RUN test -n "${REPO_URL}" || (echo "ERROR: REPO_URL build arg is required" && ex
     && rm -rf .git
 
 
-
-    # ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 # Stage 2 – Build
 # ──────────────────────────────────────────────────────────────────────────────
 FROM oven/bun:1 AS builder
 
 COPY --from=source /src      /src
 
-# Install only production dependencies
+# Install dependencies
 WORKDIR /src/apps/server
 
-RUN bun install -p
-
+RUN bun install
 
 # Generate Prisma client and database schemas
 WORKDIR /src/packages/db
