@@ -16,9 +16,6 @@ interface usePyodideProps {
 
 const SHARED_BUFFER_SIZE = 4096 + 8
 
-const sharedBuffer = new SharedArrayBuffer(SHARED_BUFFER_SIZE)
-const interruptBuffer = new SharedArrayBuffer(4)
-
 export function usePyodide({
   stdoutCallback,
   stderrCallback,
@@ -27,15 +24,20 @@ export function usePyodide({
   const [status, setStatus] = useState<PyodideStatus>('idle')
 
   const workerRef = useRef<Worker | null>(null)
+  const sharedBufferRef = useRef<SharedArrayBuffer | null>(null)
+  const interruptBufferRef = useRef<SharedArrayBuffer | null>(null)
 
   useEffect(() => {
+    sharedBufferRef.current = new SharedArrayBuffer(SHARED_BUFFER_SIZE)
+    interruptBufferRef.current = new SharedArrayBuffer(4)
+
     const worker = new Worker('/pyodide.worker.js')
     workerRef.current = worker
 
     worker.postMessage({
       type: 'init',
-      sharedBuffer,
-      interruptBuffer,
+      sharedBuffer: sharedBufferRef.current,
+      interruptBuffer: interruptBufferRef.current,
     })
 
     worker.onmessage = ({ data }) => {
@@ -63,6 +65,9 @@ export function usePyodide({
   }
 
   function sendInput(text: string) {
+    const sharedBuffer = sharedBufferRef.current
+    if (!sharedBuffer) return
+
     const statusArray = new Int32Array(sharedBuffer, 0, 2)
     const dataArray = new Uint8Array(sharedBuffer, 8)
 
@@ -74,7 +79,12 @@ export function usePyodide({
   }
 
   function stopExecution() {
+    const interruptBuffer = interruptBufferRef.current
+    const sharedBuffer = sharedBufferRef.current
+    if (!interruptBuffer || !sharedBuffer) return
+
     setStatus('stopping')
+
     const interruptArray = new Int32Array(interruptBuffer)
     Atomics.store(interruptArray, 0, 2)
 
