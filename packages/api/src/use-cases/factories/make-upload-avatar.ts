@@ -7,10 +7,9 @@ import { env } from '@python-editor/env/server'
 export function makeUploadAvatar() {
   const usersRepository = new UsersRepository(db.prisma)
   const avatarStorage = new AvatarStorage()
-  const storagePublicUrl = env.STORAGE_PUBLIC_URL
   return new UploadAvatarUseCase(
+    `${env.APP_BASE_URL}/download-avatar`,
     usersRepository,
     avatarStorage,
-    storagePublicUrl,
   )
 }

@@ -9,7 +9,6 @@ import { makeFindSharedWithMeProjectsUseCase } from '../use-cases/factories/make
 import { makeRemoveProjectUseCase } from '../use-cases/factories/make-remove-project'
 import { makeShareProjectUseCase } from '../use-cases/factories/make-share-project'
 import { makeUnshareProjectUseCase } from '../use-cases/factories/make-unshare-project'
-import { env } from '@python-editor/env/server'
 
 export const projectsRouter = {
   findPersonalProjects: authenticatedProcedure
@@ -23,13 +22,7 @@ export const projectsRouter = {
         })
       return {
         message: 'Personal projects retrieved successfully.',
-        projects: projects.map((project) => ({
-          ...project,
-          sharedWith: project.sharedWith.map(({ avatar, ...sharedUser }) => ({
-            ...sharedUser,
-            avatarUrl: avatar ? `${env.STORAGE_PUBLIC_URL}/${avatar}` : null,
-          })),
-        })),
+        projects,
         totalCount,
       }
     }),
@@ -69,12 +62,7 @@ export const projectsRouter = {
       })
       return {
         message: 'Project shared successfully.',
-        sharedUser: {
-          ...sharedUser,
-          avatarUrl: sharedUser.avatar
-            ? `${env.STORAGE_PUBLIC_URL}/${sharedUser.avatar}`
-            : null,
-        },
+        sharedUser,
       }
     }),
 

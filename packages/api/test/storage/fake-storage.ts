@@ -18,11 +18,13 @@ export class FakeStorage implements IStorage {
     this.store.delete(fileId)
   }
 
-  async download(params: { fileId: string }): Promise<Buffer> {
+  async download(params: {
+    fileId: string
+  }): Promise<{ data: Buffer; contentType: string | undefined }> {
     const { fileId } = params
     const entry = this.store.get(fileId)
     if (!entry) throw new Error(`FakeStorage: fileId ${fileId} not found`)
-    return entry.body
+    return { data: entry.body, contentType: entry.contentType }
   }
 
   async replace(params: { fileId: string; body: Buffer; contentType: string }) {

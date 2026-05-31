@@ -7,7 +7,10 @@ interface FindPersonalProjectsUseCaseParams {
 }
 
 export class FindPersonalProjectsUseCase {
-  constructor(private projectsRepository: IProjectsRepository) {}
+  constructor(
+    private avatarDownloadBaseUrl: string,
+    private projectsRepository: IProjectsRepository,
+  ) {}
 
   async execute({ dto, userId }: FindPersonalProjectsUseCaseParams) {
     const { page, perPage, sortBy, orderBy } = dto
@@ -21,6 +24,15 @@ export class FindPersonalProjectsUseCase {
         orderBy,
       })
 
-    return { projects, totalCount }
+    return {
+      projects: projects.map((project) => ({
+        ...project,
+        sharedWith: project.sharedWith.map(({ avatar, ...sharedUser }) => ({
+          ...sharedUser,
+          avatarUrl: avatar ? `${this.avatarDownloadBaseUrl}/${avatar}` : null,
+        })),
+      })),
+      totalCount,
+    }
   }
 }

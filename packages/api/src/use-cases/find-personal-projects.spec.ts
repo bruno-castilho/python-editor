@@ -12,7 +12,7 @@ const updaterEmail = 'updater@example.com'
 describe('Find Personal Projects Use Case', () => {
   beforeEach(() => {
     projectsRepository = new FakeProjectsRepository()
-    sut = new FindPersonalProjectsUseCase(projectsRepository)
+    sut = new FindPersonalProjectsUseCase('https://fake', projectsRepository)
   })
 
   it('should be able to find personal projects with pagination', async () => {

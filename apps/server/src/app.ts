@@ -13,6 +13,7 @@ import { onlyUserMiddleware } from './middlewares/only-user-middleware'
 import { receiveAvatarFileAndParseMiddleware } from './middlewares/receive-avatar-file-middleware'
 import { receiveProjectFileMiddleware } from './middlewares/receive-project-file-middleware'
 import { updateProject } from './routes/update-project'
+import { downloadAvatar } from './routes/download-avatar'
 import { downloadProject } from './routes/download-project'
 import { uploadProject } from './routes/upload-project'
 import { uploadAvatar } from './routes/upload-avatar'
@@ -56,6 +57,8 @@ app.post(
   { preHandler: [onlyUserMiddleware, receiveProjectFileMiddleware] },
   uploadProject,
 )
+
+app.get('/download-avatar/:fileId', downloadAvatar)
 
 app.get(
   '/download-project/:projectId',

@@ -18,11 +18,7 @@ describe('Upload Avatar Use Case', () => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
     storage = new FakeStorage()
-    sut = new UploadAvatarUseCase(
-      usersRepository,
-      storage,
-      'https://fake-storage.test/',
-    )
+    sut = new UploadAvatarUseCase('https://fake', usersRepository, storage)
   })
 
   it('should be able to upload an avatar', async () => {
@@ -39,7 +35,7 @@ describe('Upload Avatar Use Case', () => {
       contentType: fakeFileContentType,
     })
 
-    expect(avatarUrl).toMatch(/^https:\/\/fake-storage\.test\/.+/)
+    expect(avatarUrl).toMatch(/^https:\/\/fake\/.+/)
 
     const updatedUser = await usersRepository.findById({ userId: user.id })
     expect(updatedUser?.avatar).not.toBeNull()

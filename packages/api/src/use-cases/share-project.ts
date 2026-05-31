@@ -12,6 +12,7 @@ interface ShareProjectUseCaseParams {
 
 export class ShareProjectUseCase {
   constructor(
+    private avatarDownloadBaseUrl: string,
     private projectsRepository: IProjectsRepository,
     private usersRepository: IUsersRepository,
   ) {}
@@ -43,6 +44,9 @@ export class ShareProjectUseCase {
         name: targetUser.name,
         lastName: targetUser.lastName,
         email: targetUser.email,
+        avatarUrl: targetUser.avatar
+          ? `${this.avatarDownloadBaseUrl}/${targetUser.avatar}`
+          : null,
       },
     }
   }

@@ -12,10 +12,7 @@ import type { IStorage } from './interfaces/storage'
 export class Storage implements IStorage {
   constructor(private bucket: string) {}
 
-  async upload(params: {
-    body: Buffer
-    contentType: string
-  }): Promise<{ fileId: string }> {
+  async upload(params: { body: Buffer; contentType: string }) {
     const { body, contentType } = params
     const fileId = uuidv7()
 
@@ -33,11 +30,7 @@ export class Storage implements IStorage {
     return { fileId }
   }
 
-  async replace(params: {
-    fileId: string
-    body: Buffer
-    contentType: string
-  }): Promise<void> {
+  async replace(params: { fileId: string; body: Buffer; contentType: string }) {
     const { fileId, body, contentType } = params
     await s3.send(
       new PutObjectCommand({
@@ -49,7 +42,7 @@ export class Storage implements IStorage {
     )
   }
 
-  async delete(params: { fileId: string }): Promise<void> {
+  async delete(params: { fileId: string }) {
     const { fileId } = params
 
     await s3.send(
@@ -60,7 +53,7 @@ export class Storage implements IStorage {
     )
   }
 
-  async download(params: { fileId: string }): Promise<Buffer> {
+  async download(params: { fileId: string }) {
     const { fileId } = params
 
     const response = await s3.send(
@@ -70,7 +63,10 @@ export class Storage implements IStorage {
       }),
     )
 
-    return Buffer.from(await response.Body!.transformToByteArray())
+    return {
+      data: Buffer.from(await response.Body!.transformToByteArray()),
+      contentType: response.ContentType,
+    }
   }
 }
 

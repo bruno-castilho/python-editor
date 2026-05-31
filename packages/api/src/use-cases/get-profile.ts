@@ -6,7 +6,10 @@ interface GetProfileParams {
 }
 
 export class GetProfileUseCase {
-  constructor(private usersRepository: IUsersRepository) {}
+  constructor(
+    private avatarDownloadBaseUrl: string,
+    private usersRepository: IUsersRepository,
+  ) {}
 
   async execute(params: GetProfileParams) {
     const { userId } = params
@@ -17,6 +20,10 @@ export class GetProfileUseCase {
       throw new UserDoesNotExistsError()
     }
 
-    return { user }
+    const avatarUrl = user.avatar
+      ? `${this.avatarDownloadBaseUrl}/${user.avatar}`
+      : null
+
+    return { user: { ...user, avatarUrl } }
   }
 }

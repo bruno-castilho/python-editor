@@ -14,7 +14,6 @@ import { makeResetPasswordUseCase } from '../use-cases/factories/make-reset-pass
 import { makeGetProfileUseCase } from '../use-cases/factories/make-get-profile'
 import { makeUpdateProfileUseCase } from '../use-cases/factories/make-update-profile'
 import { makeRemoveAvatar } from '../use-cases/factories/make-remove-avatar'
-import { env } from '@python-editor/env/server'
 import { makeGetUserSessionsUseCase } from '../use-cases/factories/make-get-user-sessions'
 import { makeRevokeUserSessionUseCase } from '../use-cases/factories/make-revoke-user-session'
 
@@ -81,10 +80,7 @@ export const usersRouter = router({
       userId: ctx.session.userId,
     })
 
-    const avatarUrl = user.avatar
-      ? `${env.STORAGE_PUBLIC_URL}/${user.avatar}`
-      : null
-    return { user: { ...user, avatarUrl } }
+    return { user }
   }),
 
   updateProfile: authenticatedProcedure

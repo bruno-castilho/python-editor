@@ -11,7 +11,7 @@ describe('Get Profile Use Case', () => {
   beforeEach(() => {
     data = new Data()
     usersRepository = new FakeUsersRepository(data)
-    sut = new GetProfileUseCase(usersRepository)
+    sut = new GetProfileUseCase('https://fake', usersRepository)
   })
 
   it('should be able to get the profile', async () => {

@@ -26,7 +26,9 @@ export class DownloadProjectUseCase {
     const isSharedWith = project.sharedWith.some((user) => user.id === userId)
     if (!isOwner && !isSharedWith) throw new NotAllowedToDownloadProjectError()
 
-    const data = await this.projectStorage.download({ fileId: project.fileId })
+    const { data } = await this.projectStorage.download({
+      fileId: project.fileId,
+    })
     return { data, projectName: project.name }
   }
 }

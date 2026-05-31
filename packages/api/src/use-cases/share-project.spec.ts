@@ -16,7 +16,11 @@ describe('Share Project Use Case', () => {
     data = new Data()
     projectsRepository = new FakeProjectsRepository()
     usersRepository = new FakeUsersRepository(data)
-    sut = new ShareProjectUseCase(projectsRepository, usersRepository)
+    sut = new ShareProjectUseCase(
+      'https://fake',
+      projectsRepository,
+      usersRepository,
+    )
   })
 
   it('should be able to share a project', async () => {

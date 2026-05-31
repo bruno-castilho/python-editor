@@ -1,6 +1,6 @@
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
-import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 import type { IStorage } from '../storages/interfaces/storage'
+import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
 
 interface UploadAvatarParams {
   userId: string
@@ -10,9 +10,9 @@ interface UploadAvatarParams {
 
 export class UploadAvatarUseCase {
   constructor(
+    private avatarDownloadBaseUrl: string,
     private usersRepository: IUsersRepository,
     private avatarStorage: IStorage,
-    private storagePublicUrl: string,
   ) {}
 
   async execute(params: UploadAvatarParams) {
@@ -35,6 +35,6 @@ export class UploadAvatarUseCase {
 
     await this.usersRepository.updateAvatar({ userId, avatar: fileId })
 
-    return { avatarUrl: `${this.storagePublicUrl}/${fileId}` }
+    return { avatarUrl: `${this.avatarDownloadBaseUrl}/${fileId}` }
   }
 }
