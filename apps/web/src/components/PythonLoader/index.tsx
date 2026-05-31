@@ -32,8 +32,8 @@ export function PythonLoader({ size = 96 }: PythonLoaderProps) {
         alt="code"
         priority
         sx={{
-          width: size / 1.42,
-          height: size / 1.42,
+          width: size,
+          height: size,
           position: 'absolute',
           top: '50%',
           left: '50%',

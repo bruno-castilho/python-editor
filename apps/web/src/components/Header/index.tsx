@@ -21,7 +21,7 @@ export function Header() {
             component="img"
             src={logo.src}
             alt="logo"
-            height={64}
+            height={48}
             display={{ xs: 'none', md: 'flex' }}
             mr={1}
           />
@@ -30,7 +30,7 @@ export function Header() {
             component="img"
             src={logo.src}
             alt="logo"
-            height={64}
+            height={48}
             display={{ xs: 'flex', md: 'none' }}
             mr={2}
           />

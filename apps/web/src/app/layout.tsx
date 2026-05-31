@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'python-editor',
   description: 'python-editor',
+  icons: { icon: '/logo.svg' },
 }
 
 export default function RootLayout({
