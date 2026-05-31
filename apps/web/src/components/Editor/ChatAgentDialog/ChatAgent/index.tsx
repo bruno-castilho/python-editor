@@ -103,7 +103,7 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
 
   async function handleSend() {
     const content = inputValue.trim()
-    if (!content) return
+    if (!content || !selectedModel) return
 
     const completionCallback =
       activeSessionId === null ? newSession : updateCurrentSession
@@ -444,7 +444,6 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
             setInputValue(event.target.value)
           }
           onKeyDown={handleKeyDown}
-          disabled={isStreaming || !selectedModel || isPendingModels}
           placeholder="Type a message... (Enter to send)"
           rows={4}
           sx={{
