@@ -85,10 +85,15 @@ export function useAuthOpenRouter() {
     return localStorage.getItem('openrouter_api_key')
   }
 
+  function removeOpenRouterKey() {
+    localStorage.removeItem('openrouter_api_key')
+  }
+
   return {
     startOpenRouterAuth,
     exchangeOpenRouterCode,
     saveOpenRouterKey,
     getOpenRouterKey,
+    removeOpenRouterKey,
   }
 }

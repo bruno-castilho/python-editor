@@ -10,6 +10,7 @@ import {
   AccessTime,
   Add,
   Close,
+  LogoutSharp,
   MapsUgcSharp,
   RefreshOutlined,
   Send,
@@ -41,9 +42,10 @@ import {
 interface ChatAgentProps {
   apiKey: string
   open: boolean
+  removeApiKey: () => void
 }
 
-export function ChatAgent({ apiKey, open }: ChatAgentProps) {
+export function ChatAgent({ apiKey, open, removeApiKey }: ChatAgentProps) {
   const [selectedModel, setSelectedModel] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
   const [sessionsOpen, setSessionsOpen] = useState(false)
@@ -131,6 +133,13 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
     setSelectedModel('')
   }
 
+  function handleSignOut() {
+    removeApiKey()
+    switchActiveSession(null)
+    switchMessages([])
+    setSelectedModel('')
+  }
+
   function handleLoadSession(session: ChatSession) {
     switchActiveSession(session.id)
     switchMessages(session.messages)
@@ -205,6 +214,15 @@ export function ChatAgent({ apiKey, open }: ChatAgentProps) {
               aria-label="New session"
             >
               <MapsUgcSharp />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Sign Out">
+            <IconButton
+              size="small"
+              onClick={handleSignOut}
+              aria-label="Sign Out"
+            >
+              <LogoutSharp />
             </IconButton>
           </Tooltip>
         </Box>

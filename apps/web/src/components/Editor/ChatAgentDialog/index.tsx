@@ -4,6 +4,7 @@ import { Close } from '@mui/icons-material'
 import { ChatAgent } from './ChatAgent'
 import { ChatAgentAuth } from './ChatAgentAuth'
 import { useAuthOpenRouter } from '@/hooks/useAuthOpenRouter'
+import { useEffect, useState } from 'react'
 
 interface ChatAgentDialogProps {
   open: boolean
@@ -11,9 +12,18 @@ interface ChatAgentDialogProps {
 }
 
 export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
-  const { getOpenRouterKey } = useAuthOpenRouter()
+  const [apiKey, setApiKey] = useState<null | string>(null)
+  const { getOpenRouterKey, removeOpenRouterKey } = useAuthOpenRouter()
 
-  const apiKey = getOpenRouterKey()
+  function removeApiKey() {
+    removeOpenRouterKey()
+    setApiKey(null)
+  }
+
+  useEffect(() => {
+    const key = getOpenRouterKey()
+    setApiKey(key)
+  }, [])
 
   return (
     <Dialog
@@ -56,7 +66,9 @@ export function ChatAgentDialog({ open, onClose }: ChatAgentDialogProps) {
         }}
       >
         {!apiKey && <ChatAgentAuth />}
-        {!!apiKey && <ChatAgent apiKey={apiKey} open={open} />}
+        {!!apiKey && (
+          <ChatAgent apiKey={apiKey} open={open} removeApiKey={removeApiKey} />
+        )}
       </DialogContent>
     </Dialog>
   )
