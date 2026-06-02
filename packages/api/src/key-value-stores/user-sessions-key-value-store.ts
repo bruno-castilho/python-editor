@@ -81,7 +81,9 @@ export class UserSessionsKeyValueStore implements IUserSessionsKeyValueStore {
 
     const sessionKeys = sessionIds.map((id) => this.sessionKey(id))
 
-    const rawSessions = await redis.mget(...sessionKeys)
+    const rawSessions = await Promise.all(
+      sessionKeys.map((key) => redis.get(key)),
+    )
 
     const sessions: Session[] = []
     const expiredSessionIds: string[] = []
