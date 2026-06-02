@@ -2,6 +2,7 @@ import { ShareProjectUseCase } from './share-project'
 import { Data } from '../../test/repositories/data'
 import { FakeProjectsRepository } from '../../test/repositories/fake-projects-repository'
 import { FakeUsersRepository } from '../../test/repositories/fake-users-repository'
+import { CannotShareProjectWithYourselfError } from './errors/cannot-share-project-with-yourself-error'
 import { ProjectDoesNotExistError } from './errors/project-does-not-exist-error'
 import { NotAllowedToShareProjectError } from './errors/not-allowed-to-share-project-error'
 import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
@@ -35,6 +36,7 @@ describe('Share Project Use Case', () => {
       name: 'My Project',
       fileId: 'file-001',
       createdById: owner.id,
+      updatedById: owner.id,
     })
 
     const targetUser = await usersRepository.create({
@@ -77,6 +79,7 @@ describe('Share Project Use Case', () => {
       name: 'My Project',
       fileId: 'file-001',
       createdById: owner.id,
+      updatedById: owner.id,
     })
 
     await expect(
@@ -99,6 +102,7 @@ describe('Share Project Use Case', () => {
       name: 'My Project',
       fileId: 'file-001',
       createdById: owner.id,
+      updatedById: owner.id,
     })
 
     await expect(
@@ -107,5 +111,28 @@ describe('Share Project Use Case', () => {
         userId: owner.id,
       }),
     ).rejects.toBeInstanceOf(UserDoesNotExistsError)
+  })
+
+  it('should not be able to share a project with yourself', async () => {
+    const owner = await usersRepository.create({
+      name: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      hashedPassword: 'hashed',
+    })
+
+    const project = await projectsRepository.create({
+      name: 'My Project',
+      fileId: 'file-001',
+      createdById: owner.id,
+      updatedById: owner.id,
+    })
+
+    await expect(
+      sut.execute({
+        dto: { projectId: project.id, email: 'john@example.com' },
+        userId: owner.id,
+      }),
+    ).rejects.toBeInstanceOf(CannotShareProjectWithYourselfError)
   })
 })

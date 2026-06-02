@@ -13,6 +13,7 @@ import { ProjectDoesNotExistError } from './use-cases/errors/project-does-not-ex
 import { SessionDoesNotExistsError } from './use-cases/errors/session-does-not-exists-error'
 import { UserAlreadyExistsError } from './use-cases/errors/user-already-exists-error'
 import { UserDoesNotExistsError } from './use-cases/errors/user-does-not-exists-error'
+import { CannotShareProjectWithYourselfError } from './use-cases/errors/cannot-share-project-with-yourself-error'
 
 type AnyErrorConstructor = new (...args: never[]) => Error
 
@@ -30,6 +31,7 @@ const ERROR_MAP: Array<[AnyErrorConstructor, TRPC_ERROR_CODE_KEY]> = [
   [NotAllowedToRemoveProjectError, 'FORBIDDEN'],
   [NotAllowedToShareProjectError, 'FORBIDDEN'],
   [NotAllowedToDownloadProjectError, 'FORBIDDEN'],
+  [CannotShareProjectWithYourselfError, 'BAD_REQUEST'],
 ]
 
 export function handleError(error: unknown): never {

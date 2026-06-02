@@ -1,6 +1,7 @@
 import type { IProjectsRepository } from '../repositories/interfaces/projects-repository'
 import type { IUsersRepository } from '../repositories/interfaces/users-repository'
 import type { ShareProjectDTO } from '@python-editor/schemas/share-project'
+import { CannotShareProjectWithYourselfError } from './errors/cannot-share-project-with-yourself-error'
 import { NotAllowedToShareProjectError } from './errors/not-allowed-to-share-project-error'
 import { ProjectDoesNotExistError } from './errors/project-does-not-exist-error'
 import { UserDoesNotExistsError } from './errors/user-does-not-exists-error'
@@ -31,6 +32,8 @@ export class ShareProjectUseCase {
     })
 
     if (!targetUser) throw new UserDoesNotExistsError()
+    if (targetUser.id === userId)
+      throw new CannotShareProjectWithYourselfError()
 
     await this.projectsRepository.share({
       projectId: dto.projectId,
