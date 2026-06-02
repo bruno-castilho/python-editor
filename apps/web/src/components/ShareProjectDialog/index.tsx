@@ -25,6 +25,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
 import type { AppRouter } from '@python-editor/api/routers/index'
 import type { inferRouterOutputs } from '@trpc/server'
+import { useContext } from 'react'
+import { AlertContext } from '@/context/AlertContext'
 
 type RouterOutputs = inferRouterOutputs<AppRouter>
 type PersonalProjectsData = RouterOutputs['projects']['findPersonalProjects']
@@ -66,6 +68,8 @@ export function ShareProjectDialog({
 
   const queryClient = useQueryClient()
 
+  const alert = useContext(AlertContext)
+
   const { mutate: shareProjectMutate, isPending: isPendingShareProject } =
     useMutation(
       trpc.projects.shareProject.mutationOptions({
@@ -86,6 +90,11 @@ export function ShareProjectDialog({
                 ),
               }
             },
+          )
+        },
+        onError(error) {
+          alert.error(
+            error instanceof Error ? error.message : 'Failed to share Project.',
           )
         },
       }),
@@ -142,6 +151,7 @@ export function ShareProjectDialog({
           width="100%"
           component="form"
           onSubmit={handleSubmit(handleShare)}
+          sx={{ mt: 1 }}
         >
           <TextField
             autoFocus
