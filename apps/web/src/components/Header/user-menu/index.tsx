@@ -16,7 +16,7 @@ import { DarkMode, LightMode, Logout, Settings } from '@mui/icons-material'
 import { useRouter } from 'next/navigation'
 import { AlertContext } from '@/context/AlertContext'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { trpc } from '@/utils/trpc'
+import { trpc, queryClient } from '@/utils/trpc'
 import { setAccessToken } from '@/utils/access-token-store'
 
 export function UserMenu() {
@@ -62,6 +62,7 @@ export function UserMenu() {
   async function handleSignOut() {
     await signOutMutationAsync()
     setAccessToken(null)
+    queryClient.clear()
     router.push('/sign-in')
   }
 
