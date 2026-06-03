@@ -1,0 +1,33 @@
+services:
+  nginx:    
+    image: nginx:stable-alpine
+    restart: always
+    ports:
+      - "80:80"                
+    volumes:          
+      - ./nginx/config:/etc/nginx/conf.d/
+  web:
+    image: brunoscastilho/python-editor-web:latest
+    restart: always
+  server:
+    image: brunoscastilho/python-editor-server:latest
+    restart: always
+    environment:
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_SECURE: ${SMTP_SECURE}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_REGION: ${STORAGE_REGION}
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY}
+      STORAGE_AVATARS_BUCKET: ${STORAGE_AVATARS_BUCKET}
+      STORAGE_PROJECTS_BUCKET:  ${STORAGE_PROJECTS_BUCKET}
+      STORAGE_PUBLIC_URL: ${STORAGE_PUBLIC_URL}
