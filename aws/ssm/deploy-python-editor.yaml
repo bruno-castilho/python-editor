@@ -1,0 +1,44 @@
+schemaVersion: '2.2'
+description: Deploy python-editor application from the deploy folder of the GitHub repository
+mainSteps:
+  - action: aws:runShellScript
+    name: deployPythonEditor
+    inputs:
+      runCommand:
+        - |
+          set -euo pipefail
+
+          DEPLOY_DIR="/opt/python-editor"
+
+          REPO_URL="https://github.com/bruno-castilho/python-editor.git"
+
+          # Always start from a clean state — clone only the deploy/ folder
+
+          rm -rf "$DEPLOY_DIR"
+          git clone --depth=1 --filter=blob:none --sparse "$REPO_URL" "$DEPLOY_DIR"
+          git -C "$DEPLOY_DIR" sparse-checkout set deploy
+          cd "$DEPLOY_DIR/deploy"
+
+          # Fetch environment variables from SSM Parameter Store
+          aws ssm get-parameters-by-path \
+            --path "/python-editor/production/" \
+            --with-decryption \
+            --recursive \
+            --output json \
+            --query "Parameters[*].{Name:Name,Value:Value}" | \
+            jq -r '.[] | (.Name | split("/")[-1]) + "=" + .Value' \
+            > .env
+
+          chmod 600 .env
+
+          # Pull latest images before recreating containers
+          docker compose pull
+
+          # Recreate containers with updated images; remove orphaned containers
+          docker compose up -d --remove-orphans
+
+          # Remove .env with secrets now that containers are running
+          rm -f .env
+
+          # Remove unused images, stopped containers, unused networks, and build cache
+          docker system prune -af
