@@ -1,0 +1,123 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-server-image:
+    name: Build and Push Server Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: docker/server/Dockerfile
+          push: true
+          tags: |
+            brunoscastilho/python-editor-server:latest
+            brunoscastilho/python-editor-server:${{ github.sha }}
+
+  build-web-image:
+    name: Build and Push Web Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: docker/web/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+          tags: |
+            brunoscastilho/python-editor-web:latest
+            brunoscastilho/python-editor-web:${{ github.sha }}
+
+  deploy:
+    name: Deploy AWS
+    needs: [build-server-image, build-web-image]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Run SSM command on EC2
+        id: ssm_command
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --targets "Key=tag:DeployTarget,Values=python-editor" \
+            --document-name "deploy-python-editor" \
+            --comment "Deploy triggered by GitHub Actions (commit ${{ github.sha }})" \
+            --output text \
+            --query "Command.CommandId")
+
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "SSM command sent: $COMMAND_ID"
+
+      - name: Wait for SSM command to complete
+        run: |
+          COMMAND_ID="${{ steps.ssm_command.outputs.command_id }}"
+
+          echo "Waiting for command $COMMAND_ID to finish..."
+
+          for i in $(seq 1 30); do
+            STATUSES=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --query "CommandInvocations[*].Status" \
+              --output text 2>/dev/null | tr '\t' '\n' | grep -v '^$')
+
+            echo "Attempt $i/30 — Statuses: $(echo "$STATUSES" | tr '\n' ' ')"
+
+            if [ -z "$STATUSES" ]; then
+              sleep 10
+              continue
+            fi
+
+            if echo "$STATUSES" | grep -qE "^(Failed|Cancelled|TimedOut)$"; then
+              echo "Deploy failed."
+              aws ssm list-command-invocations \
+                --command-id "$COMMAND_ID" \
+                --details \
+                --query "CommandInvocations[*].CommandPlugins[*].Output" \
+                --output text
+              exit 1
+            fi
+
+            if ! echo "$STATUSES" | grep -qvE "^Success$"; then
+              echo "Deploy completed successfully."
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for deploy to finish."
+          exit 1
