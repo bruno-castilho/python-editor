@@ -21,7 +21,7 @@
     "@mui/material-nextjs": "^7.3.7",
     "@openrouter/sdk": "^0.10.2",
     "@prisma/client": "^7.2.0",
-    "@python-editor/api": "*",
+    "@python-editor/trpc": "*",
     "@python-editor/env": "*",
     "@python-editor/schemas": "*",
     "@tanstack/react-form": "^1.27.3",

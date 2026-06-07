@@ -23,7 +23,7 @@ import {
 } from '@python-editor/schemas/share-project'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { trpc } from '@/utils/trpc'
-import type { AppRouter } from '@python-editor/api/routers/index'
+import type { AppRouter } from '@python-editor/trpc/routers/index'
 import type { inferRouterOutputs } from '@trpc/server'
 import { useContext } from 'react'
 import { AlertContext } from '@/context/AlertContext'

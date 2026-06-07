@@ -6,6 +6,6 @@
     "sourceMap": true,
     "outDir": "dist",
     "composite": true,
-    "types": ["node", "vitest/globals"],
+    "types": ["node"],
   }
 }
