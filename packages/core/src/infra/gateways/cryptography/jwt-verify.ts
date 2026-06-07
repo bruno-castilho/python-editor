@@ -1,10 +1,10 @@
 import { env } from '@python-editor/env/server'
-import type { IJWTVerify } from '../domain/interfaces/cryptography/jwt-verify'
 import jwt from 'jsonwebtoken'
 import {
   jwtPayloadSchema,
   type JWTPayloadDTO,
 } from '@python-editor/schemas/jwt-payload'
+import type { IJWTVerify } from '../../../domain/interfaces/cryptography/jwt-verify'
 
 abstract class JWTVerify<Payload> implements IJWTVerify<Payload> {
   constructor(

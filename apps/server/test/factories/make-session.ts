@@ -2,8 +2,8 @@ import { faker } from '@faker-js/faker'
 import {
   AccessTokenSign,
   RefreshTokenSign,
-} from '@python-editor/api/infra/gateways/cryptography/jwt-sign'
-import { UserSessionsKeyValueStore } from '@python-editor/api/infra/gateways/valkey/user-sessions-key-value-store'
+} from '@python-editor/core/infra/gateways/cryptography/jwt-sign'
+import { UserSessionsKeyValueStore } from '@python-editor/core/infra/gateways/valkey/user-sessions-key-value-store'
 
 import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
 

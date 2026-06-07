@@ -4,7 +4,7 @@ import { UploadAvatarUseCase } from '../../domain/use-cases/upload-avatar'
 import { env } from '@python-editor/env/server'
 import { UsersRepository } from '../gateways/repositories/users-repository'
 
-export function makeUploadAvatar() {
+export function makeUploadAvatarUseCase() {
   const usersRepository = new UsersRepository(db.prisma)
   const avatarStorage = new AvatarStorage()
   return new UploadAvatarUseCase(

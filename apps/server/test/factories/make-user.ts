@@ -1,7 +1,7 @@
 import db from '@python-editor/db'
 import { faker } from '@faker-js/faker'
-import { UsersRepository } from '@python-editor/api/infra/gateways/repositories/users-repository'
-import { PasswordHashGenerator } from '@python-editor/api/infra/gateways/cryptography/hash-generator'
+import { UsersRepository } from '@python-editor/core/infra/gateways/repositories/users-repository'
+import { PasswordHashGenerator } from '@python-editor/core/infra/gateways/cryptography/hash-generator'
 
 export async function makeUser(params: {
   name?: string

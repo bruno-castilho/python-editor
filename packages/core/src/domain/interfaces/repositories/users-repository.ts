@@ -1,4 +1,8 @@
-import type { User, UserCreateParams, UserWithoutPassword } from '../../types/user'
+import type {
+  User,
+  UserCreateParams,
+  UserWithoutPassword,
+} from '../../types/user'
 
 export interface IUsersRepository {
   create(params: UserCreateParams): Promise<UserWithoutPassword>

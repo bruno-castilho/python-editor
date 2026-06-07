@@ -1,4 +1,4 @@
-import { makeDownloadAvatarUseCase } from '@python-editor/api/infra/factories/make-download-avatar'
+import { makeDownloadAvatarUseCase } from '@python-editor/core/infra/factories/make-download-avatar'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function downloadAvatar(

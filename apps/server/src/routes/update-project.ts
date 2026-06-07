@@ -1,6 +1,6 @@
-import { NotAllowedToUpdateProjectError } from '@python-editor/api/domain/errors/not-allowed-to-update-project-error'
-import { ProjectDoesNotExistError } from '@python-editor/api/domain/errors/project-does-not-exist-error'
-import { makeUpdateProjectUseCase } from '@python-editor/api/infra/factories/make-update-project'
+import { NotAllowedToUpdateProjectError } from '@python-editor/core/domain/errors/not-allowed-to-update-project-error'
+import { ProjectDoesNotExistError } from '@python-editor/core/domain/errors/project-does-not-exist-error'
+import { makeUpdateProjectUseCase } from '@python-editor/core/infra/factories/make-update-project'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function updateProject(

@@ -1,10 +1,10 @@
 import { publicProcedure, router } from '../index'
 import { signInSchema } from '@python-editor/schemas/sign-in'
-import { makeSignInUseCase } from '../infra/factories/make-sign-in'
-import { makeSessionRefreshUseCase } from '../infra/factories/make-session-refresh'
-import { makeSignOutUseCase } from '../infra/factories/make-sign-out'
 import { TRPCError } from '@trpc/server'
 import { parseSessionInfo } from '../utils/parse-session-info'
+import { makeSignInUseCase } from '@python-editor/core/infra/factories/make-sign-in'
+import { makeSessionRefreshUseCase } from '@python-editor/core/infra/factories/make-session-refresh'
+import { makeSignOutUseCase } from '@python-editor/core/infra/factories/make-sign-out'
 
 export const authRouter = router({
   signIn: publicProcedure

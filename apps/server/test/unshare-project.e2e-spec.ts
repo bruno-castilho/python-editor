@@ -3,11 +3,10 @@ import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import type { AppRouter } from '@python-editor/api/routers/index'
 import type { AddressInfo } from 'node:net'
 import { app } from '@/app'
-
 import { makeSession } from './factories/make-session'
 import { makeProject } from './factories/make-project'
 import { shareProject } from './helpers/share-project'
-import type { UserWithoutPassword } from '@python-editor/api/domain/types/user'
+import type { UserWithoutPassword } from '@python-editor/core/domain/types/user'
 
 let client: ReturnType<typeof createTRPCClient<AppRouter>>
 let authenticatedUser: UserWithoutPassword

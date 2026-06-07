@@ -1,7 +1,7 @@
 import redis from '@python-editor/redis'
 import { v4 as uuidv4 } from 'uuid'
-import type { IUserSessionsKeyValueStore } from '../domain/interfaces/valkey/user-sessions-key-value-store'
-import type { SaveSessionParams, Session } from '../domain/types/session'
+import type { IUserSessionsKeyValueStore } from '../../../domain/interfaces/valkey/user-sessions-key-value-store'
+import type { SaveSessionParams, Session } from '../../../domain/types/session'
 
 export class UserSessionsKeyValueStore implements IUserSessionsKeyValueStore {
   TTL_IN_SECONDS = 60 * 60 * 24 * 7 // 7 days

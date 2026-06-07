@@ -1,13 +1,11 @@
 import redis from '@python-editor/redis'
-import type { IEmailVerificationTokenKeyValueStore } from '../domain/interfaces/valkey/email-verification-token-key-value-store'
+import type { IPasswordResetTokenKeyValueStore } from '../../../domain/interfaces/valkey/password-reset-token-key-value-store'
 
-export class EmailVerificationTokenKeyValueStore implements IEmailVerificationTokenKeyValueStore {
-  TTL_IN_SECONDS = 60 * 60 * 24 // 24 hours
-
-  constructor() {}
+export class PasswordResetTokenKeyValueStore implements IPasswordResetTokenKeyValueStore {
+  TTL_IN_SECONDS = 60 * 60 // 1 hour
 
   private key(hashedToken: string) {
-    return `email-verification-token:${hashedToken}`
+    return `password-reset-token:${hashedToken}`
   }
 
   async save(params: { hashedToken: string; userId: string }) {

@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import type { ITokenGenerator } from '../domain/interfaces/cryptography/token-generator'
+import type { ITokenGenerator } from '../../../domain/interfaces/cryptography/token-generator'
 
 abstract class CSPRNGTokenGenerator implements ITokenGenerator {
   constructor(private bytes: number) {}

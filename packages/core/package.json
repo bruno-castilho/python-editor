@@ -1,15 +1,9 @@
 {
-  "name": "@python-editor/api",
+  "name": "@python-editor/core",
   "type": "module",
   "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
     "./*": {
       "default": "./src/*.ts"
-    },
-    "./test/*": {
-      "default": "./test/*.ts"
     }
   },
   "scripts": {
@@ -19,18 +13,15 @@
     "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false"
   },
   "dependencies": {
-    "@fastify/cookie": "^11.0.2",
-    "@python-editor/core": "*",
+    "@python-editor/db": "*",
     "@python-editor/env": "*",
+    "@python-editor/mailer": "*",
+    "@python-editor/redis": "*",
+    "@python-editor/s3": "*",
     "@python-editor/schemas": "*",
-    "@trpc/client": "^11.7.2",
-    "@trpc/server": "^11.7.2",
-    "@types/geoip-lite": "^1.4.4",
-    "@types/ua-parser-js": "^0.7.39",
     "dotenv": "^17.2.2",
-    "geoip-lite": "^2.0.1",
     "jsonwebtoken": "^9.0.3",
-    "ua-parser-js": "^2.0.9",
+    "@node-rs/argon2": "^2.0.2",
     "uuid": "^13.0.0",
     "zod": "^4.1.13"
   },

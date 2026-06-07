@@ -1,8 +1,8 @@
 import type { StringValue } from 'ms'
 import jwt from 'jsonwebtoken'
-import type { IJWTSign } from '../domain/interfaces/cryptography/jwt-sign'
 import { env } from '@python-editor/env/server'
 import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
+import type { IJWTSign } from '../../../domain/interfaces/cryptography/jwt-sign'
 
 abstract class JWTSign<Payload> implements IJWTSign<Payload> {
   constructor(

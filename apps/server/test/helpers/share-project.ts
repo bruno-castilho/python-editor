@@ -1,4 +1,4 @@
-import { ProjectsRepository } from '@python-editor/api/infra/gateways/repositories/projects-repository'
+import { ProjectsRepository } from '@python-editor/core/infra/gateways/repositories/projects-repository'
 import db from '@python-editor/db'
 
 export async function shareProject(params: {

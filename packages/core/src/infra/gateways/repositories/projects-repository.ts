@@ -1,7 +1,7 @@
 import { v7 as uuidv7 } from 'uuid'
-import type { IProjectsRepository } from '../domain/interfaces/repositories/projects-repository'
 import { PrismaClient } from '@python-editor/db'
-import type { ProjectCreateParams } from '../domain/types/projects'
+import type { IProjectsRepository } from '../../../domain/interfaces/repositories/projects-repository'
+import type { ProjectCreateParams } from '../../../domain/types/projects'
 
 export class ProjectsRepository implements IProjectsRepository {
   constructor(private prisma: PrismaClient) {}

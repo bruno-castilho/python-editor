@@ -1,6 +1,6 @@
-import { NotAllowedToDownloadProjectError } from '@python-editor/api/domain/errors/not-allowed-to-download-project-error'
-import { ProjectDoesNotExistError } from '@python-editor/api/domain/errors/project-does-not-exist-error'
-import { makeDownloadProjectUseCase } from '@python-editor/api/infra/factories/make-download-project'
+import { NotAllowedToDownloadProjectError } from '@python-editor/core/domain/errors/not-allowed-to-download-project-error'
+import { ProjectDoesNotExistError } from '@python-editor/core/domain/errors/project-does-not-exist-error'
+import { makeDownloadProjectUseCase } from '@python-editor/core/infra/factories/make-download-project'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function downloadProject(

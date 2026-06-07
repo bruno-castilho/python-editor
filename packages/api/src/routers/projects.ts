@@ -4,11 +4,11 @@ import { removeProjectSchema } from '@python-editor/schemas/remove-project'
 import { shareProjectSchema } from '@python-editor/schemas/share-project'
 import { unshareProjectSchema } from '@python-editor/schemas/unshare-project'
 import { authenticatedProcedure } from '..'
-import { makeFindPersonalProjectsUseCase } from '../infra/factories/make-find-personal-projects'
-import { makeFindSharedWithMeProjectsUseCase } from '../infra/factories/make-find-shared-with-me-projects'
-import { makeRemoveProjectUseCase } from '../infra/factories/make-remove-project'
-import { makeShareProjectUseCase } from '../infra/factories/make-share-project'
-import { makeUnshareProjectUseCase } from '../infra/factories/make-unshare-project'
+import { makeFindPersonalProjectsUseCase } from '@python-editor/core/infra/factories/make-find-personal-projects'
+import { makeFindSharedWithMeProjectsUseCase } from '@python-editor/core/infra/factories/make-find-shared-with-me-projects'
+import { makeRemoveProjectUseCase } from '@python-editor/core/infra/factories/make-remove-project'
+import { makeShareProjectUseCase } from '@python-editor/core/infra/factories/make-share-project'
+import { makeUnshareProjectUseCase } from '@python-editor/core/infra/factories/make-unshare-project'
 
 export const projectsRouter = {
   findPersonalProjects: authenticatedProcedure

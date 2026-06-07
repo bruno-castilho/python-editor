@@ -1,7 +1,7 @@
 import { v7 as uuidv7 } from 'uuid'
-import type { IUsersRepository } from '../domain/interfaces/repositories/users-repository'
-import type { UserCreateParams } from '../domain/types/user'
 import type { PrismaClient } from '@python-editor/db'
+import type { IUsersRepository } from '../../../domain/interfaces/repositories/users-repository'
+import type { UserCreateParams } from '../../../domain/types/user'
 
 export class UsersRepository implements IUsersRepository {
   constructor(private prisma: PrismaClient) {}
