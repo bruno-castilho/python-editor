@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { IUserSessionsKeyValueStore } from '../../src/key-value-stores/interfaces/user-sessions-key-value-store'
+import type { IUserSessionsKeyValueStore } from '../../src/domain/interfaces/valkey/user-sessions-key-value-store'
 import type {
   SaveSessionParams,
   Session,
-} from '../../src/key-value-stores/types/session'
+} from '../../src/domain/types/session'
 
 interface SessionEntry {
   data: Session

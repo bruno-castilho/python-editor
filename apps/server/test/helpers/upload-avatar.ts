@@ -1,5 +1,5 @@
-import { UsersRepository } from '@python-editor/api/repositories/users-repository'
-import { AvatarStorage } from '@python-editor/api/storages/storage'
+import { UsersRepository } from '@python-editor/api/infra/gateways/repositories/users-repository'
+import { AvatarStorage } from '@python-editor/api/infra/gateways/storages/storage'
 import db from '@python-editor/db'
 
 export async function assignUserAvatar(params: { userId: string }) {

@@ -1,4 +1,4 @@
-import type { IEmailVerificationTokenKeyValueStore } from '../../src/key-value-stores/interfaces/email-verification-token-key-value-store'
+import type { IEmailVerificationTokenKeyValueStore } from '../../src/domain/interfaces/valkey/email-verification-token-key-value-store'
 
 interface TokenEntry {
   userId: string

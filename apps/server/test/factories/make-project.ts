@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { ProjectsRepository } from '@python-editor/api/repositories/projects-repository'
+import { ProjectsRepository } from '@python-editor/api/infra/gateways/repositories/projects-repository'
+
 import db from '@python-editor/db'
 import { v7 as uuidv7 } from 'uuid'
 

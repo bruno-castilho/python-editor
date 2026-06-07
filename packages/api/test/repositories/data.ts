@@ -1,4 +1,4 @@
-import type { User } from '../../src/repositories/types/user'
+import type { User } from '../../src/domain/types/user'
 
 export class Data {
   public items: {

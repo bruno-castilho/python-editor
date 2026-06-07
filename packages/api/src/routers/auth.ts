@@ -1,8 +1,8 @@
 import { publicProcedure, router } from '../index'
 import { signInSchema } from '@python-editor/schemas/sign-in'
-import { makeSignInUseCase } from '../use-cases/factories/make-sign-in'
-import { makeSessionRefreshUseCase } from '../use-cases/factories/make-session-refresh'
-import { makeSignOutUseCase } from '../use-cases/factories/make-sign-out'
+import { makeSignInUseCase } from '../infra/factories/make-sign-in'
+import { makeSessionRefreshUseCase } from '../infra/factories/make-session-refresh'
+import { makeSignOutUseCase } from '../infra/factories/make-sign-out'
 import { TRPCError } from '@trpc/server'
 import { parseSessionInfo } from '../utils/parse-session-info'
 

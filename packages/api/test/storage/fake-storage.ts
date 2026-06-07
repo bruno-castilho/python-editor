@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from 'uuid'
-import type { IStorage } from '../../src/storages/interfaces/storage'
+import type { IStorage } from '../../src/domain/interfaces/storage/storage'
 
 export class FakeStorage implements IStorage {
   public store = new Map<string, { contentType: string; body: Buffer }>()

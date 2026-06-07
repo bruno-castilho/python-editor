@@ -2,8 +2,8 @@ import '@fastify/cookie'
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import { TRPCError } from '@trpc/server'
 import jwt from 'jsonwebtoken'
-import { AccessTokenVerify } from './cryptography/jwt-verify'
 import type { JWTPayloadDTO } from '@python-editor/schemas/jwt-payload'
+import { AccessTokenVerify } from './infra/gateways/cryptography/jwt-verify'
 
 const accessTokenVerify = new AccessTokenVerify()
 

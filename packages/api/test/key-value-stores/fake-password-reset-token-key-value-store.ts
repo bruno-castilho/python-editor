@@ -1,4 +1,4 @@
-import type { IPasswordResetTokenKeyValueStore } from '../../src/key-value-stores/interfaces/password-reset-token-key-value-store'
+import type { IPasswordResetTokenKeyValueStore } from '../../src/domain/interfaces/valkey/password-reset-token-key-value-store'
 
 interface TokenEntry {
   userId: string

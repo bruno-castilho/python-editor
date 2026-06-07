@@ -1,4 +1,4 @@
-import { makeUploadProjectUseCase } from '@python-editor/api/use-cases/factories/make-upload-project'
+import { makeUploadProjectUseCase } from '@python-editor/api/infra/factories/make-upload-project'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function uploadProject(

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { Data } from './data'
-import type { IUsersRepository } from '../../src/repositories/interfaces/users-repository'
-import type { UserCreateParams } from '../../src/repositories/types/user'
+import type { IUsersRepository } from '../../src/domain/interfaces/repositories/users-repository'
+import type { UserCreateParams } from '../../src/domain/types/user'
 
 export class FakeUsersRepository implements IUsersRepository {
   constructor(private data: Data) {}

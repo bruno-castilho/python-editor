@@ -1,4 +1,4 @@
-import { makeUploadAvatar } from '@python-editor/api/use-cases/factories/make-upload-avatar'
+import { makeUploadAvatar } from '@python-editor/api/infra/factories/make-upload-avatar'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function uploadAvatar(

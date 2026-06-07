@@ -1,4 +1,4 @@
-import type { ISendPasswordReset } from '../../src/emails/interfaces/send-password-reset'
+import type { ISendPasswordReset } from '../../src/domain/interfaces/mail/send-password-reset'
 
 export class FakeSendPasswordReset implements ISendPasswordReset {
   public emailsSent: {

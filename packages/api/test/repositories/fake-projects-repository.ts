@@ -1,12 +1,12 @@
 import { v7 as uuidv7 } from 'uuid'
-import type { IProjectsRepository } from '../../src/repositories/interfaces/projects-repository'
+import type { IProjectsRepository } from '../../src/domain/interfaces/repositories/projects-repository'
 import type {
   Project,
   ProjectCreateParams,
   ProjectUpdateParams,
   ProjectWithSharedWith,
   SharedWithMeProjectListItem,
-} from '../../src/repositories/types/projects'
+} from '../../src/domain/types/projects'
 
 export class FakeProjectsRepository implements IProjectsRepository {
   public items: Project[] = []

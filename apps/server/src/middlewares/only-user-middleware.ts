@@ -1,7 +1,6 @@
+import { AccessTokenVerify } from '@python-editor/api/infra/gateways/cryptography/jwt-verify'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import jwt from 'jsonwebtoken'
-
-import { AccessTokenVerify } from '@python-editor/api/cryptography/jwt-verify'
 
 const accessTokenVerify = new AccessTokenVerify()
 

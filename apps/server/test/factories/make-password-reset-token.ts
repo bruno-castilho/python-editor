@@ -1,6 +1,6 @@
-import { PasswordResetTokenHashGenerator } from '@python-editor/api/cryptography/hash-generator'
-import { PasswordResetTokenGenerator } from '@python-editor/api/cryptography/token-generator'
-import { PasswordResetTokenKeyValueStore } from '@python-editor/api/key-value-stores/password-reset-token-key-value-store'
+import { PasswordResetTokenHashGenerator } from '@python-editor/api/infra/gateways/cryptography/hash-generator'
+import { PasswordResetTokenGenerator } from '@python-editor/api/infra/gateways/cryptography/token-generator'
+import { PasswordResetTokenKeyValueStore } from '@python-editor/api/infra/gateways/valkey/password-reset-token-key-value-store'
 
 export async function makePasswordResetToken(params: { userId: string }) {
   const { userId } = params
