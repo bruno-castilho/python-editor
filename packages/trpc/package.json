@@ -4,6 +4,12 @@
   "exports": {
     ".": {
       "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    },
+    "./test/*": {
+      "default": "./test/*.ts"
     }
   },
   "scripts": {
