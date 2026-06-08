@@ -1,8 +1,8 @@
 import fastifyCookie from '@fastify/cookie'
 import fastifyCors from '@fastify/cors'
 import fastifyMultipart from '@fastify/multipart'
-import { createContext } from '@python-editor/api/context'
-import { appRouter, type AppRouter } from '@python-editor/api/routers/index'
+import { createContext } from '@python-editor/trpc/context'
+import { appRouter, type AppRouter } from '@python-editor/trpc/routers/index'
 import { env } from '@python-editor/env/server'
 import {
   fastifyTRPCPlugin,

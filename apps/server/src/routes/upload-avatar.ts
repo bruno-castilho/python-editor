@@ -1,4 +1,4 @@
-import { makeUploadAvatar } from '@python-editor/api/use-cases/factories/make-upload-avatar'
+import { makeUploadAvatarUseCase } from '@python-editor/core/infra/factories/make-upload-avatar'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function uploadAvatar(
@@ -9,7 +9,7 @@ export async function uploadAvatar(
   const { buffer, contentType } = request.uploadedAvatarFile
 
   try {
-    const useCase = makeUploadAvatar()
+    const useCase = makeUploadAvatarUseCase()
     const { avatarUrl } = await useCase.execute({
       userId,
       fileBuffer: buffer,

@@ -1,5 +1,5 @@
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import type { AppRouter } from '@python-editor/api/routers/index'
+import type { AppRouter } from '@python-editor/trpc/routers/index'
 import type { AddressInfo } from 'node:net'
 import { app } from '@/app'
 

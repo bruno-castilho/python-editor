@@ -1,4 +1,4 @@
-import type { AppRouter } from '@python-editor/api/routers/index'
+import type { AppRouter } from '@python-editor/trpc/routers/index'
 
 import { env } from '@python-editor/env/web'
 import { QueryCache, QueryClient } from '@tanstack/react-query'
