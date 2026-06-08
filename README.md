@@ -1,6 +1,6 @@
 # Python Editor
 
-A web-based Python code editor designed for developers who want a fast, intelligent coding experience directly in the browser — no local setup required.
+A web-based Python code editor designed for developers who want a fast, intelligent coding experience directly in the browser — no local setup required. The editor is accessible at [https://python-editor.com/](https://python-editor.com/).
 
 The editor runs Python in-browser via Pyodide and integrates an AI chat assistant powered by [OpenRouter](https://openrouter.ai/). Users connect their own OpenRouter API key, choose any supported model, and the assistant automatically receives the content of the open files as context — making it useful for explaining code, debugging errors, or generating new snippets.
 
