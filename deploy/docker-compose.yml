@@ -3,9 +3,11 @@ services:
     image: nginx:stable-alpine
     restart: always
     ports:
-      - "80:80"                
+      - "80:80"       
+      - "443:443"         
     volumes:          
       - ./nginx/config:/etc/nginx/conf.d/
+      - /etc/letsencrypt/live/python-editor.com/:/etc/nginx/certs/
   web:
     image: brunoscastilho/python-editor-web:latest
     restart: always
