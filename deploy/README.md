@@ -5,8 +5,9 @@ This folder contains the production deployment configuration for Python Editor. 
 ## Architecture
 
 ```
-Nginx (80) → web (Next.js)
-           → server (Fastify) at /api/
+Nginx (80)  → redirect to HTTPS
+Nginx (443) → web (Next.js)
+            → server (Fastify) at /api/
 ```
 
 ## Services
@@ -18,6 +19,26 @@ Nginx (80) → web (Next.js)
 | `server` | `brunoscastilho/python-editor-server:latest` |
 
 All containers are configured with `restart: always`.
+
+## SSL Certificate
+
+The Nginx container expects the Let's Encrypt certificate and private key to be present on the host at `/etc/letsencrypt/live/python-editor.com/` before starting. Generate them with Certbot in standalone mode (run this **before** starting the stack for the first time, or while the stack is stopped):
+
+```bash
+certbot certonly --standalone \
+  -d python-editor.com \
+  -d www.python-editor.com
+```
+
+Certbot will place `fullchain.pem` and `privkey.pem` in `/etc/letsencrypt/live/python-editor.com/`, which Docker Compose mounts into the Nginx container at `/etc/nginx/certs/`.
+
+To renew the certificate, stop the stack, run `certbot renew`, then restart:
+
+```bash
+docker compose down
+certbot renew
+docker compose up -d
+```
 
 ## Running
 
@@ -62,9 +83,11 @@ Create a `.env` file alongside `docker-compose.yml` with the following variables
 
 ## Nginx
 
-[`nginx/config/default.conf`](nginx/config/default.conf) configures two upstreams:
+[`nginx/config/default.conf`](nginx/config/default.conf) configures two upstreams and two server blocks:
 
-- `/` → proxied to the `web` container.
-- `/api/` → proxied to the `server` container (the trailing slash strips `/api` from the upstream path).
+- Port **80** redirects all HTTP traffic to HTTPS (`301`).
+- Port **443** terminates TLS using the certificate mounted at `/etc/nginx/certs/` and proxies:
+  - `/` → `web` container
+  - `/api/` → `server` container (trailing slash strips `/api` from the upstream path)
 
-Both upstreams forward `Host` and `X-Real-IP` headers. The `server` upstream also sets `proxy_http_version 1.1` for keep-alive support.
+All upstreams forward `Host`, `X-Real-IP`, and `X-Forwarded-Proto` headers. The `server` upstream also sets `proxy_http_version 1.1` for keep-alive support.
