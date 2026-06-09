@@ -7,7 +7,7 @@ services:
       - "443:443"         
     volumes:          
       - ./nginx/config:/etc/nginx/conf.d/
-      - /etc/letsencrypt/live/python-editor.com/:/etc/nginx/certs/
+      - /etc/letsencrypt/archive/python-editor.com/:/etc/nginx/certs/
   web:
     image: brunoscastilho/python-editor-web:latest
     restart: always

@@ -22,7 +22,7 @@ All containers are configured with `restart: always`.
 
 ## SSL Certificate
 
-The Nginx container expects the Let's Encrypt certificate and private key to be present on the host at `/etc/letsencrypt/live/python-editor.com/` before starting. Generate them with Certbot in standalone mode (run this **before** starting the stack for the first time, or while the stack is stopped):
+The Nginx container expects the Let's Encrypt certificate and private key to be present on the host at `/etc/letsencrypt/archive/python-editor.com/` before starting. Generate them with Certbot in standalone mode (run this **before** starting the stack for the first time, or while the stack is stopped):
 
 ```bash
 certbot certonly --standalone \
@@ -30,7 +30,7 @@ certbot certonly --standalone \
   -d www.python-editor.com
 ```
 
-Certbot will place `fullchain.pem` and `privkey.pem` in `/etc/letsencrypt/live/python-editor.com/`, which Docker Compose mounts into the Nginx container at `/etc/nginx/certs/`.
+Certbot will place `fullchain.pem` and `privkey.pem` in `/etc/letsencrypt/archive/python-editor.com/`, which Docker Compose mounts into the Nginx container at `/etc/nginx/certs/`.
 
 To renew the certificate, stop the stack, run `certbot renew`, then restart:
 
