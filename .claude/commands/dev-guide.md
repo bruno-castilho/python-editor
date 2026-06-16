@@ -1,573 +1,147 @@
-You are assisting development on a **Turborepo monorepo** with a strict layered architecture. Apply every rule below when writing any new code. Do not deviate from established patterns unless the user explicitly requests it.
+## Primary directive
+
+This guide **must strictly follow what is written in the repository's `CLAUDE.md` files**: the
+root `CLAUDE.md` (`/CLAUDE.md`) and the `CLAUDE.md` of each package/app (`apps/server/CLAUDE.md`,
+`apps/web/CLAUDE.md`, `packages/core/CLAUDE.md`, `packages/trpc/CLAUDE.md`,
+`packages/db/CLAUDE.md`, `packages/schemas/CLAUDE.md`).
+
+- **In case of conflict**, the `CLAUDE.md` of the affected package/app overrides any rule or
+  example in this file.
+- **Before implementing anything**, read the `CLAUDE.md` of the package/app you are going to
+  touch — it contains the patterns, checklists, and known pitfalls for that layer, with examples
+  extracted from real code.
+- This file does not duplicate the content of the `CLAUDE.md` files — it only outlines the
+  general flow and gathers rules that are genuinely cross-cutting (language, naming,
+  TypeScript). Layer-specific implementation details live exclusively in that layer's
+  `CLAUDE.md`.
 
 ---
 
-## Language Standard
+## Architecture overview
 
-**All code artifacts must use English (en-US):**
-- Variable names, function names, class names, interface names
-- File names, directory names
-- Code comments and inline documentation
-- Error messages (both in code and thrown to the user)
-- Git commit messages and PR descriptions
-- Zod validation messages
+Turborepo monorepo with Clean Architecture. Request flow:
+
+```
+apps/web (Next.js, UI only)
+  → tRPC client (@trpc/tanstack-react-query)
+    → apps/server (Fastify — HTTP transport, no business logic)
+      → packages/trpc (routers — Zod validation + factory call, no business logic)
+        → packages/core (all business logic: use-cases, interfaces, factories, gateways)
+          → packages/db / packages/redis / packages/s3 / packages/mailer
+```
+
+Avatar and project uploads/downloads use custom REST routes in `apps/server` (not through tRPC),
+but follow the same principle: the route only handles I/O, the logic lives in `packages/core`.
+
+| Layer | Responsibility | Reference |
+|---|---|---|
+| `apps/web` | Next.js UI, consumes `AppRouter` | [apps/web/CLAUDE.md](../../apps/web/CLAUDE.md) |
+| `apps/server` | Fastify transport (tRPC plugin + file REST) | [apps/server/CLAUDE.md](../../apps/server/CLAUDE.md) |
+| `packages/trpc` | Routers + Zod validation, zero business logic | [packages/trpc/CLAUDE.md](../../packages/trpc/CLAUDE.md) |
+| `packages/core` | All business logic (Clean Architecture) | [packages/core/CLAUDE.md](../../packages/core/CLAUDE.md) |
+| `packages/db` | Prisma client + schema | [packages/db/CLAUDE.md](../../packages/db/CLAUDE.md) |
+| `packages/schemas` | Shared Zod schemas + DTOs | [packages/schemas/CLAUDE.md](../../packages/schemas/CLAUDE.md) |
 
 ---
 
-## Monorepo Layout & Responsibilities
+## Adding a new feature — checklist
 
-```
-apps/server/      Fastify 5 server — HTTP transport only (tRPC plugin + custom routes)
-apps/web/         Next.js 15 App Router — UI only, consumes tRPC client
-packages/api/     ALL business logic: tRPC routers, use-cases, repositories, interfaces
-packages/db/      Prisma client singleton — no logic, only exports client + generated types
-packages/redis/   ioredis singleton — no logic
-packages/s3/      AWS SDK S3Client — no logic
-packages/mailer/  Nodemailer singleton — no logic
-packages/env/     t3-oss env validation (server.ts / web.ts)
-packages/schemas/ Shared Zod schemas and inferred DTO types
-packages/test/    Shared Vitest config + fake implementations for unit tests
-```
+Follow this order. Each step points to the `CLAUDE.md` that has the exact pattern to follow.
 
-**Request flow:**
-```
-apps/web (React) → tRPC client → apps/server (Fastify) → packages/api (router → use-case → repository/KV/storage)
-```
+1. **Zod schema** → `packages/schemas/src/{name}.ts`, exporting the schema + inferred
+   `{Name}DTO`. See [packages/schemas/CLAUDE.md](../../packages/schemas/CLAUDE.md).
 
----
+2. **Business logic in `packages/core`** — follow the "How to Implement Something New" checklist
+   in [packages/core/CLAUDE.md](../../packages/core/CLAUDE.md): types → interfaces → domain
+   errors → use-case (`domain/use-cases/{name}.ts`) → spec (`.spec.ts`) → fakes (`test/`) →
+   gateways (`infra/gateways/`) → factory (`infra/factories/make-{name}.ts`).
 
-## Adding a New Feature — Mandatory Checklist
+3. **tRPC router** → `packages/trpc/src/routers/{domain}.ts`, calling the factory from
+   `packages/core` and using `publicProcedure`/`authenticatedProcedure`. See
+   [packages/trpc/CLAUDE.md](../../packages/trpc/CLAUDE.md).
 
-Follow these steps **in order** for every new feature:
+4. **Register the domain error**, if a new one was created, in the `ERROR_MAP` of
+   `packages/trpc/src/handle-error.ts` — never skip this step, or the error becomes a generic
+   `500`.
 
-1. **Zod schema** → `packages/schemas/src/{name}.ts`
-   - Export the schema and infer the DTO type: `export type {Name}DTO = z.infer<typeof {name}Schema>`
+5. **Non-tRPC REST route** (e.g., file upload/download) → handler in `apps/server/src/routes/`,
+   calling the same factory from `packages/core`. See
+   [apps/server/CLAUDE.md](../../apps/server/CLAUDE.md).
 
-2. **Interface(s)** → `packages/api/src/{layer}/interfaces/{name}.ts`
-   - For repositories: `IUsersRepository` pattern
-   - For KV stores: `IUserSessionsKeyValueStore` pattern
-   - For emails: `ISendEmailVerification` pattern
-
-3. **Use-case class** → `packages/api/src/use-cases/{feature-name}.ts`
-   - Constructor receives **only interfaces** as parameters
-   - Single public `execute({ dto, ...context })` method
-   - Returns plain data — never tRPC types, never HTTP types
-   - See canonical example: `packages/api/src/use-cases/sign-in.ts`
-
-4. **Factory** → `packages/api/src/use-cases/factories/make-{feature-name}.ts`
-   - Instantiates all concrete implementations
-   - Wires them into the use-case constructor
-   - Returns the configured use-case instance
-   - See canonical example: `packages/api/src/use-cases/factories/make-sign-in.ts`
-
-5. **Custom error(s)** → `packages/api/src/use-cases/errors/{error-name}.ts`
-   - Extend `Error` directly
-   - Name pattern: `{Domain}Error` (e.g., `InvalidCredentialsError`)
-
-6. **Register error** in `packages/api/src/handle-error.ts`
-   - Add entry to `ERROR_MAP`: `[YourCustomError, 'TRPC_CODE']`
-   - Never skip this step — unregistered errors will bubble as 500
-
-7. **tRPC router** → `packages/api/src/routers/{domain}.ts`
-   - Use `publicProcedure` or `authenticatedProcedure` (never raw `t.procedure`)
-   - Validate input with `.input(zodSchema)` — always
-   - Router body: call factory, call `execute()`, return response. Nothing else.
-   - Export from `packages/api/src/routers/index.ts`
-
-8. **Unit tests** → `packages/api/src/use-cases/{feature-name}.spec.ts`
-   - Cover: success path + every error path
-   - See canonical example: `packages/api/src/use-cases/sign-in.spec.ts`
-
-**For non-tRPC HTTP routes** (e.g., file uploads):
-- Add route handler in `apps/server/src/index.ts`
-- Create dedicated middleware(s) in `apps/server/src/middlewares/`
-- Still call a use-case via its factory for all business logic
+6. **Front-end consumption** → form with `react-hook-form` + `zodResolver` using the schema from
+   step 1, and/or `useQuery`/`useMutation` via `trpc.*`. See
+   [apps/web/CLAUDE.md](../../apps/web/CLAUDE.md).
 
 ---
 
-## Coding Standards
+## Cross-cutting rules (apply to every layer)
 
-### File Naming
-- All files: `kebab-case` (e.g., `sign-in.ts`, `make-register-user.ts`)
-- Test files: `{name}.spec.ts`
-- Interface files: `{name}.ts` inside an `interfaces/` subdirectory
+### Language
 
-### Naming Conventions
-| Construct | Convention | Example |
-|-----------|-----------|---------|
-| Classes | PascalCase | `SignInUseCase`, `UsersRepository` |
-| Interfaces | `I` prefix + PascalCase | `IUsersRepository`, `IJWTSign` |
-| Functions / variables | camelCase | `makeSignInUseCase`, `accessToken` |
-| DTO types | `{Name}DTO` suffix | `SignInDTO`, `JWTPayloadDTO` |
-| Error classes | `{Domain}Error` suffix | `InvalidCredentialsError` |
-| Zod schemas | `{name}Schema` | `signInSchema`, `registerUserSchema` |
-| Redis keys | `{entity}:{id}` | `session:uuid`, `password-reset-token:hash` |
+Every code artifact must be in English (en-US): variable/function/class/interface names, file
+and directory names, comments, error messages, Zod validation messages, commit messages, and PR
+descriptions.
 
 ### TypeScript
+
 - **Always** use `import type` for type-only imports (`verbatimModuleSyntax` is enforced)
-- Use path alias `@/*` for `./src/*` (e.g., `import { db } from '@/index'`)
-- No `any` — use proper inference or explicit union types
-- No unused variables or parameters (`noUnusedLocals` / `noUnusedParameters` enforced)
-- Array/object index access always accounts for `T | undefined` (`noUncheckedIndexedAccess` enforced)
-- Infer DTO types from Zod schemas: `z.infer<typeof schema>` — never duplicate type definitions
+- `noUncheckedIndexedAccess: true` — index access returns `T | undefined`, always handle it
+- `noUnusedLocals` / `noUnusedParameters: true` — no dead code
+- Never use `any`
+- Path alias `@/*` → `./src/*` within each package/app
+
+### Naming
+
+| Construct | Convention | Example |
+|---|---|---|
+| Files | kebab-case | `sign-in.ts`, `make-register-user.ts` |
+| Classes | PascalCase | `SignInUseCase`, `UsersRepository` |
+| Interfaces | `I` + PascalCase | `IUsersRepository`, `IHashGenerator` |
+| Functions/variables | camelCase | `makeSignInUseCase`, `accessToken` |
+| DTOs | `{Name}DTO` (via `z.infer`) | `SignInDTO` |
+| Domain errors | `{Domain}Error` | `InvalidCredentialsError` |
+| Zod schemas | `{name}Schema` | `signInSchema` |
+| Tests | `{name}.spec.ts` | `register-user.spec.ts` |
+
+Never use single-letter names (`a`, `e`, `i`, `x`) or generic context-free names (`data`, `obj`,
+`item`, `result`, `payload`) — prefer names that describe the domain (`createdUser`,
+`sessionToken`). Boolean functions must read as a predicate (`isExpired`, `hasPermission`).
+
+### Comments
+
+Do not comment on **what** the code does — rewrite it until it's obvious instead. Comments are
+only acceptable to explain **why** a non-obvious decision was made (business rule, legal
+constraint, known workaround).
+
+### Validation
+
+- `.input(schema)` is mandatory on every tRPC procedure — no input reaches a use-case without
+  Zod validation first
+- Never use deprecated Zod APIs (`z.string().email()`, `z.string().uuid()`, etc.) — always use
+  the current top-level form (`z.email()`, `z.uuid()`); this rule also applies to other
+  libraries: always check whether an API is deprecated before using it
 
 ---
 
-## Use-Case Pattern
-
-```typescript
-// packages/api/src/use-cases/example-feature.ts
-
-import type { IUsersRepository } from '@/repositories/interfaces/users-repository'
-import type { ExampleFeatureDTO } from '@packages/schemas/src/example-feature'
-import { SomeCustomError } from '@/use-cases/errors/some-custom-error'
-
-interface ExampleFeatureUseCaseParams {
-  dto: ExampleFeatureDTO
-}
-
-export class ExampleFeatureUseCase {
-  constructor(private usersRepository: IUsersRepository) {}
-
-  async execute({ dto }: ExampleFeatureUseCaseParams) {
-    const user = await this.usersRepository.findByEmail({ email: dto.email })
-    if (!user) throw new SomeCustomError()
-    // ... business logic
-    return { user }
-  }
-}
-```
-
----
-
-## Factory Pattern
-
-```typescript
-// packages/api/src/use-cases/factories/make-example-feature.ts
-
-import { ExampleFeatureUseCase } from '@/use-cases/example-feature'
-import { UsersRepository } from '@/repositories/users-repository'
-
-export function makeExampleFeatureUseCase() {
-  const usersRepository = new UsersRepository()
-  return new ExampleFeatureUseCase(usersRepository)
-}
-```
-
----
-
-## tRPC Router Pattern
-
-```typescript
-// packages/api/src/routers/domain.ts
-
-import { publicProcedure, authenticatedProcedure } from '@/index'
-import { exampleFeatureSchema } from '@packages/schemas/src/example-feature'
-import { makeExampleFeatureUseCase } from '@/use-cases/factories/make-example-feature'
-
-export const domainRouter = {
-  exampleFeature: authenticatedProcedure
-    .input(exampleFeatureSchema)
-    .mutation(async ({ input: dto, ctx }) => {
-      const useCase = makeExampleFeatureUseCase()
-      const result = await useCase.execute({ dto })
-      return { message: 'Done.', ...result }
-    }),
-}
-```
-
-**Router rules:**
-- No business logic in routers — only: call factory, call execute, return
-- No try/catch — error middleware handles it globally
-- Use `authenticatedProcedure` for any route that requires a logged-in user
-- Use `ctx.session.userId` (never trust user-supplied userId) for authenticated operations
-- **Always return a message**: every procedure must return a `message` field (e.g., `{ message: 'Done.', ...result }`), whether the operation succeeds or fails
-
----
-
-## Error Handling
-
-```typescript
-// packages/api/src/use-cases/errors/example-error.ts
-export class ExampleError extends Error {
-  constructor() {
-    super('Descriptive message in English.')
-  }
-}
-
-// packages/api/src/handle-error.ts — add to ERROR_MAP:
-[ExampleError, 'BAD_REQUEST'],
-```
-
-**Rules:**
-- Use-cases throw domain errors only — never `TRPCError`
-- Routers have no try/catch — the global `errorHandlerMiddleware` handles all errors
-- Every custom error must be registered in `ERROR_MAP`
-- `handle-error.ts` is the single source of truth for error → HTTP status mapping
-
----
-
-## Front-End Mutation Pattern
-
-When consuming a tRPC mutation in React components:
-
-**Naming conventions:**
-- Rename `mutate` → `{backendRouteName}Mutate` (e.g., `signInMutate`)
-- Rename `mutateAsync` → `{backendRouteName}MutateAsync` (e.g., `signInMutateAsync`)
-- Rename `isPending` → `isPending{BackendRouteName}` (e.g., `isPendingSignIn`)
-
-**Handler rule:**
-- Never call mutate functions directly inside JSX/HTML (e.g., `onClick={signInMutate}`)
-- Always invoke them through a named handler function (e.g., `onClick={handleSignIn}`)
-
-```typescript
-// ✅ Correct
-const { mutate: signInMutate, isPending: isPendingSignIn } = trpc.auth.signIn.useMutation()
-
-function handleSignIn() {
-  signInMutate({ email, password })
-}
-
-return <button onClick={handleSignIn} disabled={isPendingSignIn}>Sign in</button>
-
-// ❌ Wrong — mutate called directly in JSX, no renamed variables
-const { mutate, isPending } = trpc.auth.signIn.useMutation()
-return <button onClick={() => mutate({ email, password })} disabled={isPending}>Sign in</button>
-```
-
----
-
-## Testing Pattern
-
-```typescript
-// packages/api/src/use-cases/example-feature.spec.ts
-
-import { describe, it, expect, beforeEach } from 'vitest'
-import { ExampleFeatureUseCase } from '@/use-cases/example-feature'
-import { FakeUsersRepository } from '@test/repositories/fake-users-repository'
-import { SomeCustomError } from '@/use-cases/errors/some-custom-error'
-
-describe('ExampleFeatureUseCase', () => {
-  let sut: ExampleFeatureUseCase
-  let usersRepository: FakeUsersRepository
-
-  beforeEach(() => {
-    usersRepository = new FakeUsersRepository()
-    sut = new ExampleFeatureUseCase(usersRepository)
-  })
-
-  it('should succeed when ...', async () => {
-    // Arrange
-    usersRepository.items.users.push(/* seed data */)
-    // Act
-    const result = await sut.execute({ dto: { email: 'test@example.com' } })
-    // Assert
-    expect(result.user).toBeDefined()
-  })
-
-  it('should throw SomeCustomError when ...', async () => {
-    await expect(
-      sut.execute({ dto: { email: 'notfound@example.com' } })
-    ).rejects.toBeInstanceOf(SomeCustomError)
-  })
-})
-```
-
-**Testing rules:**
-- Use `beforeEach()` for setup — never `beforeAll()`
-- Always name the system under test `sut`
-- Use fakes from `packages/api/test/` — never real DB, Redis, mailer, or S3
-- Assertions on fake state (e.g., `usersRepository.items.users.length`) are valid
-- Run a single test file: `npx vitest run packages/api/src/use-cases/{name}.spec.ts`
-- **One happy-path test only**: create exactly one test for the success path; its description must start with `"should be able"`
-- **One test per exception**: create a separate test for each error/exception case; each description must start with `"should not be able"`
-
----
-
-## E2E Testing Pattern
-
-E2E tests cover full request cycles through the real Fastify server, real database (isolated schema), and real infrastructure (Redis, Mailhog). Write one e2e test per router — one `it()` per procedure, happy path only.
-
-### File location and naming
-- Co-locate with the router: `packages/api/src/routers/{domain}.e2e-spec.ts`
-- Matched by `vitest.config.e2e.ts` via `**/*.e2e-spec.ts`
-- Run all e2e tests: `npm run test:e2e`
-
-### Server setup (per `describe` block)
-
-```typescript
-import Fastify, { type FastifyInstance } from 'fastify'
-import fastifyCookie from '@fastify/cookie'
-import { fastifyTRPCPlugin, type FastifyTRPCPluginOptions } from '@trpc/server/adapters/fastify'
-import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import type { AddressInfo } from 'node:net'
-import { appRouter, type AppRouter } from './index'
-import { createContext } from '../context'
-
-let app: FastifyInstance
-let client: ReturnType<typeof createTRPCClient<AppRouter>>
-let baseUrl: string
-
-describe('Domain Router', () => {
-  beforeEach(async () => {
-    app = Fastify({ logger: false })
-    app.register(fastifyCookie)
-    app.register(fastifyTRPCPlugin, {
-      prefix: '/trpc',
-      trpcOptions: { router: appRouter, createContext } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
-    })
-
-    await app.listen({ port: 0 })
-    const { port } = app.server.address() as AddressInfo
-    baseUrl = `http://localhost:${port}`
-
-    client = createTRPCClient<AppRouter>({
-      links: [httpBatchLink({ url: `${baseUrl}/trpc` })],
-    })
-  })
-
-  afterEach(async () => {
-    await app.close()
-  })
-})
-```
-
-**Rules:**
-- Use `beforeEach`/`afterEach` — never `beforeAll`/`afterAll` for the server
-- Register only `fastifyCookie` + `fastifyTRPCPlugin` — no multipart, no other routes
-- Always `port: 0` so the OS picks a free port
-
-### Database seeding
-
-```typescript
-import { makePrismaUser } from '../../test/factories/make-user'
-
-const { email } = await makePrismaUser({})                              // defaults
-const { email } = await makePrismaUser({ emailVerified: true })         // overrides
-```
-
-The global `setup-e2e.ts` creates a unique PostgreSQL schema per run and flushes Redis — no manual cleanup needed per test.
-
-### Authenticated requests
-
-```typescript
-import { PasswordHashGenerator } from '../cryptography/hash-generator'
-import { signInUser } from '../../test/utils/sign-in-user'
-import { createAuthClient } from '../../test/utils/create-auth-client'
-
-const password = '@Password1'
-const hashedPassword = await new PasswordHashGenerator().hash(password)
-const { email } = await makePrismaUser({ hashedPassword, emailVerified: true })
-
-const accessToken = await signInUser(client, email, password)
-const authClient = createAuthClient(baseUrl, accessToken)
-
-const result = await authClient.domain.protectedProcedure.query()
-```
-
-### Email token extraction (Mailhog)
-
-Copy `getEmailToken` + `decodeBody` from `packages/api/src/routers/users.e2e-spec.ts` into any test file that involves email flows.
-
-```typescript
-const token = await getEmailToken(recipientEmail)
-```
-
-The function calls the Mailhog API, walks all MIME parts, decodes quoted-printable and base64, and extracts the token via regex.
-
-### Assertions
-
-```typescript
-expect(result.message).toBe('Expected message.')   // mutations
-expect(result.user.email).toBe(email)              // queries returning data
-```
-
-### E2E anti-patterns
+## Anti-patterns — never do these
 
 | Anti-pattern | Why |
 |---|---|
-| Using fake repositories or fake mailer | E2E tests must hit real infrastructure |
-| `beforeAll`/`afterAll` for the Fastify server | Leads to state leakage between tests |
-| Testing error/exception paths | That belongs in use-case unit tests |
-| More than one `it()` per procedure | One happy-path test per endpoint is enough |
-| Asserting on internal state (e.g., DB rows) | Assert only on the tRPC response |
-
-### Reference files
-
-- **Canonical example**: `packages/api/src/routers/users.e2e-spec.ts`
-- **Global setup**: `setup-e2e.ts` + `vitest.config.e2e.ts`
-- **Test utilities**: `packages/api/test/utils/sign-in-user.ts`, `packages/api/test/utils/create-auth-client.ts`
-- **Factory**: `packages/api/test/factories/make-user.ts`
-
----
-
-## Security & Authentication
-
-- **Access token**: HS256 JWT, 1h expiry, passed as `Authorization: Bearer <token>`
-- **Refresh token**: RS256 JWT, 7d expiry, `httpOnly` + `secure` + `sameSite: strict` cookie
-- Sessions stored in Redis with TTL; individual revocation supported
-- **Always** use `authenticatedProcedure` for protected routes — never check the token manually
-- **Never** expose `hashedPassword` from repositories — use Prisma `omit` or select specific fields
-- **Never** trust a `userId` from the request body in authenticated routes — always use `ctx.session.userId`
-
----
-
-## Validation
-
-- Define Zod schemas in `packages/schemas/src/` and infer DTO types from them
-- Add `.input(schema)` on every tRPC procedure — no raw unvalidated input ever reaches a use-case
-- For JWT payloads: always parse with Zod at the point of verification (`jwtPayloadSchema.parse(payload)`)
-- Validation error messages must be written in English (en-US)
-- **Never use deprecated Zod APIs** — always prefer the current top-level form:
-
-| Deprecated | Use instead |
-|---|---|
-| `z.string().uuid()` | `z.uuid()` |
-| `z.string().email()` | `z.email()` |
-| `z.string().url()` | `z.url()` |
-| `z.string().ip()` | `z.ip()` |
-| `z.string().emoji()` | `z.emoji()` |
-| `z.string().base64()` | `z.base64()` |
-
-This principle applies beyond Zod: **always verify that deprecated APIs or patterns are not used in any library**, and prefer the current recommended alternatives according to the official documentation.
-
----
-
-## Use-Case Purity — No External Dependencies
-
-Use-cases must contain **only pure business rules**. They are infrastructure-agnostic by design.
-
-**Prohibited inside use-cases:**
-- Importing or calling Prisma, Redis, S3, Nodemailer, or any other infrastructure module directly
-- Importing from `packages/db`, `packages/redis`, `packages/s3`, or `packages/mailer`
-- Using any external library or framework that couples the use-case to a delivery mechanism
-
-**Allowed inside use-cases:**
-- Calling methods on injected interfaces (`IUsersRepository`, `IMailer`, etc.)
-- Importing domain error classes from `@/use-cases/errors/`
-- Importing DTO types from `@packages/schemas/`
-- Pure language built-ins (`Date`, `crypto.randomUUID`, etc.)
-
-This rule enforces the dependency rule of Clean Architecture: the domain layer must never depend on the infrastructure layer.
-
----
-
-## Repository Type Standardization
-
-The input and output types of all `Repository` classes must be derived from Prisma-generated types.
-
-- Use types from `packages/api/src/repositories/types/` as the reference for repository method signatures
-- Never redefine a type that already exists as a Prisma model or Prisma utility type (e.g., `Prisma.UserCreateInput`)
-- When a Prisma type covers the use-case exactly, use it directly — do not wrap it in a redundant interface
-- Input/output types on `IRepository` interfaces must mirror what the concrete Prisma-backed implementation actually accepts and returns
-
-```typescript
-// ✅ Correct — reuses Prisma-generated type
-import type { User } from '@packages/db'
-
-interface IUsersRepository {
-  findByEmail({ email }: { email: string }): Promise<User | null>
-}
-
-// ❌ Wrong — duplicates a type Prisma already provides
-interface UserRecord {
-  id: string
-  email: string
-  // ... redeclaring what Prisma already generated
-}
-```
-
----
-
-## Naming Best Practices
-
-Names must be **clear, complete, and self-descriptive**. A reader must understand the intent without needing a comment or mental decoding.
-
-**Prohibited:**
-- Single-letter or single-character names: `a`, `b`, `i`, `e`, `x`, `n`
-- Generic, context-free names: `data`, `obj`, `item`, `temp`, `val`, `result`, `info`, `payload` (use a domain-specific name instead, e.g., `createdUser`, `sessionToken`)
-- Abbreviations that obscure meaning:
-
-| Abbreviation | Use instead |
-|---|---|
-| `bg` | `background` |
-| `cfg` | `config` |
-| `usr` | `user` |
-| `btn` | `button` |
-| `err` | `error` |
-| `msg` | `message` |
-| `req` / `res` | `request` / `response` |
-| `idx` | `index` |
-| `cnt` | `count` |
-| `repo` | `repository` (or full variable name like `usersRepository`) |
-
-**Required:**
-- Function names must describe the action and subject: `findUserByEmail`, `sendPasswordResetEmail`, `createProjectStorage`
-- Boolean variables and functions must read as a predicate: `isExpired`, `hasPermission`, `userExists`
-- Loop variables must be named after what they represent: `for (const session of activeSessions)`, not `for (const s of sessions)`
-
----
-
-## Readability Over Comments
-
-**Do not use comments to explain what the code does.** If a comment is needed to explain logic, rewrite the logic until it is self-evident.
-
-**Prohibited:**
-```typescript
-// ❌ Comment explains what the code is doing — rewrite instead
-// Check if token is expired
-if (Date.now() > payload.exp * 1000) throw new TokenExpiredError()
-
-// ❌ Comment restates the variable name
-const u = await repo.find(id) // get user
-```
-
-**Allowed (rare exceptions):**
-- Comments that explain **why** a non-obvious decision was made (business rule, legal constraint, known workaround)
-- JSDoc on public interface methods when the signature alone is ambiguous
-
-```typescript
-// ✅ Explains a non-obvious business rule, not the mechanics
-// Prisma omit is used here to prevent hashed passwords from leaking into use-case return values
-const user = await db.user.findUnique({ where: { email }, omit: { hashedPassword: true } })
-```
-
-Write code that reads like well-structured prose. Rename, extract, and restructure until the intent is obvious.
-
----
-
-## Anti-Patterns — Never Do These
-
-| Anti-pattern | Why |
-|---|---|
-| Business logic inside tRPC routers | Routers are transport — logic belongs in use-cases |
-| Importing concrete classes inside use-cases | Breaks testability — use interfaces only |
-| Importing infrastructure packages inside use-cases | Violates Clean Architecture's dependency rule |
-| Throwing `TRPCError` from a use-case | Use-cases are framework-agnostic — throw domain errors |
-| Skipping `.input(schema)` on a procedure | All inputs must be validated |
-| Using `any` type | Defeats TypeScript's purpose; fails type check |
-| Direct Prisma/Redis/S3 calls outside their layer | Breaks separation of concerns |
-| Redefining types already provided by Prisma | Causes drift and duplication — reuse Prisma types |
-| Generic or abbreviated variable names | Reduces readability and increases cognitive load |
-| Comments that explain what the code does | Code must be self-explanatory — rewrite unclear logic |
+| Business logic in a tRPC router or Fastify route | Transport has no logic — it lives in `packages/core` |
+| Use-case importing a concrete class or infra package | Breaks Clean Architecture — see `packages/core/CLAUDE.md` |
+| `TRPCError` thrown by a use-case | Use-cases throw domain errors; `errorHandlerMiddleware` converts them |
+| Skipping `.input(schema)` on a procedure | Every input must be validated |
+| Using `any` | Defeats type-checking |
+| Redefining a type the Prisma already generates | Use the generated types in `packages/db` |
 | `console.log` in committed code | Use structured error handling instead |
-| Deprecated API usage (e.g., `z.string().uuid()` instead of `z.uuid()`) | Always use current recommended APIs per official documentation |
-| Creating new packages for single-use utilities | Reuse existing packages; only create packages for truly cross-cutting concerns |
-| Using `beforeAll()` in tests | Leads to state leakage between tests |
+| Deprecated API (Zod or any other library) | Always prefer the current recommended form |
 | Non-English identifiers, comments, or messages | Violates the project's language standard |
+| Creating an `index.ts` barrel in `packages/core` or `packages/schemas` | Breaks the wildcard export system — see the respective `CLAUDE.md` |
 
 ---
 
-## Reference Files
+## Reference
 
-When implementing a new feature, consult these canonical examples:
-
-- **Use-case pattern**: `packages/api/src/use-cases/sign-in.ts`
-- **Factory pattern**: `packages/api/src/use-cases/factories/make-sign-in.ts`
-- **Router pattern**: `packages/api/src/routers/auth.ts`
-- **Error mapping**: `packages/api/src/handle-error.ts`
-- **Procedure definitions**: `packages/api/src/index.ts`
-- **Test pattern**: `packages/api/src/use-cases/sign-in.spec.ts`
-- **Fake implementations**: `packages/api/test/`
-- **Zod schema + DTO pattern**: `packages/schemas/src/`
-- **Environment validation**: `packages/env/src/server.ts`
+For any question about a layer-specific pattern — code examples, testing conventions, known
+pitfalls — **consult that layer's `CLAUDE.md` before asking or assuming anything**. They are the
+source of truth and are kept up to date with the code.
