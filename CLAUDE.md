@@ -2,25 +2,32 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+This is `python-editor`: an online Python editor (Monaco + Pyodide) with personal/shared
+projects and an OpenRouter-backed AI chat.
+
 ## Commands
 
 ```bash
 # Development
 npm run dev            # all apps
-npm run dev:web        # web only
-npm run dev:server     # server only
-npm run dev:native     # native app only
+npm run dev:web        # web only (port 3001)
+npm run dev:server     # server only (port 3000)
 
 # Build
 npm run build
 
-# Testing
-npm test               # run all tests once
+# Unit tests (live in packages/core only)
+npm test               # run once
 npm run test:watch     # watch mode
 npm run test:cov       # with coverage
 npm run test:debug     # with Node inspector (--inspect-brk)
-npm run test:e2e       # e2e suite (vitest.config.e2e.ts)
-npm run test:e2e:watch # e2e watch mode
+
+# E2E tests (per app, not a single root suite)
+npm run test:e2e:server      # vitest e2e against the real Fastify server
+npm run test:e2e:watch:server
+npm run test:e2e:web         # Playwright against apps/web
+npm run test:e2e:ui:web
+npm run test:e2e:report:web
 
 # Linting & type checking
 npm run lint
@@ -34,41 +41,62 @@ npm run db:generate    # regenerate Prisma client
 npm run db:studio      # open Prisma Studio
 ```
 
-Run a single test file: `npx vitest run packages/api/src/use-cases/sign-in.spec.ts`
+Run a single test file: `npx vitest run packages/core/src/domain/use-cases/sign-in.spec.ts`
 
 ## Architecture
 
 **Turborepo monorepo** with two apps and several shared packages:
 
 ```
-apps/server/      – Fastify 5 server (port 3000), tRPC endpoint at /trpc
-apps/web/         – Next.js 15 App Router frontend (port 3001)
-packages/api/     – All business logic: tRPC routers + use-case functions
-packages/db/      – Prisma client + generated types (PostgreSQL)
+apps/server/      – Fastify 5 server (port 3000): HTTP transport only, no business logic.
+                     tRPC endpoint at /trpc plus a few custom REST routes for file I/O
+                     (avatar/project upload-download). See apps/server/CLAUDE.md
+apps/web/         – Next.js 15 App Router frontend (port 3001): UI only, consumes the
+                     tRPC client. See apps/web/CLAUDE.md
+packages/trpc/    – Thin routing layer: tRPC routers + Zod input validation, calls into
+                     packages/core via factories. No business logic, no tests of its own.
+                     See packages/trpc/CLAUDE.md
+packages/core/    – All business logic, Clean Architecture: domain/ (use-cases,
+                     interfaces, errors, types) + infra/ (gateways implementing those
+                     interfaces, factories for DI) + test/ (fakes). See packages/core/CLAUDE.md
+packages/db/      – Prisma client + generated types (PostgreSQL). See packages/db/CLAUDE.md
+packages/schemas/ – Shared Zod schemas + inferred DTOs. See packages/schemas/CLAUDE.md
 packages/env/     – t3-oss env validation (separate server/web envs)
-packages/schemas/ – Shared Zod schemas
 packages/redis/   – ioredis wrapper
 packages/s3/      – AWS SDK S3 client (MinIO in dev)
 packages/mailer/  – Nodemailer wrapper (MailHog in dev)
-packages/test/    – Shared Vitest config
+packages/config/  – Shared tsconfig.base.json
+packages/eslint/  – Shared ESLint config
 ```
+
+Each package/app listed above with a `CLAUDE.md` reference has its own detailed doc — read it
+before making changes in that area instead of relying on this overview.
 
 ### Request flow
 
-Frontend → tRPC client (`@trpc/react-query`) → `apps/server` (Fastify + `fastifyTRPCPlugin`) → `packages/api` routers → use-case functions → `packages/db` / `packages/redis` / `packages/s3`
+`apps/web` → tRPC client (`@trpc/tanstack-react-query`) → `apps/server` (Fastify +
+`fastifyTRPCPlugin`) → `packages/trpc` routers (validation only) → use-cases in `packages/core`
+→ `packages/db` / `packages/redis` / `packages/s3` / `packages/mailer`.
 
-Avatar uploads go to a separate `POST /upload-avatar` route on the Fastify server (using `@fastify/multipart`) rather than through tRPC.
+Avatar and project uploads/downloads go through separate REST routes on the Fastify server
+(`@fastify/multipart`) rather than tRPC.
 
 ### Auth
 
 - **Access token**: short-lived JWT in `Authorization: Bearer` header
-- **Refresh token**: long-lived RSA-signed JWT in an `httpOnly` cookie
+- **Refresh token**: long-lived JWT in an `httpOnly` cookie
 - Sessions are stored in Redis so they can be listed and individually revoked
-- `authenticatedProcedure` in `packages/api` validates the access token and injects `userId` into tRPC context
+- Session/JWT use-cases and interfaces live in `packages/core` (e.g. `session-refresh`,
+  `get-user-sessions`, `revoke-user-session`); `packages/trpc`'s `authenticatedProcedure` only
+  calls into them via factories to inject `userId` into tRPC context
 
 ### Business logic pattern
 
-Use-cases in `packages/api/src/use-cases/` receive all dependencies (repositories, JWT signers, mailer, etc.) as constructor/function parameters — making them fully unit-testable with fakes. Test fakes live in `packages/api/test/`.
+Use-cases in `packages/core/src/domain/use-cases/` receive all dependencies (repositories, JWT
+signers, mailer, key-value stores, etc.) as constructor parameters defined by interfaces in
+`domain/interfaces/` — making them fully unit-testable with fakes. Concrete implementations live
+in `infra/gateways/`, wired up by `infra/factories/make-*.ts`. Test fakes live in
+`packages/core/test/`.
 
 ### Infrastructure (local dev via Docker Compose)
 
