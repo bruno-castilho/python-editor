@@ -1,5 +1,6 @@
 import type { IProjectsRepository } from '../interfaces/repositories/projects-repository'
 import type { IUsersRepository } from '../interfaces/repositories/users-repository'
+import type { ISendProjectInvitation } from '../interfaces/mail/send-project-invitation'
 import type { ShareProjectDTO } from '@python-editor/schemas/share-project'
 import { CannotShareProjectWithYourselfError } from '../errors/cannot-share-project-with-yourself-error'
 import { NotAllowedToShareProjectError } from '../errors/not-allowed-to-share-project-error'
@@ -16,6 +17,7 @@ export class ShareProjectUseCase {
     private avatarDownloadBaseUrl: string,
     private projectsRepository: IProjectsRepository,
     private usersRepository: IUsersRepository,
+    private sendProjectInvitation: ISendProjectInvitation,
   ) {}
 
   async execute({ dto, userId }: ShareProjectUseCaseParams) {
@@ -40,6 +42,12 @@ export class ShareProjectUseCase {
       userId: targetUser.id,
     })
 
+    this.sendInvitationEmail({
+      email: dto.email,
+      projectName: project.name,
+      userId,
+    })
+
     return {
       sharedUser: {
         avatar: targetUser.avatar,
@@ -51,6 +59,24 @@ export class ShareProjectUseCase {
           ? `${this.avatarDownloadBaseUrl}/${targetUser.avatar}`
           : null,
       },
+    }
+  }
+
+  private async sendInvitationEmail(params: {
+    email: string
+    projectName: string
+    userId: string
+  }) {
+    const { email, projectName, userId } = params
+
+    const owner = await this.usersRepository.findById({ userId })
+
+    if (owner) {
+      this.sendProjectInvitation.send({
+        email,
+        projectName,
+        ownerName: `${owner.name} ${owner.lastName}`,
+      })
     }
   }
 }

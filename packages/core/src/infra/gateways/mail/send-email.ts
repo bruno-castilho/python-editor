@@ -3,6 +3,7 @@ import { env } from '@python-editor/env/server'
 import type { ISendPasswordReset } from '../../../domain/interfaces/mail/send-password-reset'
 import mailer from '@python-editor/mailer/index'
 import type { ISendEmailVerification } from '../../../domain/interfaces/mail/send-email-verification'
+import type { ISendProjectInvitation } from '../../../domain/interfaces/mail/send-project-invitation'
 
 abstract class SendEmail {
   protected async sendEmail(params: {
@@ -134,6 +135,43 @@ export class SendEmailVerification
         </tr>
       </table>
       <p style="margin:28px 0 0;font-size:13px;color:#57606A;line-height:1.6;">If the button does not work, copy and paste this link into your browser:<br /><a href="${verificationLink}" style="color:#3776AB;word-break:break-all;">${verificationLink}</a></p>
+    `
+  }
+}
+
+export class SendProjectInvitation
+  extends SendEmail
+  implements ISendProjectInvitation
+{
+  public async send(params: {
+    email: string
+    projectName: string
+    ownerName: string
+  }) {
+    const { email, projectName, ownerName } = params
+    const appLink = env.CORS_ORIGIN
+
+    await this.sendEmail({
+      to: email,
+      subject: `You've been invited to collaborate on "${projectName}"`,
+      title: 'Project invitation',
+      bodyHtml: this.bodyHtml(projectName, ownerName, appLink),
+    })
+  }
+
+  private bodyHtml(projectName: string, ownerName: string, appLink: string) {
+    return `
+      <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#1F2328;">You've been invited to a project!</h2>
+      <p style="margin:0 0 12px;font-size:15px;color:#1F2328;line-height:1.6;"><strong>${ownerName}</strong> has shared the project <strong>&ldquo;${projectName}&rdquo;</strong> with you on Python Editor.</p>
+      <p style="margin:0 0 28px;font-size:14px;color:#57606A;line-height:1.6;">Click the button below to open Python Editor and access the project under <em>Shared with me</em>.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+        <tr>
+          <td align="center" style="border-radius:6px;background-color:#FFD43B;">
+            <a href="${appLink}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#1F2328;text-decoration:none;border-radius:6px;font-family:Arial,Helvetica,sans-serif;">Open Python Editor</a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:28px 0 0;font-size:13px;color:#57606A;line-height:1.6;">If the button does not work, copy and paste this link into your browser:<br /><a href="${appLink}" style="color:#3776AB;word-break:break-all;">${appLink}</a></p>
     `
   }
 }
