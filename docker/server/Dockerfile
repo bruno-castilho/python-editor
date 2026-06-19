@@ -32,7 +32,7 @@ RUN bun db:generate
 
 # Copy assets
 RUN mkdir -p /assets \
- && cp /src/apps/server/src/assets/* /assets
+ && cp /src/packages/core/src/assets/* /assets
 
 
 # Build and compile the server into a standalone executable
