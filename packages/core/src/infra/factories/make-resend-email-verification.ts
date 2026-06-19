@@ -4,7 +4,7 @@ import { UsersRepository } from '../gateways/repositories/users-repository'
 import { EmailVerificationTokenGenerator } from '../gateways/cryptography/token-generator'
 import { EmailVerificationTokenHashGenerator } from '../gateways/cryptography/hash-generator'
 import { EmailVerificationTokenKeyValueStore } from '../gateways/valkey/email-verification-token-key-value-store'
-import { SendEmailVerification } from '../gateways/mail/send-email'
+import { SendEmailVerification } from '../gateways/email/send-email'
 
 export function makeResendEmailVerificationUseCase() {
   const usersRepository = new UsersRepository(db.prisma)

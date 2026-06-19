@@ -3,7 +3,7 @@ import { ShareProjectUseCase } from '../../domain/use-cases/share-project'
 import { env } from '@python-editor/env/server'
 import { ProjectsRepository } from '../gateways/repositories/projects-repository'
 import { UsersRepository } from '../gateways/repositories/users-repository'
-import { SendProjectInvitation } from '../gateways/mail/send-email'
+import { SendProjectInvitation } from '../gateways/email/send-email'
 
 export function makeShareProjectUseCase() {
   const projectsRepository = new ProjectsRepository(db.prisma)

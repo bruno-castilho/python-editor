@@ -1,6 +1,6 @@
 import type { ForgotPasswordDTO } from '@python-editor/schemas/forgot-password'
 import type { ITokenGenerator } from '../interfaces/cryptography/token-generator'
-import type { ISendPasswordReset } from '../interfaces/mail/send-password-reset'
+import type { ISendPasswordReset } from '../interfaces/email/send-password-reset'
 import type { IPasswordResetTokenKeyValueStore } from '../interfaces/valkey/password-reset-token-key-value-store'
 import type { IUsersRepository } from '../interfaces/repositories/users-repository'
 import type { IHashGenerator } from '../interfaces/cryptography/hash-generator'

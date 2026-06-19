@@ -1,10 +1,17 @@
 import { env } from '@python-editor/env/server'
-import type { ISendPasswordReset } from '../../../domain/interfaces/mail/send-password-reset'
+import type { ISendPasswordReset } from '../../../domain/interfaces/email/send-password-reset'
 import mailer from '@python-editor/mailer/index'
-import type { ISendEmailVerification } from '../../../domain/interfaces/mail/send-email-verification'
-import type { ISendProjectInvitation } from '../../../domain/interfaces/mail/send-project-invitation'
+import type { ISendEmailVerification } from '../../../domain/interfaces/email/send-email-verification'
+import type { ISendProjectInvitation } from '../../../domain/interfaces/email/send-project-invitation'
+import { readFileSync } from 'fs'
 
 abstract class SendEmail {
+  private static readonly logoBuffer = readFileSync(
+    env.NODE_ENV === 'production'
+      ? new URL('file:///assets/logo.png')
+      : new URL('../../../assets/logo.png', import.meta.url),
+  )
+
   protected async sendEmail(params: {
     to: string
     subject: string
@@ -30,8 +37,6 @@ abstract class SendEmail {
     title: string
     bodyHtml: string
   }): Promise<string> {
-    const logoUrl = `${env.CORS_ORIGIN}/logo.svg`
-
     return `<!DOCTYPE html>
             <html lang="en">
               <head>
@@ -46,7 +51,7 @@ abstract class SendEmail {
                       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#FFFFFF;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                         <tr>
                           <td align="center" style="background-color:#3776AB;padding:28px 40px;">
-                            <img src="${logoUrl}" width="72" height="72" alt="Python Editor" style="display:block;margin:0 auto 12px;" />
+                            <img src="data:image/png;base64,${SendEmail.logoBuffer.toString('base64')}" width="72" height="72" alt="Python Editor" style="display:block;margin:0 auto 12px;" />
                             <span style="display:block;font-size:22px;font-weight:700;color:#FFFFFF;letter-spacing:0.5px;">Python Editor</span>
                           </td>
                         </tr>
