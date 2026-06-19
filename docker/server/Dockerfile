@@ -30,11 +30,6 @@ WORKDIR /src/packages/db
 
 RUN bun db:generate
 
-# Copy assets
-RUN mkdir -p /assets \
- && cp /src/packages/core/src/assets/* /assets
-
-
 # Build and compile the server into a standalone executable
 WORKDIR /src/apps/server
 
@@ -56,6 +51,7 @@ RUN apt-get update && apt-get install -y \
 RUN addgroup --system --gid 1001 server \
     && adduser --system --uid 1001 --ingroup server appuser
 
+COPY --from=builder --chown=appuser:server /src/packages/core/src/assets /assets
 COPY --from=builder --chown=appuser:server /src/node_modules/geoip-lite/data /src/node_modules/geoip-lite/data
 COPY --from=builder --chown=appuser:server /src/apps/server/server ./server
 
