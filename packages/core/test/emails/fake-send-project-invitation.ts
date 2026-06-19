@@ -1,4 +1,4 @@
-import type { ISendProjectInvitation } from '../../src/domain/interfaces/mail/send-project-invitation'
+import type { ISendProjectInvitation } from '../../src/domain/interfaces/email/send-project-invitation'
 
 export class FakeSendProjectInvitation implements ISendProjectInvitation {
   public emailsSent: {

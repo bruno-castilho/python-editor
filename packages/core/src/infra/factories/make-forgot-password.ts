@@ -4,7 +4,7 @@ import { PasswordResetTokenGenerator } from '../gateways/cryptography/token-gene
 import { PasswordResetTokenHashGenerator } from '../gateways/cryptography/hash-generator'
 import { PasswordResetTokenKeyValueStore } from '../gateways/valkey/password-reset-token-key-value-store'
 import { ForgotPasswordUseCase } from '../../domain/use-cases/forgot-password'
-import { SendPasswordReset } from '../gateways/mail/send-email'
+import { SendPasswordReset } from '../gateways/email/send-email'
 
 export function makeForgotPasswordUseCase() {
   const usersRepository = new UsersRepository(db.prisma)

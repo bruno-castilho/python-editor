@@ -1,6 +1,6 @@
 import type { IProjectsRepository } from '../interfaces/repositories/projects-repository'
 import type { IUsersRepository } from '../interfaces/repositories/users-repository'
-import type { ISendProjectInvitation } from '../interfaces/mail/send-project-invitation'
+import type { ISendProjectInvitation } from '../interfaces/email/send-project-invitation'
 import type { ShareProjectDTO } from '@python-editor/schemas/share-project'
 import { CannotShareProjectWithYourselfError } from '../errors/cannot-share-project-with-yourself-error'
 import { NotAllowedToShareProjectError } from '../errors/not-allowed-to-share-project-error'

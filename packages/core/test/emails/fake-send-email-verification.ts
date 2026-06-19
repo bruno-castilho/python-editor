@@ -1,4 +1,4 @@
-import type { ISendEmailVerification } from '../../src/domain/interfaces/mail/send-email-verification'
+import type { ISendEmailVerification } from '../../src/domain/interfaces/email/send-email-verification'
 
 export class FakeSendEmailVerification implements ISendEmailVerification {
   public emailsSsent: {

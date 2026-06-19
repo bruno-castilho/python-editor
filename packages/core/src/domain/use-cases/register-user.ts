@@ -1,6 +1,6 @@
 import type { RegisterUserDTO } from '@python-editor/schemas/register-user'
 import type { ITokenGenerator } from '../interfaces/cryptography/token-generator'
-import type { ISendEmailVerification } from '../interfaces/mail/send-email-verification'
+import type { ISendEmailVerification } from '../interfaces/email/send-email-verification'
 import type { IEmailVerificationTokenKeyValueStore } from '../interfaces/valkey/email-verification-token-key-value-store'
 import type { IUsersRepository } from '../interfaces/repositories/users-repository'
 import { UserAlreadyExistsError } from '../errors/user-already-exists-error'
