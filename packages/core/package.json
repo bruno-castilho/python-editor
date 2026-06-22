@@ -22,7 +22,7 @@
     "dotenv": "^17.2.2",
     "jsonwebtoken": "^9.0.3",
     "@node-rs/argon2": "^2.0.2",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {
